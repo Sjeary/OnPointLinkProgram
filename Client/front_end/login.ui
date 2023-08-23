@@ -33,7 +33,7 @@
       <widget class="QLabel" name="label_userID">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-         <horstretch>1</horstretch>
+         <horstretch>2</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
@@ -54,9 +54,14 @@
       <widget class="QComboBox" name="comboBox">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-         <horstretch>3</horstretch>
+         <horstretch>5</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>15</pointsize>
+        </font>
        </property>
        <property name="editable">
         <bool>true</bool>
@@ -71,7 +76,7 @@
       <widget class="QLabel" name="label_password">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-         <horstretch>1</horstretch>
+         <horstretch>2</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
@@ -92,9 +97,17 @@
       <widget class="QLineEdit" name="lineEdit">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-         <horstretch>3</horstretch>
+         <horstretch>5</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>15</pointsize>
+        </font>
+       </property>
+       <property name="echoMode">
+        <enum>QLineEdit::Password</enum>
        </property>
       </widget>
      </item>
@@ -130,15 +143,30 @@
     </widget>
    </item>
    <item>
-    <widget class="QPushButton" name="pushButton_SignUp">
-     <property name="styleSheet">
-      <string notr="true">margin : 20px 0px;
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <item>
+      <widget class="QPushButton" name="pushButton_SignUp">
+       <property name="styleSheet">
+        <string notr="true">margin : 20px 0px;
 border : 0px;</string>
-     </property>
-     <property name="text">
-      <string>Sign up</string>
-     </property>
-    </widget>
+       </property>
+       <property name="text">
+        <string>Sign up</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton_switchServerIP">
+       <property name="styleSheet">
+        <string notr="true">margin : 20px 0px;
+border : 0px;</string>
+       </property>
+       <property name="text">
+        <string>Switch server IP</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>

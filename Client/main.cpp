@@ -1,11 +1,11 @@
-#include "front_end/login.h"
+#include "core.h"
 
 #include <QApplication>
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    Login w;
-    w.show();
+    Core core;
+
     return a.exec();
 }

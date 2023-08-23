@@ -7,13 +7,19 @@ namespace Ui {
 class sign_up;
 }
 
-class sign_up : public QWidget
+class Sign_up : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit sign_up(QWidget *parent = nullptr);
-    ~sign_up();
+    explicit Sign_up(QWidget *parent = nullptr);
+    ~Sign_up();
+
+signals:
+    void sendSignUP(QString nickname, QString password);
+
+private slots:
+    void on_pushButton_signUp_clicked();
 
 private:
     Ui::sign_up *ui;

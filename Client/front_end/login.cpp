@@ -12,3 +12,15 @@ Login::~Login()
 {
     delete ui;
 }
+
+void Login::on_pushButton_SignUp_clicked()
+{
+    emit gotoSignUp();
+}
+
+
+void Login::on_pushButton_switchServerIP_clicked()
+{
+    emit gotoSwitchServerIP();
+}
+

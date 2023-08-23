@@ -9,17 +9,22 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    core.cpp \
     front_end/login.cpp \
     front_end/sign_up.cpp \
+    front_end/switchserverip.cpp \
     main.cpp \
 
 HEADERS += \
+    core.h \
     front_end/login.h \
-    front_end/sign_up.h
+    front_end/sign_up.h \
+    front_end/switchserverip.h
 
 FORMS += \
     front_end/login.ui \
-    front_end/sign_up.ui
+    front_end/sign_up.ui \
+    front_end/switchserverip.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
