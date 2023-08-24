@@ -17,6 +17,16 @@ Sign_up::~Sign_up()
 
 void Sign_up::on_pushButton_signUp_clicked()
 {
+    if(ui->lineEdit_nickname->text().isEmpty())
+    {
+        QMessageBox::warning(this, "can not sign up", "Please input nickname");
+        return;
+    }
+    if(ui->lineEdit_password->text().isEmpty())
+    {
+        QMessageBox::warning(this, "can not sign up", "Please input password");
+        return;
+    }
     if(ui->lineEdit_password->text() != ui->lineEdit_confirmPassword->text())
     {
         QMessageBox::warning(this, "can not sign up", "The two passwords is different");

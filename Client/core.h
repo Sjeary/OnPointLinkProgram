@@ -6,6 +6,7 @@
 class Login;
 class Sign_up;
 class SwitchServerIP;
+class MainWindow;
 
 class Core : public QObject
 {
@@ -20,6 +21,7 @@ private:
     Login *login;
     Sign_up *sign_up;
     SwitchServerIP *switchServerIP;
+    MainWindow *mainwindow;
     QString serverIP;
 
 signals:

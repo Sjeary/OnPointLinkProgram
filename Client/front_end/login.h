@@ -18,11 +18,14 @@ public:
 signals:
     void gotoSignUp();
     void gotoSwitchServerIP();
+    void sendLogin(QString ID, QString password);
 
 private slots:
     void on_pushButton_SignUp_clicked();
 
     void on_pushButton_switchServerIP_clicked();
+
+    void on_pushButton_Login_clicked();
 
 private:
     Ui::login *ui;

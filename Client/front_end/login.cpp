@@ -24,3 +24,9 @@ void Login::on_pushButton_switchServerIP_clicked()
     emit gotoSwitchServerIP();
 }
 
+
+void Login::on_pushButton_Login_clicked()
+{
+    emit sendLogin(ui->comboBox->currentText(), ui->lineEdit->text());
+}
+

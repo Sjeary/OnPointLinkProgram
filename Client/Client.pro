@@ -11,6 +11,7 @@ CONFIG += c++17
 SOURCES += \
     core.cpp \
     front_end/login.cpp \
+    front_end/mainwindow.cpp \
     front_end/sign_up.cpp \
     front_end/switchserverip.cpp \
     main.cpp \
@@ -18,11 +19,13 @@ SOURCES += \
 HEADERS += \
     core.h \
     front_end/login.h \
+    front_end/mainwindow.h \
     front_end/sign_up.h \
     front_end/switchserverip.h
 
 FORMS += \
     front_end/login.ui \
+    front_end/mainwindow.ui \
     front_end/sign_up.ui \
     front_end/switchserverip.ui
 
