@@ -5,6 +5,11 @@
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <QJsonObject>
+#include <QDebug>
+#include <QSqlError>
+#include <QtSql>
+#include <QJsonDocument>
+#include <QByteArray>
 #include "tcpserver.h"
 
 class servercore : public QObject
@@ -12,7 +17,7 @@ class servercore : public QObject
     Q_OBJECT
 public:
     explicit servercore(TcpServer *ptcpserver, QObject *parent = nullptr);
-    void RegRequest(QJsonObject &);
+    void RegRequest(QJsonObject &jsonData);
     void EnterRequest(QJsonObject &);
     void AccountInfoRequest(QJsonObject &);
     void FriendListRequest(QJsonObject &);
@@ -24,12 +29,14 @@ public:
     void MessageReadedRequest(QJsonObject &);
     void FileListRequest(QJsonObject &);
     void FileRequest(QJsonObject &);
+    ~servercore();
 
 private slots:
     void switchFunction(QTcpSocket *psocket);
 
 private:
     TcpServer *tp;
+    QSqlDatabase db;
 };
 
 #endif // SERVERCORE_H
