@@ -50,6 +50,23 @@ void servercore::switchFunction(QTcpSocket *psocket){//swichFunction(jsonObject[
 //    case 23 : FileRequest(obj);break;
     }
 }
+void servercore::returnRegResult(int OID,bool Status,QString log,QString Name)
+{
+    //回传给前端的json
+    QJsonArray returnJsonArray;
+    QJsonObject returnJsonObject;
+    returnJsonObject["OID"]=OID;
+    returnJsonObject["transType"]="RegResult";//文件类型
+    returnJsonObject["Status"]=Status;//传输结果
+    returnJsonObject["log"]=log;//失败日志
+    returnJsonObject["Name"]=Name;//这里多加了一个name，前端可能用得上
+
+    returnJsonArray.append(returnJsonObject);
+    QJsonDocument returnJsonDocument(returnJsonObject);
+    QByteArray returnJsonData = returnJsonDocument.toJson();
+    //这里少一个传回到客户端json文件的函数，但是我不知道接口怎么写
+
+}
 
 void servercore::RegRequest(QJsonObject &jsonObj)
 {
@@ -79,6 +96,7 @@ void servercore::RegRequest(QJsonObject &jsonObj)
     if(!query.exec())
     {
         qDebug()<<"Query ERROR: "<<query.lastError().text();
+        returnRegResult(-1,false,"Query ERROR: "+query.lastError().text(),Name);
         return ;
     }
     int OID = 0;
@@ -90,6 +108,7 @@ void servercore::RegRequest(QJsonObject &jsonObj)
         if(OID>99999||OID<10000)
         {
             qDebug()<<"OID wrong"<<endl;
+            returnRegResult(-1,false,"OID wrong",Name);
         }
         query.prepare("INSERT INTO account (OID,Name,HeadImage,Introduction,Email,BirthDay,Area,Sex,Password) VALUES(:OID,:Name,:HeadImage,:Instruction,:Email,:BirthDay,:Area,:Sex,:Password)");
         query.bindValue(":OID",OID);
@@ -103,26 +122,12 @@ void servercore::RegRequest(QJsonObject &jsonObj)
         query.bindValue(":Password",Password);
         if (!query.exec()) {
                 qDebug() << "Database insertion error:" << query.lastError().text();
+                returnRegResult(-1,false,"Database insertion error:"+query.lastError().text(),Name);
                 return ;
             }
-
-                /*
-         * QString data =query.value("OID").toString();
-            qDebug()<<"Data from database:"<<data;
-        */
     }
-    QJsonArray returnJsonArray;
-    QJsonObject returnJsonObject;
-    returnJsonObject["OID"]=OID;
-    /*
-     * 这里可以按这个格式填写其他返回值，但是考虑到注册只需要返回OID即可
-    returnJsonObject["Name"]=Name;
-    */
-    returnJsonArray.append(returnJsonObject);
-    QJsonDocument returnJsonDocument(returnJsonObject);
-    QByteArray returnJsonData = returnJsonDocument.toJson();
-    //这里少一个传回到客户端json文件的函数，但是我不知道接口怎么写
-
+    returnRegResult(OID,true,"",Name);
+    return;
 }
 servercore::~servercore()
 {

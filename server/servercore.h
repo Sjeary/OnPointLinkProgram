@@ -29,6 +29,10 @@ public:
     void MessageReadedRequest(QJsonObject &);
     void FileListRequest(QJsonObject &);
     void FileRequest(QJsonObject &);
+
+
+    void returnRegResult(int OID,bool Status,QString log,QString Name);
+
     ~servercore();
 
 private slots:
