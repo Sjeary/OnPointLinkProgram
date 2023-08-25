@@ -15,6 +15,16 @@ Sign_up::~Sign_up()
     delete ui;
 }
 
+void Sign_up::signUpSuccess(QString ID)
+{
+
+}
+void Sign_up::signUpFailed(QString log)
+{
+
+}
+
+
 void Sign_up::on_pushButton_signUp_clicked()
 {
     if(ui->lineEdit_nickname->text().isEmpty())
@@ -33,7 +43,7 @@ void Sign_up::on_pushButton_signUp_clicked()
         return;
     }
 
-    emit sendSignUP(ui->lineEdit_nickname->text(), ui->lineEdit_password->text());
+    emit sendSignUp(ui->lineEdit_nickname->text(), ui->lineEdit_password->text());
 
     ui->lineEdit_nickname->clear();
     ui->lineEdit_password->clear();

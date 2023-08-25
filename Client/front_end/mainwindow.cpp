@@ -17,9 +17,19 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::addMessageItem(QString name)
+void MainWindow::getMessage(QString ID, QString content)
+{
+
+}
+
+void MainWindow::addMessageItem(QString ID, QString name)
 {
     ui->listWidget_message->addItem(name);
+}
+
+void MainWindow::addFriendItem(QString ID, QString name)
+{
+
 }
 
 void MainWindow::on_pushButton_input_clicked()
@@ -31,6 +41,45 @@ void MainWindow::on_pushButton_input_clicked()
 
     insertRightFrame(ui->textEdit_show->document(),"me", text);
 
+}
+
+void MainWindow::on_pushButton_addFriend_clicked()
+{
+    emit gotoAddFriend();
+}
+
+void MainWindow::on_pushButton_friendRequest_clicked()
+{
+    emit gotoDealFriendRequest();
+}
+
+void MainWindow::on_radioButton_message_toggled(bool checked)
+{
+    if(checked)
+    {
+        ui->stackedWidget_middle->setCurrentIndex(0);
+        ui->stackedWidget_main->setCurrentIndex(0);
+    }
+}
+
+
+void MainWindow::on_radioButton_friends_toggled(bool checked)
+{
+    if(checked)
+    {
+        ui->stackedWidget_middle->setCurrentIndex(1);
+        ui->stackedWidget_main->setCurrentIndex(1);
+    }
+}
+
+
+void MainWindow::on_radioButton_settings_toggled(bool checked)
+{
+    if(checked)
+    {
+        ui->stackedWidget_middle->setCurrentIndex(2);
+        ui->stackedWidget_main->setCurrentIndex(2);
+    }
 }
 
 void MainWindow::setRootFrameFormat(QTextDocument *doc)
@@ -88,33 +137,3 @@ void MainWindow::insertRightFrame(QTextDocument *doc, const QString &title, cons
     cursor.insertFrame(formatContent);
     cursor.insertText(text);
 }
-
-void MainWindow::on_radioButton_message_toggled(bool checked)
-{
-    if(checked)
-    {
-        ui->stackedWidget_middle->setCurrentIndex(0);
-        ui->stackedWidget_main->setCurrentIndex(0);
-    }
-}
-
-
-void MainWindow::on_radioButton_friends_toggled(bool checked)
-{
-    if(checked)
-    {
-        ui->stackedWidget_middle->setCurrentIndex(1);
-        ui->stackedWidget_main->setCurrentIndex(1);
-    }
-}
-
-
-void MainWindow::on_radioButton_settings_toggled(bool checked)
-{
-    if(checked)
-    {
-        ui->stackedWidget_middle->setCurrentIndex(2);
-        ui->stackedWidget_main->setCurrentIndex(2);
-    }
-}
-

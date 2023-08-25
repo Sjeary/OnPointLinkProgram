@@ -18,7 +18,14 @@ public:
 signals:
     void gotoSignUp();
     void gotoSwitchServerIP();
-    void sendLogin(QString ID, QString password);
+    void reconnectToServer();
+    void sendLogin(QString ID, QString password, bool rememberPassword, bool autoLogin);
+
+public slots:
+    void connectedToServer();
+    void cannotConnect(QString log);
+    void loginSuccess();
+    void loginFailed(QString log);
 
 private slots:
     void on_pushButton_SignUp_clicked();

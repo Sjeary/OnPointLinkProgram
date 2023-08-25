@@ -1,6 +1,8 @@
 #include "login.h"
 #include "ui_login.h"
 
+#include <QMessageBox>
+
 Login::Login(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::login)
@@ -11,6 +13,23 @@ Login::Login(QWidget *parent) :
 Login::~Login()
 {
     delete ui;
+}
+
+void Login::connectedToServer()
+{
+    ui->label_status->setText("server connected!");
+}
+void Login::cannotConnect(QString log)
+{
+    ui->label_status->setText("cannot connect, " + log);
+}
+void Login::loginSuccess()
+{
+    this->close();
+}
+void Login::loginFailed(QString log)
+{
+    QMessageBox::warning(this, "Login failed", log);
 }
 
 void Login::on_pushButton_SignUp_clicked()
@@ -27,6 +46,6 @@ void Login::on_pushButton_switchServerIP_clicked()
 
 void Login::on_pushButton_Login_clicked()
 {
-    emit sendLogin(ui->comboBox->currentText(), ui->lineEdit->text());
+    emit sendLogin(ui->comboBox->currentText(), ui->lineEdit->text(), ui->checkBox_rememberPassword, ui->checkBox_autoLogin);
 }
 

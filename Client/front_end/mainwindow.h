@@ -17,12 +17,19 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    void getMessage(QString ID, QString content);
 
-    void addMessageItem(QString name);
 
 signals:
     void sendMessage(QString ID, QString content);
+    void sendAddFriendRequest(QString ID);
+
+    void gotoAddFriend();
+    void gotoDealFriendRequest();
+
+public slots:
+    void getMessage(QString ID, QString content);
+    void addMessageItem(QString ID, QString name);
+    void addFriendItem(QString ID, QString name);
 
 private slots:
     void on_pushButton_input_clicked();
@@ -32,6 +39,10 @@ private slots:
     void on_radioButton_friends_toggled(bool checked);
 
     void on_radioButton_settings_toggled(bool checked);
+
+    void on_pushButton_addFriend_clicked();
+
+    void on_pushButton_friendRequest_clicked();
 
 private:
     Ui::MainWindow *ui;

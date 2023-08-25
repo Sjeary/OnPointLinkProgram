@@ -10,20 +10,28 @@ CONFIG += c++17
 
 SOURCES += \
     core.cpp \
+    front_end/addfriend.cpp \
+    front_end/dealfriendrequest.cpp \
     front_end/login.cpp \
     front_end/mainwindow.cpp \
     front_end/sign_up.cpp \
     front_end/switchserverip.cpp \
     main.cpp \
+    rear_end/filesystem.cpp
 
 HEADERS += \
     core.h \
+    front_end/addfriend.h \
+    front_end/dealfriendrequest.h \
     front_end/login.h \
     front_end/mainwindow.h \
     front_end/sign_up.h \
-    front_end/switchserverip.h
+    front_end/switchserverip.h \
+    rear_end/filesystem.h
 
 FORMS += \
+    front_end/addfriend.ui \
+    front_end/dealfriendrequest.ui \
     front_end/login.ui \
     front_end/mainwindow.ui \
     front_end/sign_up.ui \

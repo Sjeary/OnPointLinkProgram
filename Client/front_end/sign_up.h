@@ -16,7 +16,11 @@ public:
     ~Sign_up();
 
 signals:
-    void sendSignUP(QString nickname, QString password);
+    void sendSignUp(QString nickname, QString password);
+
+public slots:
+    void signUpSuccess(QString ID);
+    void signUpFailed(QString log);
 
 private slots:
     void on_pushButton_signUp_clicked();
