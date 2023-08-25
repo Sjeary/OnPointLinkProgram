@@ -1,4 +1,4 @@
-QT       += core gui
+QT       += core gui network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -17,6 +17,7 @@ SOURCES += \
     front_end/sign_up.cpp \
     front_end/switchserverip.cpp \
     main.cpp \
+    rear_end/clienttcp.cpp \
     rear_end/filesystem.cpp
 
 HEADERS += \
@@ -27,6 +28,7 @@ HEADERS += \
     front_end/mainwindow.h \
     front_end/sign_up.h \
     front_end/switchserverip.h \
+    rear_end/clienttcp.h \
     rear_end/filesystem.h
 
 FORMS += \

@@ -23,9 +23,9 @@ signals:
 
 public slots:
     void connectedToServer();
-    void cannotConnect(QString log);
+    void cannotConnect();
     void loginSuccess();
-    void loginFailed(QString log);
+    void loginFailed(QString log = "");
 
 private slots:
     void on_pushButton_SignUp_clicked();
@@ -33,6 +33,8 @@ private slots:
     void on_pushButton_switchServerIP_clicked();
 
     void on_pushButton_Login_clicked();
+
+    void on_pushButton_connect_clicked();
 
 private:
     Ui::login *ui;

@@ -19,9 +19,9 @@ void Login::connectedToServer()
 {
     ui->label_status->setText("server connected!");
 }
-void Login::cannotConnect(QString log)
+void Login::cannotConnect()
 {
-    ui->label_status->setText("cannot connect, " + log);
+    ui->label_status->setText("cannot connect, ");
 }
 void Login::loginSuccess()
 {
@@ -47,5 +47,11 @@ void Login::on_pushButton_switchServerIP_clicked()
 void Login::on_pushButton_Login_clicked()
 {
     emit sendLogin(ui->comboBox->currentText(), ui->lineEdit->text(), ui->checkBox_rememberPassword, ui->checkBox_autoLogin);
+}
+
+
+void Login::on_pushButton_connect_clicked()
+{
+    emit reconnectToServer();
 }
 

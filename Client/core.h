@@ -12,6 +12,7 @@ class MainWindow;
 class AddFriend;
 class FileSystem;
 class DealFriendRequest;
+class ClientTcp;
 
 class Core : public QObject
 {
@@ -30,10 +31,13 @@ public:
 
 signals:
     void start();
+    void sendConnectRequest(QString IP, int port);
+    void sendMessageToServer(QByteArray content);
 
 protected:
     QThread *workingThread;
     FileSystem *fileSystem;
+    ClientTcp *tcp;
 
 private:
     Login *login;
