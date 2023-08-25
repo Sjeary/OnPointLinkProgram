@@ -19,7 +19,7 @@ signals:
 
 public slots:
     void initServer();
-    void send(QString &ip, quint16 &port, QByteArray &text);
+    void send(QHostAddress &ip, quint16 &port, QByteArray &text);
 
 private:
     QTcpServer * m_s;

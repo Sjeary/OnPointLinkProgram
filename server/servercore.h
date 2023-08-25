@@ -8,7 +8,6 @@ class servercore : public QObject
     Q_OBJECT
 public:
     explicit servercore(QObject *parent = nullptr);
-    ~servercore();
 
 signals:
 

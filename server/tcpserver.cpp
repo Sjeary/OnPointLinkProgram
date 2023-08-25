@@ -6,7 +6,7 @@
 
 TcpServer::TcpServer(QObject *parent) : QObject(parent)
 {
-
+    initServer();
 }
 
 TcpServer::~TcpServer()
@@ -31,6 +31,11 @@ void TcpServer::initServer()
                 emit received(clientSocket);
                 QByteArray data = clientSocket->readAll();
                 qDebug() << "Received data from client:" << data;
+
+//                QHostAddress targetIP = clientSocket->peerAddress();
+//                quint16 targetPort = clientSocket->peerPort();
+//                send(targetIP, targetPort, data);
+
 //这里还不知道数据结构是什么，获取ip和port的代码确定以后再写
                 // Assuming data contains the target client's IP and port
 //                QString targetIP = QString(data);
@@ -48,10 +53,10 @@ void TcpServer::initServer()
     });
 }
 
-void TcpServer::send(QString &ip, quint16 &port, QByteArray &text)
+void TcpServer::send(QHostAddress &ip, quint16 &port, QByteArray &text)
 {
     foreach (QTcpSocket *targetSocket, connections) {
-        if (targetSocket->peerAddress().toString() == ip &&
+        if (targetSocket->peerAddress() == ip &&
             targetSocket->peerPort() == port) {
             targetSocket->write("Forwarded data: " + text);
             targetSocket->flush();
