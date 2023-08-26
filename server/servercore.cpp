@@ -72,7 +72,7 @@ void servercore::returnEnterResult(int OID, QHostAddress ip, bool status, QStrin
     returnJsonObject["transType"]="EnterResult";//文件类型
     returnJsonObject["Status"]=status;//传输结果
     returnJsonObject["log"]=log;//日志
-
+    returnJsonObject["IP"]=ip.toString();//ip
     QJsonDocument returnJsonDocument(returnJsonObject);
     QByteArray returnJsonData = returnJsonDocument.toJson();
     tp->send(sp->peerAddress(), sp->peerPort(), returnJsonData);
@@ -96,7 +96,7 @@ void servercore::EnterRequest(QJsonObject &jsonObj)
             returnEnterResult(OID, sp->peerAddress(), 1, "EnterSucceed!");
         } else
         {
-            returnEnterResult(OID, sp->peerAddress(), 0, "EnterFailed!")
+            returnEnterResult(OID, sp->peerAddress(), 0, "EnterFailed!");
         }
     }
     return;
