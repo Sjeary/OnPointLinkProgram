@@ -40,6 +40,7 @@ private slots:
 
 private:
     TcpServer *tp;
+    QTcpSocket *sp;
     QSqlDatabase db;
 };
 

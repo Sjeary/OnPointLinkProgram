@@ -53,7 +53,7 @@ void TcpServer::initServer()
     });
 }
 
-void TcpServer::send(QHostAddress &ip, quint16 &port, QByteArray &text)
+void TcpServer::send(QHostAddress ip, quint16 port, QByteArray &text)
 {
     foreach (QTcpSocket *targetSocket, connections) {
         if (targetSocket->peerAddress() == ip &&

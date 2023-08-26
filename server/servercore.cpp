@@ -18,6 +18,7 @@ servercore::servercore(TcpServer *ptcpserver, QObject *parent) : QObject(parent)
 }
 
 void servercore::switchFunction(QTcpSocket *psocket){//swichFunction(jsonObject["transType"])
+    sp = psocket;
     QByteArray data = psocket->readAll();
     QJsonDocument doc = QJsonDocument::fromJson(data);
     QJsonObject obj = doc.object();
@@ -53,7 +54,6 @@ void servercore::switchFunction(QTcpSocket *psocket){//swichFunction(jsonObject[
 void servercore::returnRegResult(int OID,bool Status,QString log,QString Name)
 {
     //回传给前端的json
-    QJsonArray returnJsonArray;
     QJsonObject returnJsonObject;
     returnJsonObject["OID"]=OID;
     returnJsonObject["transType"]="RegResult";//文件类型
@@ -61,11 +61,10 @@ void servercore::returnRegResult(int OID,bool Status,QString log,QString Name)
     returnJsonObject["log"]=log;//失败日志
     returnJsonObject["Name"]=Name;//这里多加了一个name，前端可能用得上
 
-    returnJsonArray.append(returnJsonObject);
     QJsonDocument returnJsonDocument(returnJsonObject);
     QByteArray returnJsonData = returnJsonDocument.toJson();
     //这里少一个传回到客户端json文件的函数，但是我不知道接口怎么写
-
+    tp->send(sp->peerAddress(), sp->peerPort(), returnJsonData);
 }
 
 void servercore::RegRequest(QJsonObject &jsonObj)
