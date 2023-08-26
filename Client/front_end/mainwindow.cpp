@@ -8,8 +8,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    connect(ui->listWidget_message, &QListWidget::currentItemChanged, this, &MainWindow::changeMessageItem);
 
-    setRootFrameFormat(ui->textEdit_show->document());
 }
 
 MainWindow::~MainWindow()
@@ -24,7 +24,14 @@ void MainWindow::getMessage(QString ID, QString content)
 
 void MainWindow::addMessageItem(QString ID, QString name)
 {
-    ui->listWidget_message->addItem(name);
+    QListWidgetItem *newItem = new QListWidgetItem();
+    newItem->setData(0,name);
+    newItem->setData(3,ID);
+    ui->listWidget_message->addItem(newItem);
+    QTextDocument *newDocument = new QTextDocument(this);
+    documents.insert(newItem, newDocument);
+    documentToOID.insert(newDocument, ID.toInt());
+    setRootFrameFormat(newDocument);
 }
 
 void MainWindow::addFriendItem(QString ID, QString name)
@@ -41,6 +48,15 @@ void MainWindow::on_pushButton_input_clicked()
 
     insertRightFrame(ui->textEdit_show->document(),"me", text);
 
+    emit sendMessage(QString::number(documentToOID[ui->textEdit_show->document()]), text);
+}
+
+void MainWindow::changeMessageItem(QListWidgetItem *current)
+{
+    QTextDocument *currentDocument = documents.value(current, nullptr);
+    if (currentDocument == nullptr)
+        return;
+    ui->textEdit_show->setDocument(currentDocument);
 }
 
 void MainWindow::on_pushButton_addFriend_clicked()

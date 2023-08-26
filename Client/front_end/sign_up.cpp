@@ -17,11 +17,15 @@ Sign_up::~Sign_up()
 
 void Sign_up::signUpSuccess(QString ID)
 {
-
+    QMessageBox::information(this, "Sign up succeed", "Your OID is: \n" + ID);
+    ui->lineEdit_nickname->clear();
+    ui->lineEdit_password->clear();
+    ui->lineEdit_confirmPassword->clear();
+    this->close();
 }
 void Sign_up::signUpFailed(QString log)
 {
-
+    QMessageBox::warning(this, "Sign up failed", "error: " + log);
 }
 
 
@@ -44,10 +48,5 @@ void Sign_up::on_pushButton_signUp_clicked()
     }
 
     emit sendSignUp(ui->lineEdit_nickname->text(), ui->lineEdit_password->text());
-
-    ui->lineEdit_nickname->clear();
-    ui->lineEdit_password->clear();
-    ui->lineEdit_confirmPassword->clear();
-    this->close();
 }
 

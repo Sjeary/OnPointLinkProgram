@@ -14,6 +14,7 @@ public:
 signals:
     void getConnect();
     void connectFailed();
+    void sendMessageFailed();
     void getMessage(QByteArray content);
 
 public slots:

@@ -4,6 +4,7 @@
 #include <QWidget>
 
 class QTextDocument;
+class QListWidgetItem;
 
 namespace Ui {
 class MainWindow;
@@ -31,6 +32,8 @@ public slots:
     void addMessageItem(QString ID, QString name);
     void addFriendItem(QString ID, QString name);
 
+    void changeMessageItem(QListWidgetItem *current);
+
 private slots:
     void on_pushButton_input_clicked();
 
@@ -46,6 +49,9 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+
+    QMap<QListWidgetItem*, QTextDocument*> documents;
+    QMap<QTextDocument*, int> documentToOID;
 
     void setRootFrameFormat(QTextDocument *doc);
 
