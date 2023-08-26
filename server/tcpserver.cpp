@@ -66,3 +66,10 @@ void TcpServer::send(QHostAddress ip, quint16 port, QByteArray &text)
         }
     }
 }
+
+void TcpServer::sendJsonObject(QHostAddress ip, quint16 port, const QJsonObject &obj) { // 新函数，updated by zwx
+    QJsonDocument docu(obj);
+    QByteArray array = docu.toJson();
+    //这里少一个传回到客户端json文件的函数，但是我不知道接口怎么写
+    send(ip, port, array);
+}

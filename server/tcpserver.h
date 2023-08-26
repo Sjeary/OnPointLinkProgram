@@ -21,6 +21,8 @@ signals:
 public slots:
     void initServer();
     void send(QHostAddress ip, quint16 port, QByteArray &text);
+    void sendJsonObject(QHostAddress ip, quint16 port, const QJsonObject &obj); // 新函数,updated by zwx.
+
 
 private:
     QTcpServer * m_s;
