@@ -75,6 +75,7 @@ void servercore::returnEnterResult(int OID, QHostAddress ip, bool status, QStrin
     returnJsonObject["IP"]=ip.toString();//ip
     QJsonDocument returnJsonDocument(returnJsonObject);
     QByteArray returnJsonData = returnJsonDocument.toJson();
+    qDebug()<<returnJsonData;
     tp->send(sp->peerAddress(), sp->peerPort(), returnJsonData);
 }
 
@@ -86,6 +87,13 @@ void servercore::EnterRequest(QJsonObject &jsonObj)
     QSqlQuery query(db);
     query.prepare("SELECT * FROM account WHERE OID = :OID");
     query.bindValue(":OID", OID);
+
+    if(!query.exec())
+    {
+        qDebug()<<"Query ERROR: "<<query.lastError().text();
+        returnEnterResult(OID,sp->peerAddress(),0,"Query ERROR: "+query.lastError().text());
+        return ;
+    }
 
     if(query.next())
     {
