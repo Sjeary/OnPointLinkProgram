@@ -2,6 +2,7 @@
 #include "tcpserver.h"
 #include <QString>
 #include <QMap>
+#include <QDateTime>
 
 servercore::servercore(TcpServer *ptcpserver, QObject *parent) : QObject(parent)
 {
@@ -17,7 +18,7 @@ servercore::servercore(TcpServer *ptcpserver, QObject *parent) : QObject(parent)
     if(!db.isOpen())qDebug()<<"Dont Connected"<<endl<<db.lastError().text()<<endl;
 }
 
-void servercore::updateipmap(QTcpSocket *psocket)
+void servercore::offline(QTcpSocket *psocket)
 {
 //更新ipmap，将登出用户剔除
     for (auto it = ipmap.begin(); it != ipmap.end(); ++it) {
@@ -62,6 +63,89 @@ void servercore::switchFunction(QTcpSocket *psocket)
 //    case 19 : MessageReadedRequest(obj);break;
 //    case 21 : FileListRequest(obj);break;
 //    case 23 : FileRequest(obj);break;
+    }
+}
+
+void servercore::returnSendTextMessageResult(bool Status, int MID, int SenderOID, int TargetOID, QString Type, QString Value)
+{
+    // 还没实现文件消息的传输
+    if (Status)
+    {
+        QHostAddress targetip = ipmap.value(TargetOID);
+        QJsonObject returnJsonObject;
+        returnJsonObject["Statues"]=Status;
+        returnJsonObject["MID"]=MID;
+        returnJsonObject["SenderOID"]=SenderOID;
+        returnJsonObject["TargetOID"]=TargetOID;
+        returnJsonObject["transType"]="SendMessageResult";
+        returnJsonObject["Type"]=Type;
+        returnJsonObject["Value"]=Value;//ip
+        QJsonDocument returnJsonDocument(returnJsonObject);
+        QByteArray returnJsonData = returnJsonDocument.toJson();
+        qDebug()<<returnJsonData;
+        tp->send(targetip, defalutport, returnJsonData);
+    }
+    else
+    {
+        QString content = "Error!";
+        QByteArray text = content.toUtf8();
+        tp->send(sp->peerAddress(), sp->peerPort(), text);
+    }
+}
+
+void servercore::SendTxtMessageRequest(QJsonObject &jsonObj)
+{
+    int SenderOID = jsonObj["SenderOID"].toInt();
+    int TargetOID = jsonObj["TargetOID"].toInt();
+    QString Type = jsonObj["Type"].toString();
+    QString Value = jsonObj["Value"].toString();
+
+    QSqlQuery query(db);
+    int MID = 0;
+    if (!query.exec(QString("SELECT MAX(%1) FROM my_table").arg(MID)))
+    {
+        qDebug() << "Query failed:" << query.lastError().text();
+        if (query.next()) {
+            MID = query.value(0).toInt();
+            qDebug() << "Maximum value of" << "MID" << "is:" << MID++;
+        }
+    }
+    //判断消息类型是文本（Txt）还是文件（Doc），文本的Value为消息内容
+    if (Type == "Txt")
+    {
+        if (ipmap.contains(TargetOID))
+        {
+            returnSendTextMessageResult(1, MID, SenderOID, TargetOID, Type, Value);
+        } else
+        {
+            QDateTime SendTime = QDateTime::currentDateTime();
+            query.prepare("INSERT INTO message (MID,Type,SenderOID,TargetOID,SendTime,Readed,Value) VALUES(:MID,:Type,:SenderOID,:TargetOID,:SendTime,:Readed,:Value)");
+            query.bindValue(":MID", MID);
+            query.bindValue(":Type", Type);
+            query.bindValue(":SenderOID", SenderOID);
+            query.bindValue(":TargetOID", TargetOID);
+            query.bindValue(":SendTime", SendTime);
+            query.bindValue(":Readed", 0);
+            query.bindValue(":Value", Value);
+            if (!query.exec())
+            {
+                qDebug() << "Database insertion error:" << query.lastError().text();
+                returnSendTextMessageResult(0, MID, SenderOID, TargetOID, Type, Value);
+                return;
+            }
+            returnSendTextMessageResult(1, MID, SenderOID, TargetOID, Type, Value);
+        }
+    }
+    else
+    {
+        if (ipmap.contains(TargetOID))
+        {
+            returnSendTextMessageResult(1, MID, SenderOID, TargetOID, Type, Value);
+        }
+        else
+        {
+            returnSendTextMessageResult(0, MID, SenderOID, TargetOID, Type, Value);
+        }
     }
 }
 
