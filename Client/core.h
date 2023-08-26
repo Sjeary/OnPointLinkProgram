@@ -21,18 +21,18 @@ public:
     explicit Core(QObject *parent = nullptr);
     ~Core();
 
-    void toSendLoginRequest();
-    void toSendSignUpRequest();
-    void toSendGetInfoRequest();
-
-    void getLoginResult();
-    void getSignUpResult();
-    void getUerInfoResult();
-
 signals:
     void start();
     void sendConnectRequest(QString IP, int port);
     void sendMessageToServer(QByteArray content);
+
+public slots:
+    void distributeMessage(QByteArray content);
+    void toSendConnectRequest();
+    void toSendLoginRequest(QString ID, QString password, bool rememberPassword, bool autoLogin);
+    void toSendSignUpRequest(QString nickname, QString password);
+    void toSendGetInfoRequest();
+
 
 protected:
     QThread *workingThread;
@@ -48,6 +48,8 @@ private:
     DealFriendRequest *dealFriendRequest;
 
     QString serverIP;
+
+
 
 signals:
 
