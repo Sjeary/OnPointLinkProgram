@@ -226,7 +226,7 @@
       <enum>QFrame::StyledPanel</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="page_main_0">
       <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -277,6 +277,13 @@
      </widget>
      <widget class="QWidget" name="page_main_1">
       <layout class="QVBoxLayout" name="verticalLayout_5">
+       <item>
+        <widget class="QLabel" name="label_userInfo_OID">
+         <property name="text">
+          <string>TextLabel</string>
+         </property>
+        </widget>
+       </item>
        <item>
         <widget class="QTextEdit" name="textEdit_userInfo"/>
        </item>

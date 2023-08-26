@@ -3,6 +3,8 @@
 
 #include <QObject>
 
+#include <QJsonDocument>
+
 class QThread;
 
 class Login;
@@ -22,16 +24,18 @@ public:
     ~Core();
 
 signals:
-    void start();
+    void saveKeyValue(QString key, QString value);
+    void readKeyValue(QString key);
     void sendConnectRequest(QString IP, int port);
     void sendMessageToServer(QByteArray content);
 
 public slots:
+    void getKeyValue(QString key, QString value);
     void distributeMessage(QByteArray content);
     void toSendConnectRequest();
     void toSendLoginRequest(QString ID, QString password, bool rememberPassword, bool autoLogin);
     void toSendSignUpRequest(QString nickname, QString password);
-    void toSendGetInfoRequest();
+    void toSendGetInfoRequest(QString ID);
 
 
 protected:
@@ -48,6 +52,7 @@ private:
     DealFriendRequest *dealFriendRequest;
 
     QString serverIP;
+    QString savedID, savedPassword;
 
 
 

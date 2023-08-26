@@ -16,7 +16,7 @@ public:
     ~AddFriend();
 
 signals:
-    void sendSearchRequest(QString ID, QString nickname);
+    void GetInfo(QString ID);
 
 public slots:
 

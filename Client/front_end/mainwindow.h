@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QWidget>
+#include <QMap>
 
 class QTextDocument;
 class QListWidgetItem;
@@ -28,7 +29,8 @@ signals:
     void gotoDealFriendRequest();
 
 public slots:
-    void getMessage(QString ID, QString content);
+    void getMessage(QString ID, QString name, QString content, bool isReceive);
+    void getUserInfo(QString ID, QString name, QString ins, QString email, QString birth);
     void addMessageItem(QString ID, QString name);
     void addFriendItem(QString ID, QString name);
 

@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 
 #include <QTextFrame>
+#include <QTextDocument>
 
 MainWindow::MainWindow(QWidget *parent) :
     QWidget(parent),
@@ -17,9 +18,27 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::getMessage(QString ID, QString content)
+void MainWindow::getMessage(QString ID, QString name, QString content, bool isReceive)
 {
+    foreach (QTextDocument * const var, documentToOID.keys()) {
+        if (documentToOID.value(var) == ID.toInt())
+        {
+            if(isReceive)
+            {
+                insertLeftFrame(var, name, content);
+            }
+            else
+            {
+                insertRightFrame(var, name, content);
+            }
+        }
+    }
+}
 
+void MainWindow::getUserInfo(QString ID, QString name, QString ins, QString email, QString birth)
+{
+    ui->label_userInfo_OID->setText(ID);
+    ui->textEdit_userInfo->insertPlainText("name:"+name+"\ninstruction:"+ins+"\nemail:"+email+"\nbirth"+birth);
 }
 
 void MainWindow::addMessageItem(QString ID, QString name)
@@ -36,7 +55,10 @@ void MainWindow::addMessageItem(QString ID, QString name)
 
 void MainWindow::addFriendItem(QString ID, QString name)
 {
-
+    QListWidgetItem *newItem = new QListWidgetItem();
+    newItem->setData(0,name);
+    newItem->setData(3,ID);
+    ui->listWidget_friend->addItem(newItem);
 }
 
 void MainWindow::on_pushButton_input_clicked()

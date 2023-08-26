@@ -25,6 +25,7 @@ void Login::cannotConnect()
 }
 void Login::loginSuccess()
 {
+    QMessageBox::information(this, "information", "Login success!");
     this->close();
 }
 void Login::loginFailed(QString log)

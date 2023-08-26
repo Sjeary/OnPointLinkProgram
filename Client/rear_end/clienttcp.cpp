@@ -16,9 +16,9 @@ ClientTcp::ClientTcp(QObject *parent)
 
 void ClientTcp::tryConnect(QString IP, int port)
 {
-    qDebug("click_on_connect state = %d\n",m_tcp->state());
+    qDebug()<<"try to connect IP:"<<IP;
     m_tcp->connectToHost(QHostAddress(IP), port);
-    if(m_tcp->waitForConnected(1000)) {
+    if(m_tcp->waitForConnected(5000)) {
         qDebug()<<"connected!";
         emit getConnect();
     }
