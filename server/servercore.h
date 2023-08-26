@@ -10,6 +10,7 @@
 #include <QtSql>
 #include <QJsonDocument>
 #include <QByteArray>
+#include <QMap>
 #include "tcpserver.h"
 
 class servercore : public QObject
@@ -32,16 +33,19 @@ public:
 
 
     void returnRegResult(int OID,bool Status,QString log,QString Name);
+    void returnEnterResult(int OID, QHostAddress ip, bool status, QString log);
 
     ~servercore();
 
 private slots:
     void switchFunction(QTcpSocket *psocket);
+    void updateipmap(QTcpSocket *psocket);
 
 private:
     TcpServer *tp;
     QTcpSocket *sp;
     QSqlDatabase db;
+    QMap<int, QHostAddress> ipmap;
 };
 
 #endif // SERVERCORE_H

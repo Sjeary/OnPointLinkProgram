@@ -46,6 +46,7 @@ void TcpServer::initServer()
 
             connect(clientSocket, &QTcpSocket::disconnected, [=]() {
                 qDebug() << "Client disconnected.";
+                emit disconnected(clientSocket);
                 connections.removeOne(clientSocket);
                 clientSocket->deleteLater();
             });
@@ -58,7 +59,7 @@ void TcpServer::send(QHostAddress ip, quint16 port, QByteArray &text)
     foreach (QTcpSocket *targetSocket, connections) {
         if (targetSocket->peerAddress() == ip &&
             targetSocket->peerPort() == port) {
-            targetSocket->write("Forwarded data: " + text);
+            targetSocket->write(text);
             targetSocket->flush();
             qDebug() << "Data forwarded to target client.";
             break;

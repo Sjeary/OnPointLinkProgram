@@ -3,11 +3,11 @@
 #include <QString>
 #include <QMap>
 
-
 servercore::servercore(TcpServer *ptcpserver, QObject *parent) : QObject(parent)
 {
     tp = ptcpserver;
     connect(tp, &TcpServer::received, this, &servercore::switchFunction);
+    connect(tp, &TcpServer::disconnected, this, &servercore::updateipmap);
     db = QSqlDatabase::addDatabase("QODBC");
     db.setPort(3306);
     db.setDatabaseName("mysql");//不同电脑连接不同的数据库的时候记得改
@@ -17,7 +17,20 @@ servercore::servercore(TcpServer *ptcpserver, QObject *parent) : QObject(parent)
     if(!db.isOpen())qDebug()<<"Dont Connected"<<endl<<db.lastError().text()<<endl;
 }
 
-void servercore::switchFunction(QTcpSocket *psocket){//swichFunction(jsonObject["transType"])
+void servercore::updateipmap(QTcpSocket *psocket)
+{
+//更新ipmap，将登出用户剔除
+    for (auto it = ipmap.begin(); it != ipmap.end(); ++it) {
+        if (it.value() == psocket->peerAddress()) {
+            ipmap.erase(it);
+            break; // Assuming there's only one matching value
+        }
+    }
+}
+
+void servercore::switchFunction(QTcpSocket *psocket)
+{
+    //swichFunction(jsonObject["transType"])
     sp = psocket;
     QByteArray data = psocket->readAll();
     QJsonDocument doc = QJsonDocument::fromJson(data);
@@ -38,7 +51,7 @@ void servercore::switchFunction(QTcpSocket *psocket){//swichFunction(jsonObject[
     QString type = obj["transType"].toString();
     switch (stringMap.value(type)){
     case 1 : RegRequest(obj);break;
-//    case 3 : EnterRequest(obj);break;
+    case 3 : EnterRequest(obj);break;
 //    case 5 : AccountInfoRequest(obj);break;
 //    case 7 : FriendListRequest(obj);break;
 //    case 9 : GroupListRequest(obj);break;
@@ -51,6 +64,44 @@ void servercore::switchFunction(QTcpSocket *psocket){//swichFunction(jsonObject[
 //    case 23 : FileRequest(obj);break;
     }
 }
+
+void servercore::returnEnterResult(int OID, QHostAddress ip, bool status, QString log)
+{
+    QJsonObject returnJsonObject;
+    returnJsonObject["OID"]=OID;
+    returnJsonObject["transType"]="EnterResult";//文件类型
+    returnJsonObject["Status"]=status;//传输结果
+    returnJsonObject["log"]=log;//日志
+
+    QJsonDocument returnJsonDocument(returnJsonObject);
+    QByteArray returnJsonData = returnJsonDocument.toJson();
+    tp->send(sp->peerAddress(), sp->peerPort(), returnJsonData);
+}
+
+void servercore::EnterRequest(QJsonObject &jsonObj)
+{
+    int OID = jsonObj["OID"].toInt();
+    QString Password = jsonObj["Password"].toString();
+    ipmap.insert(OID, sp->peerAddress());
+    QSqlQuery query(db);
+    query.prepare("SELECT * FROM account WHERE OID = :OID");
+    query.bindValue(":OID", OID);
+
+    if(query.next())
+    {
+        QString pwd = query.value("Password").toString();
+        qDebug()<<"The Password is "<< pwd;
+        if (pwd == Password)
+        {
+            returnEnterResult(OID, sp->peerAddress(), 1, "EnterSucceed!");
+        } else
+        {
+            returnEnterResult(OID, sp->peerAddress(), 0, "EnterFailed!")
+        }
+    }
+    return;
+}
+
 void servercore::returnRegResult(int OID,bool Status,QString log,QString Name)
 {
     //回传给前端的json
@@ -82,13 +133,13 @@ void servercore::RegRequest(QJsonObject &jsonObj)
     QJsonObject jsonObj = jsonDoc.object();
     */
     QString Name = jsonObj.value("Name").toString();
-    QString Email = jsonObj.value("Email").toString();
-    QString Introduction = jsonObj.value("Introduction").toString();
-    QString BirthDay = jsonObj.value("BirthDay").toString();
-    QString Area = jsonObj.value("Area").toString();
-    QString Sex = jsonObj.value("Sex").toString();
+    //    QString Email = jsonObj.value("Email").toString();
+    //    QString Introduction = jsonObj.value("Introduction").toString();
+    //    QString BirthDay = jsonObj.value("BirthDay").toString();
+    //    QString Area = jsonObj.value("Area").toString();
+    //    QString Sex = jsonObj.value("Sex").toString();
     QString Password = jsonObj.value("Password").toString();
-    QString HeadImage = jsonObj.value("HeadImage").toString();
+//    QString HeadImage = jsonObj.value("HeadImage").toString();
 
     QSqlQuery query(db);
     query.prepare("SELECT COUNT(*) FROM account");
@@ -109,15 +160,16 @@ void servercore::RegRequest(QJsonObject &jsonObj)
             qDebug()<<"OID wrong"<<endl;
             returnRegResult(-1,false,"OID wrong",Name);
         }
-        query.prepare("INSERT INTO account (OID,Name,HeadImage,Introduction,Email,BirthDay,Area,Sex,Password) VALUES(:OID,:Name,:HeadImage,:Instruction,:Email,:BirthDay,:Area,:Sex,:Password)");
+        query.prepare("INSERT INTO account (OID,Name,Password) VALUES(:OID,:Name,:Password)");
+//        query.prepare("INSERT INTO account (OID,Name,HeadImage,Introduction,Email,BirthDay,Area,Sex,Password) VALUES(:OID,:Name,:HeadImage,:Instruction,:Email,:BirthDay,:Area,:Sex,:Password)");
         query.bindValue(":OID",OID);
         query.bindValue(":Name",Name);
-        query.bindValue(":HeadImage",HeadImage);//这里要传入文件的地址，然后另外上传文件
-        query.bindValue(":Introduction",Introduction);
-        query.bindValue(":Email",Email);
-        query.bindValue(":BirthDay",BirthDay);
-        query.bindValue(":Area",Area);
-        query.bindValue(":Sex",Sex);
+//        query.bindValue(":HeadImage",HeadImage);//这里要传入文件的地址，然后另外上传文件
+//        query.bindValue(":Introduction",Introduction);
+//        query.bindValue(":Email",Email);
+//        query.bindValue(":BirthDay",BirthDay);
+//        query.bindValue(":Area",Area);
+//        query.bindValue(":Sex",Sex);
         query.bindValue(":Password",Password);
         if (!query.exec()) {
                 qDebug() << "Database insertion error:" << query.lastError().text();

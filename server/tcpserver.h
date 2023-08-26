@@ -16,6 +16,7 @@ public:
 signals:
     void connected(QTcpSocket *);
     void received(QTcpSocket *);
+    void disconnected(QTcpSocket *);
 
 public slots:
     void initServer();
