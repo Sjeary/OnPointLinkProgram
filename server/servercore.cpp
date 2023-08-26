@@ -8,7 +8,7 @@ servercore::servercore(TcpServer *ptcpserver, QObject *parent) : QObject(parent)
 {
     tp = ptcpserver;
     connect(tp, &TcpServer::received, this, &servercore::switchFunction);
-    connect(tp, &TcpServer::disconnected, this, &servercore::updateipmap);
+    connect(tp, &TcpServer::disconnected, this, &servercore::offline);
     db = QSqlDatabase::addDatabase("QODBC");
     db.setPort(3306);
     db.setDatabaseName("mysql");//不同电脑连接不同的数据库的时候记得改

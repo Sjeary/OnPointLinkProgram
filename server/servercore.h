@@ -34,7 +34,7 @@ public:
 
     void returnRegResult(int OID,bool Status,QString log,QString Name);
     void returnEnterResult(int OID, QHostAddress ip, bool status, QString log);
-    void returnSendTextMessageResult();
+    void returnSendTextMessageResult(bool Status, int MID, int SenderOID, int TargetOID, QString Type, QString Value);
 
     ~servercore();
 
