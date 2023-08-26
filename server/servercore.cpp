@@ -69,17 +69,17 @@ void servercore::switchFunction(QTcpSocket *psocket)
 void servercore::returnSendTextMessageResult(bool Status, int MID, int SenderOID, int TargetOID, QString Type, QString Value)
 {
     // 还没实现文件消息的传输
+    QHostAddress targetip = ipmap.value(TargetOID);
+    QJsonObject returnJsonObject;
+    returnJsonObject["Statues"]=Status;
+    returnJsonObject["MID"]=MID;
+    returnJsonObject["SenderOID"]=SenderOID;
+    returnJsonObject["TargetOID"]=TargetOID;
+    returnJsonObject["transType"]="SendMessageResult";
+    returnJsonObject["Type"]=Type;
+    returnJsonObject["Value"]=Value;
     if (Status)
     {
-        QHostAddress targetip = ipmap.value(TargetOID);
-        QJsonObject returnJsonObject;
-        returnJsonObject["Statues"]=Status;
-        returnJsonObject["MID"]=MID;
-        returnJsonObject["SenderOID"]=SenderOID;
-        returnJsonObject["TargetOID"]=TargetOID;
-        returnJsonObject["transType"]="SendMessageResult";
-        returnJsonObject["Type"]=Type;
-        returnJsonObject["Value"]=Value;//ip
         QJsonDocument returnJsonDocument(returnJsonObject);
         QByteArray returnJsonData = returnJsonDocument.toJson();
         qDebug()<<returnJsonData;
@@ -87,9 +87,11 @@ void servercore::returnSendTextMessageResult(bool Status, int MID, int SenderOID
     }
     else
     {
-        QString content = "Error!";
-        QByteArray text = content.toUtf8();
-        tp->send(sp->peerAddress(), sp->peerPort(), text);
+        returnJsonObject["Value"]="对方不在线！";
+        QJsonDocument returnJsonDocument(returnJsonObject);
+        QByteArray returnJsonData = returnJsonDocument.toJson();
+        qDebug()<<returnJsonData;
+        tp->send(sp->peerAddress(), sp->peerPort(), returnJsonData);
     }
 }
 
@@ -105,10 +107,10 @@ void servercore::SendTxtMessageRequest(QJsonObject &jsonObj)
     if (!query.exec(QString("SELECT MAX(%1) FROM my_table").arg(MID)))
     {
         qDebug() << "Query failed:" << query.lastError().text();
-        if (query.next()) {
-            MID = query.value(0).toInt();
-            qDebug() << "Maximum value of" << "MID" << "is:" << MID++;
-        }
+    }
+    if (query.next()) {
+        MID = query.value(0).toInt();
+        qDebug() << "Maximum value of" << "MID" << "is:" << MID++;
     }
     //判断消息类型是文本（Txt）还是文件（Doc），文本的Value为消息内容
     if (Type == "Txt")
@@ -272,6 +274,168 @@ void servercore::RegRequest(QJsonObject &jsonObj)
     returnRegResult(OID,true,"",Name);
     return;
 }
+
+void servercore::ProcessFriendRequestResult(int SenderOID,int TargetOID,bool Status, QString log)
+{
+    //回传给前端的json
+    QJsonObject returnJsonObject;
+    returnJsonObject["OID1"]=SenderOID;
+    returnJsonObject["OID2"]=TargetOID;
+    returnJsonObject["transType"]="ProcessFriendRequestResult";//文件类型
+    returnJsonObject["Status"]=Status;//传输结果
+    returnJsonObject["log"]=log;//失败日志
+
+    QJsonDocument returnJsonDocument(returnJsonObject);
+    QByteArray returnJsonData = returnJsonDocument.toJson();
+    tp->send(sp->peerAddress(), sp->peerPort(), returnJsonData);
+}
+void servercore::SendFriendRequestToServer(QJsonObject &jsonObj)
+{
+    int SenderOID = jsonObj["OID1"].toInt();
+    int TargetOID = jsonObj["OID2"].toInt();
+    QString RequestMessage = jsonObj["RequestMessage"].toString();
+
+    QSqlQuery query(db);
+    query.prepare("SELECT * FROM account WHERE OID = :TargetOID;");
+    query.bindValue(":TargetOID",TargetOID);
+    if(!query.exec())
+    {
+        qDebug()<<"Query exec() ERROR: "<<query.lastError().text();
+        ProcessFriendRequestResult(SenderOID,TargetOID,0,"Query exec() ERROR: "+query.lastError().text());
+        return ;
+    }
+    if(query.size())
+    {
+        query.prepare("INSERT INTO friendrequest (SenderOID,TargetOID,ApplicationMessage) VALUES (:SenderOID,:TargetOID,:RequestMessage);");
+        query.bindValue(":SenderOID",SenderOID);
+        query.bindValue(":TargetOID",TargetOID);
+        query.bindValue(":RequestMessage",RequestMessage);
+
+        if(!query.exec())
+        {
+            qDebug()<<"Query exec() ERROR: "<<query.lastError().text();
+            ProcessFriendRequestResult(SenderOID,TargetOID,0,"Query exec() ERROR: "+query.lastError().text());
+            return ;
+        }
+        ProcessFriendRequestResult(SenderOID,TargetOID,1,"请求成功发送给服务器");
+        SendRequestToReceiverClient(SenderOID,TargetOID,RequestMessage);//发给目标客户端
+    }
+    else
+    {
+        qDebug()<<"No Target Person 查无此人";
+        ProcessFriendRequestResult(SenderOID,TargetOID,0,"No Target Person 查无此人：");
+        return ;
+    }
+}
+void servercore::SendRequestToReceiverClient(int SenderOID,int TargetOID,QString RequestMessage)
+{
+    //读取目标ip
+    QHostAddress targetip = ipmap.value(TargetOID);
+    QJsonObject returnJsonObject;
+    returnJsonObject["OID1"]=SenderOID;
+    returnJsonObject["OID2"]=TargetOID;
+    returnJsonObject["RequestMessage"]=RequestMessage;
+    returnJsonObject["transType"]="SendRequestToReceiverClient";//文件类型
+    QJsonDocument returnJsonDocument(returnJsonObject);
+    QByteArray returnJsonData = returnJsonDocument.toJson();
+    qDebug()<<returnJsonData;
+    tp->send(targetip, defalutport, returnJsonData);
+}
+void servercore::SendResultFromReceiverClientToServer(QJsonObject &jsonObj)
+{
+    int SenderOID = jsonObj["OID1"].toInt();
+    int TargetOID = jsonObj["OID2"].toInt();
+    QString ReplyMessage = jsonObj["ReplyMessage"].toString();
+    bool Accepted = jsonObj["Accepted"].toBool();
+    if(Accepted)
+    {
+        QSqlQuery query(db);
+        //这里不加分组，实现默认分组，之后有需求再改
+        query.prepare("INSERT INTO friend (OID1,OID2) VALUES (:SenderOID,:TargetOID);");
+        query.bindValue(":SenderOID",SenderOID);
+        query.bindValue(":TargetOID",TargetOID);
+        query.exec();
+        //双向好友
+        query.prepare("INSERT INTO friend (OID1,OID2) VALUES (:SenderOID,:TargetOID);");
+        query.bindValue(":SenderOID",TargetOID);
+        query.bindValue(":TargetOID",SenderOID);
+        query.exec();
+        //更新好友申请数据库
+        query.prepare("UPDATE friendrequest SET Accepted = :Accepted , ReplyMessage = :ReplyMessage WHERE SenderOID = :SenderOID AND TargetOID = :TargetOID;");
+        query.bindValue(":Accepted",Accepted);
+        query.bindValue(":ReplyMessage",ReplyMessage);
+        query.bindValue(":SenderOID",SenderOID);
+        query.bindValue(":TargetOID",TargetOID);
+        query.exec();
+    }
+    else if(!Accepted)
+    {
+        QSqlQuery query(db);
+        query.prepare("UPDATE friendrequest SET Accepted = :Accepted , ReplyMessage = :ReplyMessage WHERE SenderOID = :SenderOID AND TargetOID = :TargetOID;");
+        query.bindValue(":Accepted",Accepted);
+        query.bindValue(":ReplyMessage",ReplyMessage);
+        query.bindValue(":SenderOID",SenderOID);
+        query.bindValue(":TargetOID",TargetOID);
+        query.exec();
+    }
+    SendResultToApplicant(SenderOID,TargetOID,Accepted,ReplyMessage);
+}
+void servercore::SendResultToApplicant(int SenderOID,int TargetOID,bool Status,QString ReplyMessage)
+{
+    //读取目标ip
+    QHostAddress targetip = ipmap.value(TargetOID);
+    QJsonObject returnJsonObject;
+    returnJsonObject["OID1"]=SenderOID;
+    returnJsonObject["OID2"]=TargetOID;
+    returnJsonObject["ReplyMessage"]=ReplyMessage;
+    returnJsonObject["Status"]=Status;
+    returnJsonObject["transType"]="SendResultToApplicant";//文件类型
+
+    QJsonDocument returnJsonDocument(returnJsonObject);
+    QByteArray returnJsonData = returnJsonDocument.toJson();
+    qDebug()<<returnJsonData;
+    tp->send(targetip, defalutport, returnJsonData);
+}
+
+void servercore::returnAccountInfoResult(bool Status, int OID, QString Name, QString Instruction, QString Emai, QDate Birth)
+{
+    QJsonObject returnJsonObject;
+    returnJsonObject["Status"]=Status;
+    returnJsonObject["OID"]=OID;
+    returnJsonObject["Name"]=Name;
+    returnJsonObject["Instrction"]=Instruction;
+    returnJsonObject["Emai"]=Emai;
+    returnJsonObject["Birth"]=Birth.toString();
+    QJsonDocument returnJsonDocument(returnJsonObject);
+    QByteArray returnJsonData = returnJsonDocument.toJson();
+    qDebug()<<returnJsonData;
+    tp->send(sp->peerAddress(), sp->peerPort(), returnJsonData);
+}
+
+void servercore::AccountInfoRequest(QJsonObject &jsonObj)
+{
+    int OID = jsonObj["OID"].toInt();
+    QSqlQuery query(db);
+    if (!query.exec(QString("SELECT * FROM account WHERE OID = %1").arg(OID)))
+    {
+        qDebug() << "Query failed:" << query.lastError().text();
+    }
+    if (query.next())
+    {
+        bool Status = query.size();
+        int OID = query.value("OID").toUInt();
+        QString Name = query.value("Name").toString();
+        QString Instruction = query.value("Instruction").toString();
+        QString Emai = query.value("Email").toString();
+        QDate Birth = query.value("Birth").toDate();
+        returnAccountInfoResult(Status, OID, Name, Instruction, Emai, Birth);
+    }
+    else
+    {
+        qDebug() << "AccontSerch Error!";
+    }
+}
+
 servercore::~servercore()
 {
     db.close();
