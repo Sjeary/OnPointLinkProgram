@@ -2,6 +2,7 @@
 #define CORE_H
 
 #include <QObject>
+#include <QThread> // updated by zwx.
 
 #include <QJsonDocument>
 
@@ -30,7 +31,7 @@ signals:
     void sendMessageToServer(QByteArray content);
 
 public slots:
-    void getKeyValue(QString key, QString value);
+    void setKeyValue(QString key, QString value);
     void distributeMessage(QByteArray content);
     void toSendConnectRequest();
     void toSendLoginRequest(QString ID, QString password, bool rememberPassword, bool autoLogin);

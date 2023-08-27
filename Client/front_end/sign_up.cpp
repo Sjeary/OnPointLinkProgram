@@ -4,8 +4,7 @@
 #include <QMessageBox>
 
 Sign_up::Sign_up(QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::sign_up)
+    QWidget(parent), ui(new Ui::sign_up)
 {
     ui->setupUi(this);
 }

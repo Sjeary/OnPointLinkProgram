@@ -56,3 +56,12 @@ void Login::on_pushButton_connect_clicked()
     emit reconnectToServer();
 }
 
+void Login::writeSavedAccountInfo(const QString& savedOID,const QString &savedPassword) {
+    /*
+     * writeSavedAccountInfo
+     * 作用：写入上次登录的用户的OID、Password（需要上次登录的用户勾选记住密码
+    */
+    ui->comboBox->setEditText(savedOID);
+    ui->lineEdit->setText(savedPassword);
+}
+

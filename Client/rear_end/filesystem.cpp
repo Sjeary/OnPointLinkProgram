@@ -41,6 +41,19 @@ void FileSystem::makeBasic()
     informationFile->close();
 }
 
+QMap<QString,QString> FileSystem:: getSavedAccount()
+{
+    /*
+     * getSavedAccount (updated by zwx)。
+     * 获取已保存的用户。
+     * 返回一个QMap，{"savedOID": ,"savedPassword": }
+    */
+    QMap<QString,QString> result;
+    result["savedOID"] = basicInfo.value("savedOID","");
+    result["savedPassword"] = basicInfo.value("savedPassword","");
+    return result;
+}
+
 void FileSystem::toSaveKeyValue(QString key, QString value)
 {
     if(not informationFile->open(QFile::OpenModeFlag::WriteOnly))
@@ -53,5 +66,5 @@ void FileSystem::toSaveKeyValue(QString key, QString value)
 
 void FileSystem::toReadKeyValue(QString key)
 {
-    emit getKeyValue(key, basicInfo.value(key,""));
+    emit setCoreKeyValue(key, basicInfo.value(key,""));
 }

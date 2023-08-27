@@ -20,6 +20,7 @@ signals:
     void gotoSwitchServerIP();
     void reconnectToServer();
     void sendLogin(QString ID, QString password, bool rememberPassword, bool autoLogin);
+    void writeSavedAccountInfo(const QString &savedOID, const QString &savedPassword);
 
 public slots:
     void connectedToServer();

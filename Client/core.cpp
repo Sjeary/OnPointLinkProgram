@@ -4,6 +4,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QDebug>
 #include "front_end/login.h"
 #include "front_end/sign_up.h"
 #include "front_end/switchserverip.h"
@@ -16,6 +17,10 @@
 
 Core::Core(QObject *parent)
     : QObject{parent}
+    /*
+     * Core类构造函数。
+     * 建立各个功能窗口、后台线程、槽连接
+    */
 {
     //start working thread
     workingThread = new QThread;
@@ -26,14 +31,18 @@ Core::Core(QObject *parent)
 
     workingThread->start();
 
-    //build each windows
+    //建立各个功能窗口
     login = new Login();
     sign_up = new Sign_up();
     switchServerIP = new SwitchServerIP();
     mainwindow = new MainWindow();
     addFriend = new AddFriend();
     dealFriendRequest = new DealFriendRequest();
-    //show login window
+    //显示登录窗口
+    QMap<QString,QString> savedAccountInfo = fileSystem->getSavedAccount();
+    if (savedAccountInfo["savedOID"] == "") { // 载入记住的账号密码
+        login->writeSavedAccountInfo(savedAccountInfo["savedOID"],savedAccountInfo["savedPassword"]);
+    }
     login->show();
 
     mainwindow->addMessageItem("000", "me 0");
@@ -49,7 +58,7 @@ Core::Core(QObject *parent)
     connect(this, &Core::saveKeyValue, fileSystem, &FileSystem::toSaveKeyValue);
     connect(this, &Core::readKeyValue, fileSystem, &FileSystem::toReadKeyValue);
 
-    connect(fileSystem, &FileSystem::getKeyValue, this, &Core::getKeyValue);
+    connect(fileSystem, &FileSystem::setCoreKeyValue, this, &Core::setKeyValue);
 
     connect(tcp, &ClientTcp::getConnect, login, &Login::connectedToServer);
     connect(tcp, &ClientTcp::connectFailed, login, &Login::cannotConnect);
@@ -96,20 +105,37 @@ Core::~Core()
     dealFriendRequest->deleteLater();
 }
 
-void Core::getKeyValue(QString key, QString value)
+void Core::setKeyValue(QString key, QString value)
+/*
+ * setKeyValue
+ * 功能：设置core对象中，key值对应的变量的值。
+ * 参数说明：
+ * key: 参数名字，可选项："serverIP"。
+ * value: 设置值
+*/
 {
-    qDebug()<<"read"<<value;
+    qDebug()<<"Core: getKeyValue: key: "<<key<<" value: "<<value << endl;
     if (key == "serverIP")
     {
         serverIP = value;
-        if(not serverIP.isEmpty())
+        if(! serverIP.isEmpty())
         {
             toSendConnectRequest();
+        }
+        else{
+            qDebug() << "core: Empty server IP!" << endl;
         }
     }
 }
 
 void Core::distributeMessage(QByteArray content)
+/*
+ * distributeMessage
+ * 功能：在接收到服务器的信息content后，
+ *    读取content存储的.json文件二进制流，
+ *    根据content["transType"]属性来判断类型。
+ * 参数：content，必须为一个能转为.json文件的二进制流。
+*/
 {
     QJsonDocument doc = QJsonDocument::fromJson(content);
     if(doc.isNull() or not doc.isObject())
@@ -177,10 +203,8 @@ void Core::toSendLoginRequest(QString ID, QString password, bool rememberPasswor
     if(rememberPassword)
     {
         savedPassword = password;
-    }
-    if(autoLogin)
-    {
-
+        fileSystem->toSaveKeyValue("savedOID",savedID);
+        fileSystem->toSaveKeyValue("savedPassword",savedPassword);
     }
 }
 void Core::toSendSignUpRequest(QString nickname, QString password)

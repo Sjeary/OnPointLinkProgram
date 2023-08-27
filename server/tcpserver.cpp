@@ -3,6 +3,7 @@
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <QTime>
+#include <QJsonDocument>
 
 TcpServer::TcpServer(QObject *parent) : QObject(parent)
 {

@@ -1,6 +1,7 @@
 #include "clienttcp.h"
 
 #include <QTcpSocket>
+#include <QHostAddress>
 
 ClientTcp::ClientTcp(QObject *parent)
     : QObject{parent}
