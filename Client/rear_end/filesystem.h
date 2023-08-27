@@ -1,10 +1,21 @@
+/*
+ * ============================
+ * filesystem.h
+ * 开发者：希望之花团队
+ * Update time: 2023-8-27
+ *
+ * 定义 FileSystem 类
+ * 声明 FileSystem 类的成员函数
+ * ============================
+ *
+*/
+
 #ifndef FILESYSTEM_H
 #define FILESYSTEM_H
 
 #include <QObject>
 #include <QMap>
 #include <QVariant>
-
 
 class QDir;
 class QFile;

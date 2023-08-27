@@ -1,3 +1,14 @@
+/*
+ * ============================
+ * dealfriendrequest.cpp
+ * 开发者：希望之花团队
+ * Update time: 2023-8-27
+ *
+ * 定义 DealFriendRequest 类成员函数
+ * ============================
+ *
+*/
+
 #include "dealfriendrequest.h"
 #include "ui_dealfriendrequest.h"
 

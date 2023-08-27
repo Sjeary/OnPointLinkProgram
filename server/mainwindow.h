@@ -1,3 +1,15 @@
+/*
+ * ============================
+ * mainwindow.h
+ * 开发者：希望之花团队
+ * Update time: 2023-8-27
+ *
+ * 定义 MainWindow 类
+ * 在namespace Ui 当中声明 MainWindow 类
+ * ============================
+ *
+*/
+
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 

@@ -1,3 +1,14 @@
+/*
+ * ============================
+ * filesystem.cpp
+ * 开发者：希望之花团队
+ * Update time: 2023-8-27
+ *
+ * 定义 FileSystem 类成员函数
+ * ============================
+ *
+*/
+
 #include "filesystem.h"
 
 #include <QDir>

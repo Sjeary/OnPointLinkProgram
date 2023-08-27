@@ -1,3 +1,15 @@
+/*
+ * ============================
+ * login.h
+ * 开发者：希望之花团队
+ * Update time: 2023-8-27
+ *
+ * 定义 Login 类
+ * 声明 Login 类的成员函数
+ * ============================
+ *
+*/
+
 #ifndef LOGIN_H
 #define LOGIN_H
 
@@ -8,6 +20,10 @@ class login;
 }
 
 class Login : public QWidget
+/*
+ * Login
+ * 用户登录窗口
+*/
 {
     Q_OBJECT
 

@@ -1,3 +1,14 @@
+/*
+ * ============================
+ * switchserverip.cpp
+ * 开发者：希望之花团队
+ * Update time: 2023-8-27
+ *
+ * 定义 SwitchServerIP 类成员函数
+ * ============================
+ *
+*/
+
 #include "switchserverip.h"
 #include "ui_switchserverip.h"
 

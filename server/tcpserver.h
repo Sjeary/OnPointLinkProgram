@@ -1,3 +1,14 @@
+/*
+ * ============================
+ * tcpserver.h
+ * 开发者：希望之花团队
+ * Update time: 2023-8-27
+ *
+ * 定义 TcpServer 类
+ * ============================
+ *
+*/
+
 #ifndef TCPSERVER_H
 #define TCPSERVER_H
 

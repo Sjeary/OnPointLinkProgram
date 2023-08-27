@@ -1,3 +1,15 @@
+/*
+ * ============================
+ * mainwindow.h
+ * 开发者：希望之花团队
+ * Update time: 2023-8-27
+ *
+ * 定义 MainWindow 类
+ * 声明 MainWindow 类的成员函数
+ * ============================
+ *
+*/
+
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 

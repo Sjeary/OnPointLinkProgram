@@ -1,13 +1,29 @@
+/*
+ * ============================
+ * addfriend.h
+ * 开发者：希望之花团队
+ * Update time: 2023-8-27
+ *
+ * 定义 AddFriend 类
+ * 声明 AddFriend 类的成员函数
+ * ============================
+ *
+*/
+
 #ifndef ADDFRIEND_H
 #define ADDFRIEND_H
 
 #include <QWidget>
 
 namespace Ui {
-class AddFriend;
+    class AddFriend;
 }
 
 class AddFriend : public QWidget
+/*
+ * AddFriend
+ * 添加好友的GUI窗口
+*/
 {
     Q_OBJECT
 

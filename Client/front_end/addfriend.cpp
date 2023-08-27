@@ -1,3 +1,14 @@
+/*
+ * ============================
+ * addfriend.cpp
+ * 开发者：希望之花团队
+ * Update time: 2023-8-27
+ *
+ * 定义 AddFriend 类成员函数
+ * ============================
+ *
+*/
+
 #include "addfriend.h"
 #include "ui_addfriend.h"
 

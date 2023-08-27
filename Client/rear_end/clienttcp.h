@@ -1,3 +1,15 @@
+/*
+ * ============================
+ * clienttcp.h
+ * 开发者：希望之花团队
+ * Update time: 2023-8-27
+ *
+ * 定义 ClientTcp 类
+ * 声明 ClientTcp 类的成员函数
+ * ============================
+ *
+*/
+
 #ifndef CLIENTTCP_H
 #define CLIENTTCP_H
 

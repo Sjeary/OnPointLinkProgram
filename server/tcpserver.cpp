@@ -1,3 +1,14 @@
+/*
+ * ============================
+ * tcpserver.cpp
+ * 开发者：希望之花团队
+ * Update time: 2023-8-27
+ *
+ * 定义 TcpServer 类的成员函数
+ * ============================
+ *
+*/
+
 #include "tcpserver.h"
 #include <QObject>
 #include <QTcpServer>

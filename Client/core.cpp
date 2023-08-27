@@ -1,3 +1,14 @@
+/*
+ * ============================
+ * clienttcp.cpp
+ * 开发者：希望之花团队
+ * Update time: 2023-8-27
+ *
+ * 定义 Core 类成员函数
+ * ============================
+ *
+*/
+
 #include "core.h"
 
 #include <QThread>
@@ -238,6 +249,13 @@ void Core::toSendLoginRequest(QString ID, QString password, bool rememberPasswor
 /*
  * toSendLoginRequest
  * slot函数，接收信号：login.sendLogin
+ * 功能：向服务器发送.json信息文件，并且根据
+ * rememberPassword参数保存密码。
+ * 参数：
+ * ID：登录者的OID
+ * password；登录者输入的密码
+ * rememberPassword： bool类型，表示是否保存密码
+ * autoLogin：下次是否自动登录（目前没有用上）
 */
 {
     QJsonObject json;
