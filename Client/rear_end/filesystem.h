@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QMap>
+#include <QVariant>
 
 
 class QDir;
@@ -18,18 +19,18 @@ public:
 
 
 signals:
-    void getKeyValue(QString key, QString value);
+    void getKeyValue(QString key, QVariant value);
 
 
 public slots:
     void makeBasic();
-    void toSaveKeyValue(QString key, QString value);
+    void toSaveKeyValue(QString key, QVariant value);
     void toReadKeyValue(QString key);
 
 private:
     QDir *basicFolder, *commonFolder;
     QFile *informationFile;
-    QMap<QString, QString> basicInfo;
+    QMap<QString, QVariant> basicInfo;
 };
 
 #endif // FILESYSTEM_H

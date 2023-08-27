@@ -31,6 +31,7 @@ signals:
 public slots:
     void getMessage(QString ID, QString name, QString content, bool isReceive);
     void getUserInfo(QString ID, QString name, QString ins, QString email, QString birth);
+    void getFriendRequest();
     void addMessageItem(QString ID, QString name);
     void addFriendItem(QString ID, QString name);
 
@@ -48,6 +49,8 @@ private slots:
     void on_pushButton_addFriend_clicked();
 
     void on_pushButton_friendRequest_clicked();
+
+    void on_pushButton_addThisUser_clicked();
 
 private:
     Ui::MainWindow *ui;
