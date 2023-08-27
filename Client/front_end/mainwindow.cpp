@@ -41,6 +41,11 @@ void MainWindow::getUserInfo(QString ID, QString name, QString ins, QString emai
     ui->textEdit_userInfo->insertPlainText("name:"+name+"\ninstruction:"+ins+"\nemail:"+email+"\nbirth"+birth);
 }
 
+void MainWindow::getFriendRequest()
+{
+
+}
+
 void MainWindow::addMessageItem(QString ID, QString name)
 {
     QListWidgetItem *newItem = new QListWidgetItem();
@@ -89,6 +94,11 @@ void MainWindow::on_pushButton_addFriend_clicked()
 void MainWindow::on_pushButton_friendRequest_clicked()
 {
     emit gotoDealFriendRequest();
+}
+
+void MainWindow::on_pushButton_addThisUser_clicked()
+{
+    emit sendAddFriendRequest(ui->label_userInfo_OID->text());
 }
 
 void MainWindow::on_radioButton_message_toggled(bool checked)

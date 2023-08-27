@@ -41,7 +41,7 @@ void FileSystem::makeBasic()
     informationFile->close();
 }
 
-void FileSystem::toSaveKeyValue(QString key, QString value)
+void FileSystem::toSaveKeyValue(QString key, QVariant value)
 {
     if(not informationFile->open(QFile::OpenModeFlag::WriteOnly))
         return;

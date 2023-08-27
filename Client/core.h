@@ -30,12 +30,14 @@ signals:
     void sendMessageToServer(QByteArray content);
 
 public slots:
-    void getKeyValue(QString key, QString value);
+    void getKeyValue(QString key, QVariant value);
     void distributeMessage(QByteArray content);
     void toSendConnectRequest();
     void toSendLoginRequest(QString ID, QString password, bool rememberPassword, bool autoLogin);
     void toSendSignUpRequest(QString nickname, QString password);
     void toSendGetInfoRequest(QString ID);
+    void toSendAddFriendRequest(QString ID);
+    void toSendFriendResult(QString ID, bool accept);
 
 
 protected:

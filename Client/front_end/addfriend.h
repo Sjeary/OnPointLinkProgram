@@ -16,9 +16,13 @@ public:
     ~AddFriend();
 
 signals:
-    void GetInfo(QString ID);
+    void getInfo(QString ID);
 
 public slots:
+    void getInfoFailed();
+
+private slots:
+    void on_pushButton_search_clicked();
 
 private:
     Ui::AddFriend *ui;
