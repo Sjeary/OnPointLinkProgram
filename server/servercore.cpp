@@ -49,20 +49,22 @@ void servercore::switchFunction(QTcpSocket *psocket)
     stringMap.insert("MessageReadedRequest", 19);
     stringMap.insert("FileListRequest", 21);
     stringMap.insert("FileRequest", 23);
+    stringMap.insert("SendFriendRequestToServer", 25) ;
     QString type = obj["transType"].toString();
     switch (stringMap.value(type)){
     case 1 : RegRequest(obj);break;
     case 3 : EnterRequest(obj);break;
-//    case 5 : AccountInfoRequest(obj);break;
+    case 5 : AccountInfoRequest(obj);break;
 //    case 7 : FriendListRequest(obj);break;
 //    case 9 : GroupListRequest(obj);break;
 //    case 11 : UserInfoRequest(obj);break;
 //    case 13 : GroupInfoRequest(obj);break;
-//    case 15 : SendTxtMessageRequest(obj);break;
+    case 15 : SendTxtMessageRequest(obj);break;
 //    case 17 : TargetMessageRequest(obj);break;
 //    case 19 : MessageReadedRequest(obj);break;
 //    case 21 : FileListRequest(obj);break;
 //    case 23 : FileRequest(obj);break;
+    case 25 : SendFriendRequestToServer(obj);break;
     }
 }
 
@@ -397,7 +399,7 @@ void servercore::SendResultToApplicant(int SenderOID,int TargetOID,bool Status,Q
     tp->send(targetip, defalutport, returnJsonData);
 }
 
-void servercore::returnAccountInfoResult(bool Status, int OID, QString Name, QString Instruction, QString Emai, QDate Birth)
+void servercore::returnUserInfoResult(bool Status, int OID, QString Name, QString Instruction, QString Emai, QDate Birth)
 {
     QJsonObject returnJsonObject;
     returnJsonObject["Status"]=Status;
@@ -406,13 +408,14 @@ void servercore::returnAccountInfoResult(bool Status, int OID, QString Name, QSt
     returnJsonObject["Instrction"]=Instruction;
     returnJsonObject["Emai"]=Emai;
     returnJsonObject["Birth"]=Birth.toString();
+    returnJsonObject["transType"]="UserInfoResult";//文件类型
     QJsonDocument returnJsonDocument(returnJsonObject);
     QByteArray returnJsonData = returnJsonDocument.toJson();
     qDebug()<<returnJsonData;
     tp->send(sp->peerAddress(), sp->peerPort(), returnJsonData);
 }
 
-void servercore::AccountInfoRequest(QJsonObject &jsonObj)
+void servercore::UserInfoRequest(QJsonObject &jsonObj)
 {
     int OID = jsonObj["OID"].toInt();
     QSqlQuery query(db);
@@ -432,9 +435,140 @@ void servercore::AccountInfoRequest(QJsonObject &jsonObj)
     }
     else
     {
+        qDebug() << "UserSerch Error!";
+    }
+}
+
+void servercore::returnAccountInfoResult(bool Status, int OID, QString Name, QString Instruction, QString Emai, QDate Birth)
+{
+    QJsonObject returnJsonObject;
+    returnJsonObject["Status"]=Status;
+    returnJsonObject["OID"]=OID;
+    returnJsonObject["Name"]=Name;
+    returnJsonObject["Instrction"]=Instruction;
+    returnJsonObject["Emai"]=Emai;
+    returnJsonObject["Birth"]=Birth.toString();
+    returnJsonObject["transType"]="AccountInfoResult";//文件类型
+    QJsonDocument returnJsonDocument(returnJsonObject);
+    QByteArray returnJsonData = returnJsonDocument.toJson();
+    qDebug()<<returnJsonData;
+    tp->send(sp->peerAddress(), sp->peerPort(), returnJsonData);
+}
+
+void servercore::AccountInfoRequest(QJsonObject &jsonObj)
+{
+    int OID = jsonObj["OID"].toInt();
+    QSqlQuery query(db);
+    if (!query.exec(QString("SELECT * FROM account, friend WHERE OID = %1 AND OID = OID2").arg(OID)))
+    {
+        qDebug() << "Query failed:" << query.lastError().text();
+    }
+    if (query.next())
+    {
+        bool Status = query.size();
+        int OID = query.value("OID").toUInt();
+        QString Name = query.value("Name").toString();
+        QString Instruction = query.value("Instruction").toString();
+        QString Emai = query.value("Email").toString();
+        QDate Birth = query.value("Birth").toDate();
+        returnAccountInfoResult(Status, OID, Name, Instruction, Emai, Birth);
+    }
+    else
+    {
         qDebug() << "AccontSerch Error!";
     }
 }
+
+void servercore::FriendListRequest(QJsonObject &jsonObj)
+{
+    int OID1 = jsonObj["OID"].toInt();
+    QSqlQuery query(db);
+    if (!query.exec(QString("SELECT * FROM account WHERE OID1 = %1").arg(OID1)))
+    {
+        qDebug() << "Query failed:" << query.lastError().text();
+    }
+    QJsonArray jsonArray;
+    QJsonObject jsonObject;
+    jsonObject["transType"]="FriendListResult";//文件类型
+    jsonArray.append(jsonObject);
+    while (query.next()) {
+        QJsonObject jsonObject;
+        jsonObject["FriendOID"] = query.value("OID2").toInt();
+        jsonObject["Devide"] = query.value("Devide").toString();
+
+        jsonArray.append(jsonObject);
+    }
+
+    QJsonDocument jsonDocument(jsonArray);
+    QByteArray jsonData = jsonDocument.toJson(QJsonDocument::Indented);
+    tp->send(sp->peerAddress(), sp->peerPort(), jsonData);
+}
+
+void servercore::GroupListRequest(QJsonObject &jsonObj)
+{
+    int OID = jsonObj["OID"].toInt();
+    QSqlQuery query(db);
+    if (!query.exec(QString("SELECT * FROM group, ga WHERE MemberOID = %1").arg(OID)))
+    {
+        qDebug() << "Query failed:" << query.lastError().text();
+    }
+    QJsonArray jsonArray;
+    QJsonObject jsonObject;
+    jsonObject["transType"]="GroupListResult";//文件类型
+    jsonArray.append(jsonObject);
+    while (query.next()) {
+        QJsonObject jsonObject;
+        jsonObject["GroupOID"] = query.value("OID").toInt();
+        jsonObject["Name"] = query.value("Name").toString();
+        jsonObject["Instruction"] = query.value("Instruction").toString();
+
+        jsonArray.append(jsonObject);
+    }
+
+    QJsonDocument jsonDocument(jsonArray);
+    QByteArray jsonData = jsonDocument.toJson(QJsonDocument::Indented);
+    tp->send(sp->peerAddress(), sp->peerPort(), jsonData);
+}
+
+void servercore::GroupInfoRequest(QJsonObject &jsonObj)
+{
+    int OID = jsonObj["OID"].toInt();
+    int GroupOID = jsonObj["GroupOID"].toInt();
+    QSqlQuery query(db);
+    QJsonArray jsonArray;
+    // 查询群信息
+    if (!query.exec(QString("SELECT * FROM group WHERE OID = %1").arg(GroupOID)))
+    {
+        qDebug() << "Query failed:" << query.lastError().text();
+    }
+    if (query.next())
+    {
+        QJsonObject jsonObject;
+        jsonObject["OID"] = OID;
+        jsonObject["GroupOID"] = query.value("OID").toInt();
+        jsonObject["Name"] = query.value("Name").toString();
+        jsonObject["Instruction"] = query.value("Instruction").toString();
+
+        jsonArray.append(jsonObject);
+    }
+    // 查询群友信息
+    if (!query.exec(QString("SELECT * FROM group, ga WHERE OID = %1 AND GroupOID = OID").arg(GroupOID)))
+    {
+        qDebug() << "Query failed:" << query.lastError().text();
+    }
+    while (query.next()) {
+        QJsonObject jsonObject;
+        jsonObject["MemberOID"] = query.value("MemberOID").toInt();
+
+        jsonArray.append(jsonObject);
+    }
+
+    QJsonDocument jsonDocument(jsonArray);
+    QByteArray jsonData = jsonDocument.toJson(QJsonDocument::Indented);
+    tp->send(sp->peerAddress(), sp->peerPort(), jsonData);
+}
+
+
 
 servercore::~servercore()
 {

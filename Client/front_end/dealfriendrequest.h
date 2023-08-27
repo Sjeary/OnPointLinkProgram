@@ -16,11 +16,10 @@ public:
     ~DealFriendRequest();
 
 signals:
-    void acceptRequest(QString ID);
-    void rejectRequest(QString ID);
+    void dealFriendRequest(QString ID, bool accept);
 
 public slots:
-    void addRequestItem(QString ID, QString nickname);
+    void addRequestItem(QString ID, QString message);
 
 private:
     Ui::DealFriendRequest *ui;

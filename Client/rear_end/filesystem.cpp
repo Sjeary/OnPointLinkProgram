@@ -49,12 +49,12 @@ QMap<QString,QString> FileSystem:: getSavedAccount()
      * 返回一个QMap，{"savedOID": ,"savedPassword": }
     */
     QMap<QString,QString> result;
-    result["savedOID"] = basicInfo.value("savedOID","");
-    result["savedPassword"] = basicInfo.value("savedPassword","");
+    result["savedOID"] = basicInfo.value("savedOID","").toString();
+    result["savedPassword"] = basicInfo.value("savedPassword","").toString();
     return result;
 }
 
-void FileSystem::toSaveKeyValue(QString key, QString value)
+void FileSystem::toSaveKeyValue(QString key, QVariant value)
 {
     if(not informationFile->open(QFile::OpenModeFlag::WriteOnly))
         return;

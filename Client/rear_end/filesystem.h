@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QMap>
+#include <QVariant>
 
 
 class QDir;
@@ -20,22 +21,23 @@ public:
 
 
 signals:
-    void setCoreKeyValue(QString key, QString value); // 作用：通知core将参数key（比如serverIP）改为value
+    void setCoreKeyValue(QString key, QVariant value); // 作用：通知core将参数key（比如serverIP）改为value
 
 public slots:
     void makeBasic();
-    void toSaveKeyValue(QString key, QString value);
+    void toSaveKeyValue(QString key, QVariant value);
     void toReadKeyValue(QString key);
 
 private:
     QDir *basicFolder, *commonFolder;
     QFile *informationFile;
-    QMap<QString, QString> basicInfo;
+    QMap<QString, QVariant> basicInfo;
     /*
-     * baseInfo可能含有的信息：
-     * "savedOID": ,保存账户的OID；
-     * "savedPassword": ，保存账户的登录密码。
-     * "serverIP": ，服务器IP。
+     * basicInfo: 存储一些基本参数
+     * 包括但不限于：
+     * "serverIP"：服务器IP
+     * "savedOID"：保存的账户的OID、
+     * "savedPassword"：保存的账户密码
     */
 };
 

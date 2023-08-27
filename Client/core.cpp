@@ -5,6 +5,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QDebug>
+#include <QMessageBox>
 #include "front_end/login.h"
 #include "front_end/sign_up.h"
 #include "front_end/switchserverip.h"
@@ -71,15 +72,16 @@ Core::Core(QObject *parent)
 
     connect(login, &Login::reconnectToServer, this, &Core::toSendConnectRequest);
     connect(login, &Login::sendLogin, this, &Core::toSendLoginRequest);
-
     connect(login, &Login::gotoSignUp, sign_up, &QWidget::show);
     connect(login, &Login::gotoSwitchServerIP, switchServerIP, &QWidget::show);
+    /*temp*/connect(login, &Login::sendLogin, mainwindow, &MainWindow::show);
 
     connect(sign_up, &Sign_up::sendSignUp, this, &Core::toSendSignUpRequest);
 
-    connect(addFriend, &AddFriend::GetInfo, this, &Core::toSendGetInfoRequest);
+    connect(addFriend, &AddFriend::getInfo, this, &Core::toSendGetInfoRequest);
+    connect(dealFriendRequest, &DealFriendRequest::dealFriendRequest, this, &Core::toSendFriendResult);
 
-
+    connect(mainwindow, &MainWindow::sendAddFriendRequest, this, &Core::toSendAddFriendRequest);
     connect(mainwindow, &MainWindow::gotoAddFriend, addFriend, &QWidget::show);
     connect(mainwindow, &MainWindow::gotoDealFriendRequest, dealFriendRequest, &DealFriendRequest::show);
 
@@ -105,7 +107,7 @@ Core::~Core()
     dealFriendRequest->deleteLater();
 }
 
-void Core::setKeyValue(QString key, QString value)
+void Core::setKeyValue(QString key, QVariant value)
 /*
  * setKeyValue
  * 功能：设置core对象中，key值对应的变量的值。
@@ -117,7 +119,7 @@ void Core::setKeyValue(QString key, QString value)
     qDebug()<<"Core: getKeyValue: key: "<<key<<" value: "<<value << endl;
     if (key == "serverIP")
     {
-        serverIP = value;
+        serverIP = value.toString();
         if(! serverIP.isEmpty())
         {
             toSendConnectRequest();
@@ -181,7 +183,31 @@ void Core::distributeMessage(QByteArray content)
             QString email = json["Email"].toString();
             QString birth = json["Birth"].toString();
             mainwindow->getUserInfo(ID, name, ins, email, birth);
+            addFriend->hide();
         }
+        else
+        {
+            addFriend->getInfoFailed();
+        }
+    }
+    else if(transType == "ProcessFriendRequestResult")
+    {
+        bool success = json["Status"].toBool();
+        QString targetOID = json["OID2"].toString();
+        if(success)
+        {
+            QMessageBox::information(mainwindow, "request sent", "Your add friend request to " + targetOID + " has been sent");
+        }
+        else
+        {
+            QMessageBox::warning(mainwindow, "request failed", "Your add friend request to " + targetOID + " cannot send");
+        }
+    }
+    else if(transType == "SendRequestToReceiverClient")
+    {
+        QString senderOID = json["OID1"].toString();
+        mainwindow->getFriendRequest();
+        dealFriendRequest->addRequestItem(senderOID,"");
     }
 }
 
@@ -221,6 +247,29 @@ void Core::toSendGetInfoRequest(QString ID)
     QJsonObject json;
     json["transType"] = "AccountInfoRequest";
     json["OID"] = ID.toInt();
+    QJsonDocument doc(json);
+    emit this->sendMessageToServer(doc.toJson());
+}
+
+void Core::toSendAddFriendRequest(QString ID)
+{
+    QJsonObject json;
+    json["transType"] = "SendFriendRequestToServer";
+    json["OID1"] = savedID.toInt();
+    json["OID2"] = ID.toInt();
+    json["RequestMessage"] = "hello";
+    QJsonDocument doc(json);
+    emit this->sendMessageToServer(doc.toJson());
+}
+
+void Core::toSendFriendResult(QString ID, bool accept)
+{
+    QJsonObject json;
+    json["transType"] = "SendResultFromReceiverClientToServer";
+    json["OID1"] = ID.toInt();
+    json["OID2"] = savedID.toInt();
+    json["ReplyMessage"] = "hello";
+    json["Accepted"] = accept;
     QJsonDocument doc(json);
     emit this->sendMessageToServer(doc.toJson());
 }

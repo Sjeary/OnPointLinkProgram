@@ -20,13 +20,13 @@ signals:
     void gotoSwitchServerIP();
     void reconnectToServer();
     void sendLogin(QString ID, QString password, bool rememberPassword, bool autoLogin);
-    void writeSavedAccountInfo(const QString &savedOID, const QString &savedPassword);
 
 public slots:
     void connectedToServer();
     void cannotConnect();
     void loginSuccess();
     void loginFailed(QString log = "");
+    void writeSavedAccountInfo(const QString &savedOID, const QString &savedPassword);
 
 private slots:
     void on_pushButton_SignUp_clicked();

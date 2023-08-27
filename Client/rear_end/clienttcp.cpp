@@ -19,7 +19,7 @@ void ClientTcp::tryConnect(QString IP, int port)
 {
     qDebug()<<"try to connect IP:"<<IP;
     m_tcp->connectToHost(QHostAddress(IP), port);
-    if(m_tcp->waitForConnected(5000)) {
+    if(m_tcp->waitForConnected(1000)) {
         qDebug()<<"connected!";
         emit getConnect();
     }

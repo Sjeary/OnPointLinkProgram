@@ -3,6 +3,8 @@
 
 #include <QObject>
 #include <QThread> // updated by zwx.
+#include <QMap>
+#include <QVariant>
 
 #include <QJsonDocument>
 
@@ -31,12 +33,14 @@ signals:
     void sendMessageToServer(QByteArray content);
 
 public slots:
-    void setKeyValue(QString key, QString value);
+    void setKeyValue(QString key, QVariant value);
     void distributeMessage(QByteArray content);
     void toSendConnectRequest();
     void toSendLoginRequest(QString ID, QString password, bool rememberPassword, bool autoLogin);
     void toSendSignUpRequest(QString nickname, QString password);
     void toSendGetInfoRequest(QString ID);
+    void toSendAddFriendRequest(QString ID);
+    void toSendFriendResult(QString ID, bool accept);
 
 
 protected:
