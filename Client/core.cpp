@@ -155,6 +155,12 @@ void Core::distributeMessage(QByteArray content)
         {
             login->loginSuccess();
             mainwindow->show();
+
+            QJsonObject subjson;
+            subjson["transType"] = "FriendListRequest";
+            subjson["OID"] = savedID.toInt();
+            QJsonDocument subdoc(subjson);
+            emit this->sendMessageToServer(subdoc.toJson());
         }
         else
         {
@@ -178,7 +184,7 @@ void Core::distributeMessage(QByteArray content)
         bool success = json["Status"].toBool();
         if(success)
         {
-            QString ID = json["OID"].toString();
+            QString ID = QString::number(json["OID"].toInt());
             QString name = json["Name"].toString();
             QString ins = json["Instruction"].toString();
             QString email = json["Email"].toString();
@@ -209,6 +215,16 @@ void Core::distributeMessage(QByteArray content)
         QString senderOID = json["OID1"].toString();
         mainwindow->getFriendRequest();
         dealFriendRequest->addRequestItem(senderOID,"");
+    }
+    else if(transType == "FriendListResult")
+    {
+        QJsonArray friendList = json["FriendList"].toArray();
+        foreach (auto var, friendList) {
+            QJsonObject f = var.toObject();
+            QString ID = f["FriendOID"].toString();
+            mainwindow->addFriendItem(ID, "");
+            qDebug()<<ID;
+        }
     }
 }
 
@@ -276,6 +292,17 @@ void Core::toSendFriendResult(QString ID, bool accept)
     json["OID2"] = savedID.toInt();
     json["ReplyMessage"] = "hello";
     json["Accepted"] = accept;
+    QJsonDocument doc(json);
+    emit this->sendMessageToServer(doc.toJson());
+}
+
+void Core::toSendMessageToFriend(QString ID, QString message)
+{
+    QJsonObject json;
+    json["transType"] = "SendTxtMessageRequest";
+    json["SenderOID"] = savedID.toInt();
+    json["TargetOID"] = ID.toInt();
+    json["Value"] = message;
     QJsonDocument doc(json);
     emit this->sendMessageToServer(doc.toJson());
 }

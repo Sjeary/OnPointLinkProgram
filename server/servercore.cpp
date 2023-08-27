@@ -55,7 +55,7 @@ void servercore::switchFunction(QTcpSocket *psocket)
     case 1 : RegRequest(obj);break;
     case 3 : EnterRequest(obj);break;
     case 5 : AccountInfoRequest(obj);break;
-//    case 7 : FriendListRequest(obj);break;
+    case 7 : FriendListRequest(obj);break;
 //    case 9 : GroupListRequest(obj);break;
 //    case 11 : UserInfoRequest(obj);break;
 //    case 13 : GroupInfoRequest(obj);break;
@@ -459,23 +459,25 @@ void servercore::AccountInfoRequest(QJsonObject &jsonObj)
 {
     int OID = jsonObj["OID"].toInt();
     QSqlQuery query(db);
-    if (!query.exec(QString("SELECT * FROM account, friend WHERE OID = %1 AND OID = OID2").arg(OID)))
+    if (!query.exec(QString("SELECT * FROM account  WHERE OID = %1").arg(OID)))
     {
         qDebug() << "Query failed:" << query.lastError().text();
     }
     if (query.next())
     {
         bool Status = query.size();
-        int OID = query.value("OID").toUInt();
+        int OID = query.value("OID").toInt();
         QString Name = query.value("Name").toString();
         QString Instruction = query.value("Instruction").toString();
-        QString Emai = query.value("Email").toString();
+        QString Email = query.value("Email").toString();
         QDate Birth = query.value("Birth").toDate();
-        returnAccountInfoResult(Status, OID, Name, Instruction, Emai, Birth);
+        returnAccountInfoResult(Status, OID, Name, Instruction, Email, Birth);
     }
-    else
+    else//查无此人情况
     {
-        qDebug() << "AccontSerch Error!";
+        bool Status = query.size();
+        returnAccountInfoResult(Status, OID, " ", " ", " ", QDate::fromString("0000-00-00", "yyyy-MM-dd"));
+        qDebug() << "AccountSearch Error!";
     }
 }
 
@@ -489,7 +491,7 @@ void servercore::FriendListRequest(QJsonObject &jsonObj)
     }
     QJsonArray jsonArray;
     QJsonObject jsonObject;
-    jsonObject["transType"]="FriendListResult";//文件类型
+
     jsonArray.append(jsonObject);
     while (query.next()) {
         QJsonObject jsonObject;
@@ -498,8 +500,10 @@ void servercore::FriendListRequest(QJsonObject &jsonObj)
 
         jsonArray.append(jsonObject);
     }
-
-    QJsonDocument jsonDocument(jsonArray);
+    QJsonObject jsonObject2;
+    jsonObject2["transType"]="FriendListResult";//文件类型
+    jsonObject2["FriendList"]=jsonArray;
+    QJsonDocument jsonDocument(jsonObject2);
     QByteArray jsonData = jsonDocument.toJson(QJsonDocument::Indented);
     tp->send(sp->peerAddress(), sp->peerPort(), jsonData);
 }

@@ -42,6 +42,7 @@ public slots:
     void toSendGetInfoRequest(QString ID);
     void toSendAddFriendRequest(QString ID);
     void toSendFriendResult(QString ID, bool accept);
+    void toSendMessageToFriend(QString ID, QString message);
 
 
 protected:
