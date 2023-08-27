@@ -31,6 +31,7 @@ signals:
     void readKeyValue(QString key);
     void sendConnectRequest(QString IP, int port);
     void sendMessageToServer(QByteArray content);
+    void turnLoginToWaiting();
 
 public slots:
     void setKeyValue(QString key, QVariant value);

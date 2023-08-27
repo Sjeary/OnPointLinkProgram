@@ -72,6 +72,7 @@ Core::Core(QObject *parent)
 
     connect(login, &Login::reconnectToServer, this, &Core::toSendConnectRequest);
     connect(login, &Login::sendLogin, this, &Core::toSendLoginRequest);
+    connect(this,&Core::turnLoginToWaiting,login,&Login::turnToWaiting);
     connect(login, &Login::gotoSignUp, sign_up, &QWidget::show);
     connect(login, &Login::gotoSwitchServerIP, switchServerIP, &QWidget::show);
     /*temp*/connect(login, &Login::sendLogin, mainwindow, &MainWindow::show);
@@ -218,6 +219,10 @@ void Core::toSendConnectRequest()
 }
 
 void Core::toSendLoginRequest(QString ID, QString password, bool rememberPassword, bool autoLogin)
+/*
+ * toSendLoginRequest
+ * slot函数，接收信号：login.sendLogin
+*/
 {
     QJsonObject json;
     json["transType"] = "EnterRequest";
@@ -232,6 +237,7 @@ void Core::toSendLoginRequest(QString ID, QString password, bool rememberPasswor
         fileSystem->toSaveKeyValue("savedOID",savedID);
         fileSystem->toSaveKeyValue("savedPassword",savedPassword);
     }
+
 }
 void Core::toSendSignUpRequest(QString nickname, QString password)
 {

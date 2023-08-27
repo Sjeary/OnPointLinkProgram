@@ -26,7 +26,10 @@ public slots:
     void cannotConnect();
     void loginSuccess();
     void loginFailed(QString log = "");
+
+    /*一些供外部程序修改ui的接口*/
     void writeSavedAccountInfo(const QString &savedOID, const QString &savedPassword);
+    void turnToWaiting();
 
 private slots:
     void on_pushButton_SignUp_clicked();

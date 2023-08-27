@@ -59,9 +59,13 @@ void Login::on_pushButton_connect_clicked()
 void Login::writeSavedAccountInfo(const QString& savedOID,const QString &savedPassword) {
     /*
      * writeSavedAccountInfo
+     * updated by 祝文轩
      * 作用：写入上次登录的用户的OID、Password（需要上次登录的用户勾选记住密码
     */
     ui->comboBox->setEditText(savedOID);
     ui->lineEdit->setText(savedPassword);
 }
 
+void Login::turnToWaiting(){
+    ui->pushButton_Login->setText("Login-ing");
+}
