@@ -196,6 +196,7 @@ void Core::distributeMessage(QByteArray content)
             QJsonObject f = var.toObject();
             QString ID = f["FriendOID"].toString();
             mainwindow->addFriendItem(ID, "");
+            qDebug()<<ID;
         }
     }
 }
