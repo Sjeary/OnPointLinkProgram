@@ -38,6 +38,7 @@ void MainWindow::getMessage(QString ID, QString name, QString content, bool isRe
 void MainWindow::getUserInfo(QString ID, QString name, QString ins, QString email, QString birth)
 {
     ui->label_userInfo_OID->setText(ID);
+    qDebug()<<ID;
     ui->textEdit_userInfo->insertPlainText("name:"+name+"\ninstruction:"+ins+"\nemail:"+email+"\nbirth"+birth);
 }
 

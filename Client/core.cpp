@@ -151,7 +151,7 @@ void Core::distributeMessage(QByteArray content)
         bool success = json["Status"].toBool();
         if(success)
         {
-            QString ID = json["OID"].toString();
+            QString ID = QString::number(json["OID"].toInt());
             QString name = json["Name"].toString();
             QString ins = json["Instruction"].toString();
             QString email = json["Email"].toString();
