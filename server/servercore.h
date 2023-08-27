@@ -31,10 +31,11 @@ public:
     void FileListRequest(QJsonObject &);
     void FileRequest(QJsonObject &);
 
-    void returnAccountInfoResult(bool Status, int OID, QString Name, QString Instruction, QString Emai, QDate Birth);
-
     void returnRegResult(int OID,bool Status,QString log,QString Name);
     void returnEnterResult(int OID, QHostAddress ip, bool status, QString log);
+    void returnAccountInfoResult(bool Status, int OID, QString Name, QString Instruction, QString Emai, QDate Birth);
+//    void returnFriendListResult(int OID);因为涉及动态数量，所以不编写returnresult函数，直接再request函数返回结果
+    void returnUserInfoResult(bool Status, int OID, QString Name, QString Instruction, QString Emai, QDate Birth);
     void returnSendTextMessageResult(bool Status, int MID, int SenderOID, int TargetOID, QString Type, QString Value);
     void SendFriendRequestToServer(QJsonObject &jsonObj);//后面五条都是以过程命名，主体都是服务器端的操作，但是名字看起来不是很像
     void ProcessFriendRequestResult(int SenderOID,int TargetOID,bool Status, QString log);
