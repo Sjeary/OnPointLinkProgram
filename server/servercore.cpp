@@ -55,7 +55,7 @@ void servercore::switchFunction(QTcpSocket *psocket)
     case 1 : RegRequest(obj);break;
     case 3 : EnterRequest(obj);break;
     case 5 : AccountInfoRequest(obj);break;
-//    case 7 : FriendListRequest(obj);break;
+    case 7 : FriendListRequest(obj);break;
 //    case 9 : GroupListRequest(obj);break;
 //    case 11 : UserInfoRequest(obj);break;
 //    case 13 : GroupInfoRequest(obj);break;
