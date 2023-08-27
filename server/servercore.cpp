@@ -491,7 +491,7 @@ void servercore::FriendListRequest(QJsonObject &jsonObj)
     }
     QJsonArray jsonArray;
     QJsonObject jsonObject;
-    jsonObject["transType"]="FriendListResult";//文件类型
+
     jsonArray.append(jsonObject);
     while (query.next()) {
         QJsonObject jsonObject;
@@ -500,8 +500,10 @@ void servercore::FriendListRequest(QJsonObject &jsonObj)
 
         jsonArray.append(jsonObject);
     }
-
-    QJsonDocument jsonDocument(jsonArray);
+    QJsonObject jsonObject2;
+    jsonObject2["transType"]="FriendListResult";//文件类型
+    jsonObject2["FriendList"]=jsonArray;
+    QJsonDocument jsonDocument(jsonObject2);
     QByteArray jsonData = jsonDocument.toJson(QJsonDocument::Indented);
     tp->send(sp->peerAddress(), sp->peerPort(), jsonData);
 }
