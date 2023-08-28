@@ -15,12 +15,13 @@
 
 #include <QWidget>
 #include <QMap>
+#include "accountsettings.h"
 
 class QTextDocument;
 class QListWidgetItem;
 
 namespace Ui {
-class MainWindow;
+    class MainWindow;
 }
 
 class MainWindow : public QWidget
@@ -72,6 +73,7 @@ private:
 
     QMap<QListWidgetItem*, QTextDocument*> documents;
     QMap<QTextDocument*, int> documentToOID;
+    AccountSettings *acSetting; // 设置界面的Widget
 
     void setRootFrameFormat(QTextDocument *doc);
 

@@ -79,3 +79,12 @@ void FileSystem::toReadKeyValue(QString key)
 {
     emit setCoreKeyValue(key, basicInfo.value(key,""));
 }
+
+QString FileSystem::getSavedServerIP()
+/*
+ * getSavedServerIP
+ * 返回上一次的SererIP
+*/
+{
+    return basicInfo.value("serverIP","").toString();
+}

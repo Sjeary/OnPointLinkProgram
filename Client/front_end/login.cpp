@@ -42,6 +42,8 @@ void Login::loginSuccess()
 void Login::loginFailed(QString log)
 {
     QMessageBox::warning(this, "Login failed", log);
+    ui->pushButton_Login->setText("Login");
+    ui->pushButton_Login->setEnabled(true);
 }
 
 void Login::on_pushButton_SignUp_clicked()
@@ -59,6 +61,8 @@ void Login::on_pushButton_switchServerIP_clicked()
 void Login::on_pushButton_Login_clicked()
 {
     emit sendLogin(ui->comboBox->currentText(), ui->lineEdit->text(), ui->checkBox_rememberPassword, ui->checkBox_autoLogin);
+    ui->pushButton_Login->setText("Login-ing");
+    ui->pushButton_Login->setEnabled(false);
 }
 
 

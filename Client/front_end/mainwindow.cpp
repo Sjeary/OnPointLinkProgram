@@ -14,14 +14,15 @@
 
 #include <QTextFrame>
 #include <QTextDocument>
+#include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    acSetting = nullptr;
     connect(ui->listWidget_message, &QListWidget::currentItemChanged, this, &MainWindow::changeMessageItem);
-
 }
 
 MainWindow::~MainWindow()
@@ -132,13 +133,24 @@ void MainWindow::on_radioButton_friends_toggled(bool checked)
     }
 }
 
-
 void MainWindow::on_radioButton_settings_toggled(bool checked)
 {
     if(checked)
     {
         ui->stackedWidget_middle->setCurrentIndex(2);
         ui->stackedWidget_main->setCurrentIndex(2);
+        ui->stackedWidget_main->close();
+        ui->stackedWidget_middle->close();
+        if (acSetting == nullptr) {
+            acSetting = new AccountSettings(this);
+        }
+        acSetting->show();
+    }
+    else
+    {
+        ui->stackedWidget_main->show();
+        ui->stackedWidget_middle->show();
+        acSetting->close();
     }
 }
 

@@ -22,9 +22,9 @@ servercore::servercore(TcpServer *ptcpserver, QObject *parent) : QObject(parent)
     connect(tp, &TcpServer::disconnected, this, &servercore::offline);
     db = QSqlDatabase::addDatabase("QODBC");
     db.setPort(3306);
-    db.setDatabaseName("mysql");//不同电脑连接不同的数据库的时候记得改
-    db.setUserName("root");
-    db.setPassword("7979");
+    db.setDatabaseName("oplinkbase");//不同电脑连接不同的数据库的时候记得改
+    //db.setUserName("root");
+    //db.setPassword("7979");
     db.open();
     if(!db.isOpen())qDebug()<<"Dont Connected"<<endl<<db.lastError().text()<<endl;
 }

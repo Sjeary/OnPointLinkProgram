@@ -46,7 +46,7 @@ Core::Core(QObject *parent)
     //建立各个功能窗口
     login = new Login();
     sign_up = new Sign_up();
-    switchServerIP = new SwitchServerIP();
+    switchServerIP = new SwitchServerIP(nullptr,fileSystem->getSavedServerIP());
     mainwindow = new MainWindow();
     addFriend = new AddFriend();
     dealFriendRequest = new DealFriendRequest();
@@ -72,6 +72,7 @@ Core::Core(QObject *parent)
 
     connect(switchServerIP, &SwitchServerIP::sendNewIP, this, [this](QString newIP){
         this->serverIP = newIP;
+        fileSystem->toSaveKeyValue("serverIP",newIP);
     });
 
 

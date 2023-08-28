@@ -28,7 +28,7 @@ public:
 
     QMap<QString,QString> getSavedAccount();
     ~FileSystem();
-
+    QString getSavedServerIP(); // updated by zwx.
 
 
 signals:
