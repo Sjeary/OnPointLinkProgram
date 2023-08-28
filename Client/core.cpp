@@ -225,7 +225,7 @@ void Core::distributeMessage(QByteArray content)
     }
     else if(transType == "SendRequestToReceiverClient")
     {
-        QString senderOID = json["OID1"].toString();
+        QString senderOID = QString::number(json["OID1"].toInt());
         mainwindow->getFriendRequest();
         dealFriendRequest->addRequestItem(senderOID,"");
     }
