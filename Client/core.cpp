@@ -1,10 +1,10 @@
 /*
  * ============================
  * clienttcp.cpp
- * 开发者：希望之花团队
+ * 开发者：王钟骐、祝文轩、王启贤
  * Update time: 2023-8-27
  *
- * 定义 Core 类成员函数
+ * 定义 Core 类成员函数，实现核心功能
  * ============================
  *
 */
@@ -336,6 +336,7 @@ void Core::toSendMessageToFriend(QString ID, QString message)
     json["transType"] = "SendTxtMessageRequest";
     json["SenderOID"] = savedID.toInt();
     json["TargetOID"] = ID.toInt();
+    json["Type"] = "Txt";
     json["Value"] = message;
     QJsonDocument doc(json);
     emit this->sendMessageToServer(doc.toJson());

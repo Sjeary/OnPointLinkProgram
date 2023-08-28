@@ -1,7 +1,7 @@
 /*
  * ============================
  * sign_up.h
- * 开发者：希望之花团队
+ * 开发者：王钟骐
  * Update time: 2023-8-27
  *
  * 定义 Sign_up 类
@@ -35,7 +35,9 @@ signals:
     void sendSignUp(QString nickname, QString password);
 
 public slots:
+    //注册成功
     void signUpSuccess(QString ID);
+    //注册失败
     void signUpFailed(QString log);
 
 private slots:

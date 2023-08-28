@@ -1,7 +1,7 @@
 /*
  * ============================
  * mainwindow.cpp
- * 开发者：希望之花团队
+ * 开发者：王钟骐、祝文轩、王启贤
  * Update time: 2023-8-27
  *
  * 定义 MainWindow 类成员函数
@@ -65,7 +65,7 @@ void MainWindow::getFriendRequest()
 void MainWindow::addMessageItem(QString ID, QString name)
 {
     QListWidgetItem *newItem = new QListWidgetItem();
-    newItem->setData(0,name + "ID: "+ ID);
+    newItem->setData(0,name + "\nID: "+ ID);
     newItem->setData(3,ID);
     ui->listWidget_message->addItem(newItem);
     QTextDocument *newDocument = new QTextDocument(this);
@@ -77,7 +77,7 @@ void MainWindow::addMessageItem(QString ID, QString name)
 void MainWindow::addFriendItem(QString ID, QString name)
 {
     QListWidgetItem *newItem = new QListWidgetItem();
-    newItem->setData(0,name + "ID: " + ID);
+    newItem->setData(0,name + "\nID: " + ID);
     newItem->setData(3,ID);
     ui->listWidget_friend->addItem(newItem);
 }
