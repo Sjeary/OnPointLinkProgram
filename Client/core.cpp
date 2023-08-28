@@ -234,13 +234,13 @@ void Core::distributeMessage(QByteArray content)
         QJsonArray friendList = json["FriendList"].toArray();
         foreach (auto var, friendList) {
             QJsonObject f = var.toObject();
-            QString ID = f["FriendOID"].toString();
+            QString ID = QString::number(f["FriendOID"].toInt());
             mainwindow->addFriendItem(ID, "");
             mainwindow->addMessageItem(ID, "");
             qDebug()<<ID;
         }
     }
-    else if (transType == "TargetMessageRequest")
+    else if (transType == "SendMessageResult")
     {
         QString SenderOID = QString::number(json["SenderOID"].toInt());
         QString TargetOID = QString::number(json["TargetOID"].toInt());
