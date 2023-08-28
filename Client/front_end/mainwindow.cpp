@@ -65,7 +65,7 @@ void MainWindow::getFriendRequest()
 void MainWindow::addMessageItem(QString ID, QString name)
 {
     QListWidgetItem *newItem = new QListWidgetItem();
-    newItem->setData(0,name + "ID: "+ ID);
+    newItem->setData(0,name + "\nID: "+ ID);
     newItem->setData(3,ID);
     ui->listWidget_message->addItem(newItem);
     QTextDocument *newDocument = new QTextDocument(this);
@@ -77,7 +77,7 @@ void MainWindow::addMessageItem(QString ID, QString name)
 void MainWindow::addFriendItem(QString ID, QString name)
 {
     QListWidgetItem *newItem = new QListWidgetItem();
-    newItem->setData(0,name + "ID: " + ID);
+    newItem->setData(0,name + "\nID: " + ID);
     newItem->setData(3,ID);
     ui->listWidget_friend->addItem(newItem);
 }
