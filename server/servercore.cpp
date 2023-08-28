@@ -132,21 +132,16 @@ void servercore::SendTxtMessageRequest(QJsonObject &jsonObj)
         qDebug() << "Maximum value of" << "MID" << "is:" << MID++;
     }
     //判断消息类型是文本（Txt）还是文件（Doc），文本的Value为消息内容
-    qDebug()<<1;
+
     QTcpSocket* flag = socketmap.value(TargetOID, nullptr);
-    qDebug()<<Type;
+
     if (Type == "Txt")
     {
-        qDebug()<<123;
-
         if (flag)
         {
-            qDebug()<<76513476;
             returnSendTextMessageResult(1, MID, SenderOID, TargetOID, Type, Value);
         } else
         {
-            qDebug()<<2;
-            qDebug()<<"MID : "<<MID;
             QDateTime SendTime = QDateTime::currentDateTime();
             query.prepare("INSERT INTO message (MID,Type,SenderOID,TargetOID,SendTime,Readed,Value) VALUES(:MID,:Type,:SenderOID,:TargetOID,:SendTime,:Readed,:Value)");
             query.bindValue(":MID", MID);
@@ -156,14 +151,12 @@ void servercore::SendTxtMessageRequest(QJsonObject &jsonObj)
             query.bindValue(":SendTime", SendTime);
             query.bindValue(":Readed", 0);
             query.bindValue(":Value", Value);
-            qDebug()<<66;
             if (!query.exec())
             {
                 qDebug() << "Database insertion error:" << query.lastError().text();
                 returnSendTextMessageResult(0, MID, SenderOID, TargetOID, Type, Value);
                 return;
             }
-            qDebug()<<3;
             returnSendTextMessageResult(0, MID, SenderOID, TargetOID, Type, Value);
         }
     }
