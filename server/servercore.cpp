@@ -82,13 +82,14 @@ void servercore::switchFunction(QTcpSocket *psocket)
     }
 }
 
-void servercore::returnSendTextMessageResult(bool Status, int MID, int SenderOID, int TargetOID, QString Type, QString Value)
+void servercore::returnSendTextMessageResult(bool Status, int MID, int SenderOID, int TargetOID, QString Type, QString Value,QString SenderName)
 {
     // 还没实现文件消息的传输
 
     QJsonObject returnJsonObject;
     returnJsonObject["Statues"]=Status;
     returnJsonObject["MID"]=MID;
+    returnJsonObject["SenderName"]=SenderName;
     returnJsonObject["SenderOID"]=SenderOID;
     returnJsonObject["TargetOID"]=TargetOID;
     returnJsonObject["transType"]="SendMessageResult";
@@ -121,6 +122,13 @@ void servercore::SendTxtMessageRequest(QJsonObject &jsonObj)
     QString Value = jsonObj["Value"].toString();
 
     QSqlQuery query(db);
+    //查询发送者的姓名
+    query.prepare(QString("SELECT * FROM account WHERE OID = :SenderOID"));
+    query.bindValue(":OID",SenderOID);
+    query.exec();
+    query.next();
+    QString SenderName = query.value("Name").toString();
+
     int MID = -100;
     if (!query.exec(QString("SELECT MAX(MID) AS MaxMID FROM message")))
     {
@@ -139,7 +147,7 @@ void servercore::SendTxtMessageRequest(QJsonObject &jsonObj)
     {
         if (flag)
         {
-            returnSendTextMessageResult(1, MID, SenderOID, TargetOID, Type, Value);
+            returnSendTextMessageResult(1, MID, SenderOID, TargetOID, Type, Value,SenderName);
         } else
         {
             QDateTime SendTime = QDateTime::currentDateTime();
@@ -154,21 +162,21 @@ void servercore::SendTxtMessageRequest(QJsonObject &jsonObj)
             if (!query.exec())
             {
                 qDebug() << "Database insertion error:" << query.lastError().text();
-                returnSendTextMessageResult(0, MID, SenderOID, TargetOID, Type, Value);
+                returnSendTextMessageResult(0, MID, SenderOID, TargetOID, Type, Value,SenderName);
                 return;
             }
-            returnSendTextMessageResult(0, MID, SenderOID, TargetOID, Type, Value);
+            returnSendTextMessageResult(0, MID, SenderOID, TargetOID, Type, Value,SenderName);
         }
     }
     else
     {
         if (flag)
         {
-            returnSendTextMessageResult(1, MID, SenderOID, TargetOID, Type, Value);
+            returnSendTextMessageResult(1, MID, SenderOID, TargetOID, Type, Value,SenderName);
         }
         else
         {
-            returnSendTextMessageResult(0, MID, SenderOID, TargetOID, Type, Value);
+            returnSendTextMessageResult(0, MID, SenderOID, TargetOID, Type, Value,SenderName);
         }
     }
 }
@@ -537,7 +545,7 @@ void servercore::SynchronizeServerMessages(int OID)
 {
     // 第二步 同步消息
     QSqlQuery query(db);
-        query.prepare("SELECT * FROM message WHERE TargetOID = :OID");
+        query.prepare("SELECT * FROM message INNER JOIN account ON message.SenderOID=OID WHERE SenderOID = :OID;");
         query.bindValue(":OID", OID);
         if(!query.exec())
         {
@@ -552,6 +560,7 @@ void servercore::SynchronizeServerMessages(int OID)
             QJsonObject returnJsonObject;
             returnJsonObject["SenderOID"]=query.value("SenderOID").toInt();
             returnJsonObject["TargetOID"]=query.value("TargetOID").toInt();
+            returnJsonObject["SenderName"]=query.value("Name").toString();
             returnJsonObject["transType"]="SendMessageResult";
             returnJsonObject["Type"]="Txt";
             returnJsonObject["Value"]=query.value("Value").toString();
