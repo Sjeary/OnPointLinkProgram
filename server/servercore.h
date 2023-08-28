@@ -54,6 +54,10 @@ public:
     void SendRequestToReceiverClient(int SenderOID,int TargetOID,QString RequestMessage);
     void SendResultFromReceiverClientToServer(QJsonObject &jsonObj);
     void SendResultToApplicant(int SenderOID,int TargetOID,bool Status,QString ReplyMessage);
+
+    //同步服务器离线消息到客户端
+    void SynchronizeServerMessages(int OID1);
+
     ~servercore();
 
 private slots:

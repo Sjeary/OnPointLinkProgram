@@ -121,7 +121,7 @@ void servercore::SendTxtMessageRequest(QJsonObject &jsonObj)
 
     QSqlQuery query(db);
     int MID = 0;
-    if (!query.exec(QString("SELECT MAX(%1) FROM my_table").arg(MID)))
+    if (!query.exec(QString("SELECT MAX(%1) FROM message").arg(MID)))
     {
         qDebug() << "Query failed:" << query.lastError().text();
     }
@@ -184,6 +184,8 @@ void servercore::returnEnterResult(int OID, QHostAddress ip, bool status, QStrin
 
 void servercore::EnterRequest(QJsonObject &jsonObj)
 {
+
+    // 第一步 登录
     int OID = jsonObj["OID"].toInt();
     QString Password = jsonObj["Password"].toString();
     socketmap.insert(OID, sp);
@@ -210,6 +212,8 @@ void servercore::EnterRequest(QJsonObject &jsonObj)
             returnEnterResult(OID, sp->peerAddress(), 0, "EnterFailed!");
         }
     }
+
+
     return;
 }
 
@@ -503,19 +507,16 @@ void servercore::FriendListRequest(QJsonObject &jsonObj)
 {
     int OID1 = jsonObj["OID"].toInt();
     QSqlQuery query(db);
-    if (!query.exec(QString("SELECT * FROM friend WHERE OID1 = %1").arg(OID1)))
+    if (!query.exec(QString("SELECT * FROM oplinkbase.friend join oplinkbase.account ON friend.OID1 =account.OID  WHERE OID1 = %1 ;").arg(OID1)))
     {
         qDebug() << "Query failed:" << query.lastError().text();
     }
     QJsonArray jsonArray;
-    QJsonObject jsonObject;
-
-    jsonArray.append(jsonObject);
     while (query.next()) {
         QJsonObject jsonObject;
         jsonObject["FriendOID"] = query.value("OID2").toInt();
         jsonObject["Devide"] = query.value("Devide").toString();
-
+        jsonObject["FriendName"] = query.value("Name").toString();
         jsonArray.append(jsonObject);
     }
     QJsonObject jsonObject2;
@@ -524,6 +525,41 @@ void servercore::FriendListRequest(QJsonObject &jsonObj)
     QJsonDocument jsonDocument(jsonObject2);
     QByteArray jsonData = jsonDocument.toJson(QJsonDocument::Indented);
     tp->send(sp->peerAddress(), sp->peerPort(), jsonData);
+    SynchronizeServerMessages(OID1);
+
+}
+void servercore::SynchronizeServerMessages(int OID)
+{
+    // 第二步 同步消息
+    QSqlQuery query(db);
+        query.prepare("SELECT * FROM message WHERE TargetOID = :OID");
+        query.bindValue(":OID", OID);
+        if(!query.exec())
+        {
+            qDebug()<<"Query ERROR: "<<query.lastError().text();
+            returnEnterResult(OID,sp->peerAddress(),0,"Query ERROR: "+query.lastError().text());
+            return ;
+        }
+        while(query.next())
+        {
+            QJsonObject returnJsonObject;
+            returnJsonObject["SenderOID"]=query.value("SenderOID").toInt();
+            returnJsonObject["TargetOID"]=query.value("TargetOID").toInt();
+            returnJsonObject["transType"]="SendMessageResult";
+            returnJsonObject["Type"]="Txt";
+            returnJsonObject["Value"]=query.value("Value").toString();
+            QJsonDocument returnJsonDocument(returnJsonObject);
+            QByteArray returnJsonData = returnJsonDocument.toJson();
+            qDebug()<<returnJsonData;
+            tp->send(sp->peerAddress(), sp->peerPort(), returnJsonData);
+        }
+        query.prepare("DELETE FROM message WHERE TargetOID = :OID");
+        query.bindValue(":OID", OID);
+        if (query.exec()) {
+            qDebug() << "Deletion successful";
+        } else {
+            qDebug() << "Deletion failed:" << query.lastError().text();
+        }
 }
 
 void servercore::GroupListRequest(QJsonObject &jsonObj)
