@@ -1,7 +1,7 @@
 /*
  * ============================
  * mainwindow.h
- * 开发者：希望之花团队
+ * 开发者：王钟骐、祝文轩、王启贤
  * Update time: 2023-8-27
  *
  * 定义 MainWindow 类
@@ -43,14 +43,21 @@ signals:
     void gotoDealFriendRequest();
 
 public slots:
+    //获得好友发来的消息
     void getMessage(QString ID, QString name, QString content, bool isReceive);
+    //获得查询到的用户信息
     void getUserInfo(QString ID, QString name, QString ins, QString email, QString birth);
+    //接受到好友申请
     void getFriendRequest();
+    //消息窗口添加一个项目
     void addMessageItem(QString ID, QString name);
+    //好友窗口添加一个项目
     void addFriendItem(QString ID, QString name);
-
+    //改变消息窗口当前项目
     void changeMessageItem(QListWidgetItem *current);
+    //清除消息窗口所有项目
     void clearMessageItem();
+    //清除好友窗口所有项目
     void clearFriendItem();
 
 private slots:

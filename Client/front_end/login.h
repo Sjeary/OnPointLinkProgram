@@ -1,7 +1,7 @@
 /*
  * ============================
  * login.h
- * 开发者：希望之花团队
+ * 开发者：王钟骐、祝文轩
  * Update time: 2023-8-27
  *
  * 定义 Login 类
@@ -38,9 +38,13 @@ signals:
     void sendLogin(QString ID, QString password, bool rememberPassword, bool autoLogin);
 
 public slots:
+    //尝试连接到服务器
     void connectedToServer();
+    //无法链接
     void cannotConnect();
+    //成功登录
     void loginSuccess();
+    //登录失败
     void loginFailed(QString log = "");
 
     /*一些供外部程序修改ui的接口*/

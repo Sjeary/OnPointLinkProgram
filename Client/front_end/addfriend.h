@@ -1,7 +1,7 @@
 /*
  * ============================
  * addfriend.h
- * 开发者：希望之花团队
+ * 开发者：王钟骐
  * Update time: 2023-8-27
  *
  * 定义 AddFriend 类
@@ -32,6 +32,7 @@ public:
     ~AddFriend();
 
 signals:
+    //发送获得用户信息请求
     void getInfo(QString ID);
 
 public slots:

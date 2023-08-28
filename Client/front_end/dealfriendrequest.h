@@ -1,7 +1,7 @@
 /*
  * ============================
  * dealfriendrequest.h
- * 开发者：希望之花团队
+ * 开发者：王钟骐
  * Update time: 2023-8-27
  *
  * 定义 DealFriendRequest 类
