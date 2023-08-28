@@ -69,11 +69,12 @@ void TcpServer::initServer()
 void TcpServer::send(QHostAddress ip, quint16 port, QByteArray &text)
 {
     foreach (QTcpSocket *targetSocket, connections) {
+        qDebug()<<targetSocket->peerAddress()<<" "<<targetSocket->peerPort();
         if (targetSocket->peerAddress() == ip &&
             targetSocket->peerPort() == port) {
             targetSocket->write(text);
             targetSocket->flush();
-            qDebug() << "Data forwarded to target client.";
+            qDebug() << "Data forwarded to target client:" <<text;
             break;
         }
     }
