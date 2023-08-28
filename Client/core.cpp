@@ -335,6 +335,7 @@ void Core::toSendMessageToFriend(QString ID, QString message)
     json["transType"] = "SendTxtMessageRequest";
     json["SenderOID"] = savedID.toInt();
     json["TargetOID"] = ID.toInt();
+    json["Type"] = "Txt";
     json["Value"] = message;
     QJsonDocument doc(json);
     emit this->sendMessageToServer(doc.toJson());
