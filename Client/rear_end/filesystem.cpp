@@ -15,6 +15,7 @@
 #include <QFile>
 #include <QThread>
 #include <QDataStream>
+#include <QDebug>
 
 FileSystem::FileSystem(QObject *parent)
     : QObject{parent}
@@ -31,7 +32,6 @@ FileSystem::~FileSystem()
     delete commonFolder;
     delete informationFile;
 }
-
 
 void FileSystem::makeBasic()
 {
@@ -67,8 +67,10 @@ QMap<QString,QString> FileSystem:: getSavedAccount()
 
 void FileSystem::toSaveKeyValue(QString key, QVariant value)
 {
-    if(not informationFile->open(QFile::OpenModeFlag::WriteOnly))
+    if(not informationFile->open(QIODevice::WriteOnly)){
+        qDebug() << "Fail to open informationFile" << endl;
         return;
+    }
     basicInfo[key] = value;
     QDataStream out(informationFile);
     out<<basicInfo;

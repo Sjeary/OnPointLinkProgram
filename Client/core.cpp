@@ -52,7 +52,8 @@ Core::Core(QObject *parent)
     dealFriendRequest = new DealFriendRequest();
     //显示登录窗口
     QMap<QString,QString> savedAccountInfo = fileSystem->getSavedAccount();
-    if (savedAccountInfo["savedOID"] == "") { // 载入记住的账号密码
+    if (savedAccountInfo["savedOID"] != "") { // 载入记住的账号密码
+        qDebug() << "load saved account" << endl;
         login->writeSavedAccountInfo(savedAccountInfo["savedOID"],savedAccountInfo["savedPassword"]);
     }
     login->show();
@@ -283,8 +284,8 @@ void Core::toSendLoginRequest(QString ID, QString password, bool rememberPasswor
     if(rememberPassword)
     {
         savedPassword = password;
-        fileSystem->toSaveKeyValue("savedOID",savedID);
-        fileSystem->toSaveKeyValue("savedPassword",savedPassword);
+        fileSystem->toSaveKeyValue("savedOID",ID.toInt());
+        fileSystem->toSaveKeyValue("savedPassword",password);
     }
 
 }

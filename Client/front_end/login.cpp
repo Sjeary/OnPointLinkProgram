@@ -13,12 +13,17 @@
 #include "ui_login.h"
 
 #include <QMessageBox>
+#include <QTime>
+#include <QTimer>
+#include <QDebug>
+#include <QCheckBox>
 
 Login::Login(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::login)
 {
     ui->setupUi(this);
+    received = false;
 }
 
 Login::~Login()
@@ -36,14 +41,21 @@ void Login::cannotConnect()
 }
 void Login::loginSuccess()
 {
+    if (!received)
+        received = true;
     QMessageBox::information(this, "information", "Login success!");
     this->close();
 }
+
 void Login::loginFailed(QString log)
 {
     QMessageBox::warning(this, "Login failed", log);
-    ui->pushButton_Login->setText("Login");
-    ui->pushButton_Login->setEnabled(true);
+    if (!received)
+        received = true;
+    if (!ui->pushButton_Login->isEnabled()) {
+        ui->pushButton_Login->setText("Login");
+        ui->pushButton_Login->setEnabled(true);
+    }
 }
 
 void Login::on_pushButton_SignUp_clicked()
@@ -60,11 +72,36 @@ void Login::on_pushButton_switchServerIP_clicked()
 
 void Login::on_pushButton_Login_clicked()
 {
-    emit sendLogin(ui->comboBox->currentText(), ui->lineEdit->text(), ui->checkBox_rememberPassword, ui->checkBox_autoLogin);
+    received = false;
+    bool remember_password = ui->checkBox_rememberPassword->isChecked();
+    bool auto_login = ui->checkBox_autoLogin->isChecked();
+    emit sendLogin(ui->comboBox->currentText(),
+                   ui->lineEdit->text(),
+                   remember_password,
+                   auto_login);
     ui->pushButton_Login->setText("Login-ing");
     ui->pushButton_Login->setEnabled(false);
+
+    // 登录超时计时模块
+    timer = new QTimer();
+    connect(timer,&QTimer::timeout,this,&Login::loginPassTime);
+    qDebug() << "start login timing" << endl;
+    timer->start(1000);
+    qDebug() << "timing end" << endl;
 }
 
+void Login::loginPassTime()
+{
+    if (!this->received) {
+        QMessageBox:: warning(this,"登录超时","登录超时，请重试");
+        ui->pushButton_Login->setText("Login");
+        ui->pushButton_Login->setEnabled(true);
+    }
+    if(timer->isActive()) {
+        timer->stop();
+    }
+    return;
+}
 
 void Login::on_pushButton_connect_clicked()
 {

@@ -14,6 +14,7 @@
 #define LOGIN_H
 
 #include <QWidget>
+#include <QTimer>
 
 namespace Ui {
 class login;
@@ -56,8 +57,12 @@ private slots:
 
     void on_pushButton_connect_clicked();
 
+    void loginPassTime(); //  超时函数
+
 private:
     Ui::login *ui;
+    bool received; // 在验证是否登录超时时有用
+    QTimer* timer; // 超时计时器
 };
 
 #endif // LOGIN_H
