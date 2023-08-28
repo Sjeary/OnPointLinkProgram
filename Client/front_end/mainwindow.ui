@@ -166,6 +166,16 @@
            </property>
           </widget>
          </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_refresh">
+           <property name="styleSheet">
+            <string notr="true">padding : 5px 10px</string>
+           </property>
+           <property name="text">
+            <string>Ref</string>
+           </property>
+          </widget>
+         </item>
         </layout>
        </item>
        <item>

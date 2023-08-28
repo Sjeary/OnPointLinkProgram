@@ -197,3 +197,9 @@ void MainWindow::insertRightFrame(QTextDocument *doc, const QString &title, cons
     cursor.insertFrame(formatContent);
     cursor.insertText(text);
 }
+
+void MainWindow::on_pushButton_refresh_clicked()
+{
+    emit sendRefreshFriendList();
+}
+

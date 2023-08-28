@@ -57,12 +57,6 @@ Core::Core(QObject *parent)
     }
     login->show();
 
-    mainwindow->addMessageItem("000", "me 0");
-    mainwindow->addMessageItem("001", "me 1");
-    mainwindow->addMessageItem("002", "me 2");
-
-    dealFriendRequest->addRequestItem("000","me");
-
     //connections
 
     connect(this, &Core::sendConnectRequest, tcp, &ClientTcp::tryConnect);
@@ -86,7 +80,7 @@ Core::Core(QObject *parent)
     connect(this,&Core::turnLoginToWaiting,login,&Login::turnToWaiting);
     connect(login, &Login::gotoSignUp, sign_up, &QWidget::show);
     connect(login, &Login::gotoSwitchServerIP, switchServerIP, &QWidget::show);
-    /*temp*/connect(login, &Login::sendLogin, mainwindow, &MainWindow::show);
+    // /*temp*/connect(login, &Login::sendLogin, mainwindow, &MainWindow::show);
 
     connect(sign_up, &Sign_up::sendSignUp, this, &Core::toSendSignUpRequest);
 
@@ -96,6 +90,14 @@ Core::Core(QObject *parent)
     connect(mainwindow, &MainWindow::sendAddFriendRequest, this, &Core::toSendAddFriendRequest);
     connect(mainwindow, &MainWindow::gotoAddFriend, addFriend, &QWidget::show);
     connect(mainwindow, &MainWindow::gotoDealFriendRequest, dealFriendRequest, &DealFriendRequest::show);
+    connect(mainwindow, &MainWindow::sendMessage, this, &Core::toSendMessageToFriend);
+    connect(mainwindow, &MainWindow::sendRefreshFriendList, this, [this](){
+        QJsonObject subjson;
+        subjson["transType"] = "FriendListRequest";
+        subjson["OID"] = savedID.toInt();
+        QJsonDocument subdoc(subjson);
+        emit this->sendMessageToServer(subdoc.toJson());
+    });
 
     emit readKeyValue("serverIP");
 }
@@ -128,7 +130,7 @@ void Core::setKeyValue(QString key, QVariant value)
  * value: 设置值
 */
 {
-    qDebug()<<"Core: getKeyValue: key: "<<key<<" value: "<<value << endl;
+    qDebug()<<"Core: getKeyValue: key: "<<key<<" value: "<<value;
     if (key == "serverIP")
     {
         serverIP = value.toString();
@@ -137,7 +139,7 @@ void Core::setKeyValue(QString key, QVariant value)
             toSendConnectRequest();
         }
         else{
-            qDebug() << "core: Empty server IP!" << endl;
+            qDebug() << "core: Empty server IP!";
         }
     }
 }
@@ -234,8 +236,16 @@ void Core::distributeMessage(QByteArray content)
             QJsonObject f = var.toObject();
             QString ID = f["FriendOID"].toString();
             mainwindow->addFriendItem(ID, "");
+            mainwindow->addMessageItem(ID, "");
             qDebug()<<ID;
         }
+    }
+    else if (transType == "TargetMessageRequest")
+    {
+        QString SenderOID = QString::number(json["SenderOID"].toInt());
+        QString TargetOID = QString::number(json["TargetOID"].toInt());
+        QString Value = json["Value"].toString();
+        mainwindow->getMessage(TargetOID, "", Value, true);
     }
 }
 

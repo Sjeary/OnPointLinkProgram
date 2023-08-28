@@ -36,6 +36,7 @@ public:
 signals:
     void sendMessage(QString ID, QString content);
     void sendAddFriendRequest(QString ID);
+    void sendRefreshFriendList();
 
     void gotoAddFriend();
     void gotoDealFriendRequest();
@@ -63,6 +64,8 @@ private slots:
     void on_pushButton_friendRequest_clicked();
 
     void on_pushButton_addThisUser_clicked();
+
+    void on_pushButton_refresh_clicked();
 
 private:
     Ui::MainWindow *ui;
