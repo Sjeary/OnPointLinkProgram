@@ -237,8 +237,9 @@ void Core::distributeMessage(QByteArray content)
         foreach (auto var, friendList) {
             QJsonObject f = var.toObject();
             QString ID = QString::number(f["FriendOID"].toInt());
-            mainwindow->addFriendItem(ID, "");
-            mainwindow->addMessageItem(ID, "");
+            QString name = f["FriendName"].toString();
+            mainwindow->addFriendItem(ID, name);
+            mainwindow->addMessageItem(ID, name);
             qDebug()<<ID;
         }
     }
