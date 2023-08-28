@@ -41,6 +41,8 @@ signals:
 
     void gotoAddFriend();
     void gotoDealFriendRequest();
+    //新增
+    void gotoCreateGroup();
 
 public slots:
     //获得好友发来的消息
@@ -59,6 +61,8 @@ public slots:
     void clearMessageItem();
     //清除好友窗口所有项目
     void clearFriendItem();
+    //新增
+    //void getGroupInfo(QString ID, QString name, QString ins, QString memberIDs);
 
 private slots:
     void on_pushButton_input_clicked();
@@ -76,6 +80,8 @@ private slots:
     void on_pushButton_addThisUser_clicked();
 
     void on_pushButton_refresh_clicked();
+
+    void on_pushButton_createGroup_clicked();
 
 private:
     Ui::MainWindow *ui;

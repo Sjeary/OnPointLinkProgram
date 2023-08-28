@@ -23,6 +23,9 @@
 #include "front_end/mainwindow.h"
 #include "front_end/addfriend.h"
 #include "front_end/dealfriendrequest.h"
+//新增
+#include "front_end/creategroup.h"
+
 #include "rear_end/filesystem.h"
 #include "rear_end/clienttcp.h"
 
@@ -50,6 +53,9 @@ Core::Core(QObject *parent)
     mainwindow = new MainWindow();
     addFriend = new AddFriend();
     dealFriendRequest = new DealFriendRequest();
+    //新增
+    createGroup = new creategroup();
+
     //显示登录窗口
     QMap<QString,QString> savedAccountInfo = fileSystem->getSavedAccount();
     if (savedAccountInfo["savedOID"] != "") { // 载入记住的账号密码
@@ -89,6 +95,11 @@ Core::Core(QObject *parent)
     connect(addFriend, &AddFriend::getInfo, this, &Core::toSendGetInfoRequest);
     connect(dealFriendRequest, &DealFriendRequest::dealFriendRequest, this, &Core::toSendFriendResult);
 
+    //新增
+    connect(mainwindow, &MainWindow::gotoCreateGroup, createGroup, &creategroup::show);
+    connect(createGroup, &creategroup::sendCreateRequest, this, &Core::toSendCreateRequest);
+
+
     connect(mainwindow, &MainWindow::sendAddFriendRequest, this, &Core::toSendAddFriendRequest);
     connect(mainwindow, &MainWindow::gotoAddFriend, addFriend, &QWidget::show);
     connect(mainwindow, &MainWindow::gotoDealFriendRequest, dealFriendRequest, &DealFriendRequest::show);
@@ -121,6 +132,8 @@ Core::~Core()
     mainwindow->deleteLater();
     addFriend->deleteLater();
     dealFriendRequest->deleteLater();
+    //新增
+    createGroup->deleteLater();
 }
 
 void Core::setKeyValue(QString key, QVariant value)
@@ -242,6 +255,9 @@ void Core::distributeMessage(QByteArray content)
             QString name = f["FriendName"].toString();
             mainwindow->addFriendItem(ID, name);
             mainwindow->addMessageItem(ID, name);
+            //新增
+            createGroup->addFriendItem(ID, "");
+
             qDebug()<<ID;
         }
     }
@@ -252,6 +268,22 @@ void Core::distributeMessage(QByteArray content)
         QString Value = json["Value"].toString();
         qDebug()<<SenderOID;
         mainwindow->getMessage(SenderOID, "", Value, true);
+    }
+    //新增
+    else if (transType == "CreateGroupResult")
+    {
+        bool success = json["Status"].toBool();
+        QString GroupID = QString::number(json["GroupID"].toInt());
+        QString HostOID = QString::number(json["HostOID"].toInt());
+        QString memberOIDs = json["memberOIDs"].toString();
+        if (success)
+        {
+            QMessageBox::information(mainwindow, "group created", "Your created group's OID is " + GroupID );
+        }
+        else
+        {
+            QMessageBox::information(mainwindow, "creation failed", "Failed!" );
+        }
     }
 }
 
@@ -338,6 +370,22 @@ void Core::toSendMessageToFriend(QString ID, QString message)
     json["TargetOID"] = ID.toInt();
     json["Type"] = "Txt";
     json["Value"] = message;
+    QJsonDocument doc(json);
+    emit this->sendMessageToServer(doc.toJson());
+}
+
+//新增
+void Core::toSendCreateRequest(QStringList memberIDList)
+{
+    QJsonObject json;
+    QJsonArray jsonArray;
+    foreach (const QString &memberID, memberIDList)
+    {
+        jsonArray.append(memberID);
+    }
+    json["transType"] = "SendCreateGroupRequest";
+    json["HostOID"] = savedID.toInt();
+    json["memberOIDs"] = jsonArray;
     QJsonDocument doc(json);
     emit this->sendMessageToServer(doc.toJson());
 }

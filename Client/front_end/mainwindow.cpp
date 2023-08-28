@@ -225,3 +225,8 @@ void MainWindow::on_pushButton_refresh_clicked()
     emit sendRefreshFriendList();
 }
 
+
+void MainWindow::on_pushButton_createGroup_clicked()
+{
+    emit gotoCreateGroup();
+}
