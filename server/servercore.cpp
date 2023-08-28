@@ -679,8 +679,8 @@ void servercore::SynchronizeServerMessages(int OID)
     while(query.next())
     {
         QJsonObject returnJsonObject;
-        returnJsonObject["SenderOID"]=query.value("SenderOID").toInt();
-        returnJsonObject["TargetOID"]=query.value("TargetOID").toInt();
+        returnJsonObject["OID1"]=query.value("SenderOID").toInt();
+        returnJsonObject["OID2"]=query.value("TargetOID").toInt();
         returnJsonObject["SenderName"]=query.value("Name").toString();
         returnJsonObject["ApplicationMessage"]=query.value("ApplicationMessage").toString();
         returnJsonObject["transType"]="SendRequestToReceiverClient";
