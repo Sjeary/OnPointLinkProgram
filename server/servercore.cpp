@@ -341,8 +341,9 @@ void servercore::SendFriendRequestToServer(QJsonObject &jsonObj)
     if(query.size())
     {
         // 情况1：考虑到已经是好友的情况
+        qDebug()<<1123;
         QSqlQuery query2(db);
-        query2.prepare("SELECT * FROM firend WHERE OID1 = :OID1 AND OID2 = :OID2");
+        query2.prepare("SELECT * FROM friend WHERE OID1 = :OID1 AND OID2 = :OID2");
         query2.bindValue(":OID1", SenderOID);
         query2.bindValue(":OID2", TargetOID);
         if(!query2.exec())
@@ -351,7 +352,8 @@ void servercore::SendFriendRequestToServer(QJsonObject &jsonObj)
             ProcessFriendRequestResult(SenderOID,TargetOID,0,"Query exec() ERROR: "+query2.lastError().text());
             return ;
         }
-        if(query2.size())
+        qDebug()<<14354123;
+        if(query2.size()!=-1)
         {
             qDebug()<<"Friend Already! 已经是您的好友！";
             ProcessFriendRequestResult(SenderOID,TargetOID,0,"Friend Already! 已经是您的好友！");
@@ -359,22 +361,43 @@ void servercore::SendFriendRequestToServer(QJsonObject &jsonObj)
         }
         else if(socketmap.contains(TargetOID))
         {
-            query.prepare("INSERT INTO friendrequest (SenderOID,TargetOID,ApplicationMessage) VALUES (:SenderOID,:TargetOID,:RequestMessage);");
+            QSqlQuery query2(db);
+            int FRID = 0;
+            qDebug()<<123123;
+            if (!query2.exec(QString("SELECT MAX(FRID) AS MaxFRID FROM friendrequest")))
+            {
+                qDebug()<<5467;
+                qDebug() << "Query failed:" << query2.lastError().text();
+            }
+            if (query2.next()) {
+                qDebug()<<7583;
+                FRID = query2.value("MaxFRID").toInt();
+                qDebug()<<query2.value("MaxFRID");
+                qDebug() << "Maximum value of" << "FRID" << "is:" << FRID++;
+            }
+
+            query.prepare("INSERT INTO friendrequest (FRID, SenderOID,TargetOID,ApplicationMessage) VALUES (:FRID,:SenderOID,:TargetOID,:RequestMessage);");
+            query.bindValue(":FRID",FRID);
             query.bindValue(":SenderOID",SenderOID);
             query.bindValue(":TargetOID",TargetOID);
             query.bindValue(":RequestMessage",RequestMessage);
-
+            qDebug()<<187;
             if(!query.exec())
             {
                 qDebug()<<"Query exec() ERROR: "<<query.lastError().text();
                 ProcessFriendRequestResult(SenderOID,TargetOID,0,"Query exec() ERROR: "+query.lastError().text());
                 return ;
             }
+
+            qDebug()<<109876543;
             ProcessFriendRequestResult(SenderOID,TargetOID,1,"请求成功发送给服务器");
+            qDebug()<<749796;
             SendRequestToReceiverClient(SenderOID,TargetOID,RequestMessage);//发给目标客户端
+            qDebug()<<27856793;
         }
         else // 情况2：对方不在线需要存起来
         {
+            qDebug()<<76597;
             StoreOfflineFriendRequest(SenderOID, TargetOID, RequestMessage);
         }
     }
@@ -389,17 +412,18 @@ void servercore::SendFriendRequestToServer(QJsonObject &jsonObj)
 void servercore::StoreOfflineFriendRequest(int SenderOID, int TargetOID, QString ApplicationMessage)
 {
     QSqlQuery query(db);
-    query.prepare(QString("SELECT * FROM friendrequest WHERE SenderOID = %1 AND TargetOID = %2").arg(SenderOID).arg(TargetOID));
-    if(!query.exec())
-    {
-        qDebug()<<"Query exec() ERROR: "<<query.lastError().text();
-        return ;
-    }
+    qDebug()<<"offlinesdfdasdf";
+//    query.prepare(QString("SELECT * FROM friendrequest WHERE SenderOID = %1 AND TargetOID = %2").arg(SenderOID).arg(TargetOID));
+//    if(!query.exec())
+//    {
+//        qDebug()<<"Query exec() ERROR: "<<query.lastError().text();
+//        return ;
+//    }
     // 如果没有存储过这条信息才行
-    if(query.size() == -1)
+    //if(query.size() == -1)
     {
         int FRID = 0;
-        if (!query.exec(QString("SELECT MAX(FRID) AS MaxFRID FROM message")))
+        if (!query.exec(QString("SELECT MAX(FRID) AS MaxFRID FROM friendrequest")))
         {
             qDebug() << "Query failed:" << query.lastError().text();
         }
@@ -672,7 +696,7 @@ void servercore::SynchronizeServerMessages(int OID)
     }
 
     {
-        query.prepare("DELETE  FROM friendrequest WHERE Accepted = 1 AND TargetOID = :OID");
+        query.prepare("DELETE  FROM friendrequest WHERE Accepted = 1 AND Accepted = 0 AND TargetOID = :OID");
         query.bindValue(":OID", OID);
         if (query.exec()) {
             qDebug() << "Deletion friendrequest successful";
