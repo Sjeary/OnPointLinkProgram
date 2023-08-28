@@ -50,6 +50,8 @@ public slots:
     void addFriendItem(QString ID, QString name);
 
     void changeMessageItem(QListWidgetItem *current);
+    void clearMessageItem();
+    void clearFriendItem();
 
 private slots:
     void on_pushButton_input_clicked();

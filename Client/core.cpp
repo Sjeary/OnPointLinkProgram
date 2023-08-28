@@ -226,27 +226,31 @@ void Core::distributeMessage(QByteArray content)
     }
     else if(transType == "SendRequestToReceiverClient")
     {
-        QString senderOID = json["OID1"].toString();
+        QString senderOID = QString::number(json["OID1"].toInt());
         mainwindow->getFriendRequest();
         dealFriendRequest->addRequestItem(senderOID,"");
     }
     else if(transType == "FriendListResult")
     {
+        mainwindow->clearFriendItem();
+        mainwindow->clearMessageItem();
         QJsonArray friendList = json["FriendList"].toArray();
         foreach (auto var, friendList) {
             QJsonObject f = var.toObject();
-            QString ID = f["FriendOID"].toString();
-            mainwindow->addFriendItem(ID, "");
-            mainwindow->addMessageItem(ID, "");
+            QString ID = QString::number(f["FriendOID"].toInt());
+            QString name = f["FriendName"].toString();
+            mainwindow->addFriendItem(ID, name);
+            mainwindow->addMessageItem(ID, name);
             qDebug()<<ID;
         }
     }
-    else if (transType == "TargetMessageRequest")
+    else if (transType == "SendMessageResult")
     {
         QString SenderOID = QString::number(json["SenderOID"].toInt());
         QString TargetOID = QString::number(json["TargetOID"].toInt());
         QString Value = json["Value"].toString();
-        mainwindow->getMessage(TargetOID, "", Value, true);
+        qDebug()<<SenderOID;
+        mainwindow->getMessage(SenderOID, "", Value, true);
     }
 }
 

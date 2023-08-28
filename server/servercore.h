@@ -54,6 +54,10 @@ public:
     void SendRequestToReceiverClient(int SenderOID,int TargetOID,QString RequestMessage);
     void SendResultFromReceiverClientToServer(QJsonObject &jsonObj);
     void SendResultToApplicant(int SenderOID,int TargetOID,bool Status,QString ReplyMessage);
+
+    //同步服务器离线消息到客户端
+    void SynchronizeServerMessages(int OID1);
+
     ~servercore();
 
 private slots:
@@ -65,7 +69,7 @@ private:
     QTcpSocket *sp; // 套接字的指针
     QSqlDatabase db; // 数据库对象
     quint16 defalutport = 6666; // 默认端口
-    QMap<int, QHostAddress> ipmap; // 上线OID到ip的map
+    QMap<int, QTcpSocket *> socketmap; // 上线OID到ip的map
 };
 
 #endif // SERVERCORE_H

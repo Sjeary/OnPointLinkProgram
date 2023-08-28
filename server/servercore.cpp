@@ -31,10 +31,10 @@ servercore::servercore(TcpServer *ptcpserver, QObject *parent) : QObject(parent)
 
 void servercore::offline(QTcpSocket *psocket)
 {
-//更新ipmap，将登出用户剔除
-    for (auto it = ipmap.begin(); it != ipmap.end(); ++it) {
-        if (it.value() == psocket->peerAddress()) {
-            ipmap.erase(it);
+//更新socketmap，将登出用户剔除
+    for (auto it = socketmap.begin(); it != socketmap.end(); ++it) {
+        if (it.value() == psocket) {
+            socketmap.erase(it);
             break; // Assuming there's only one matching value
         }
     }
@@ -61,28 +61,32 @@ void servercore::switchFunction(QTcpSocket *psocket)
     stringMap.insert("FileListRequest", 21);
     stringMap.insert("FileRequest", 23);
     stringMap.insert("SendFriendRequestToServer", 25) ;
+    stringMap.insert("SendResultFromReceiverClientToServer", 27) ;
     QString type = obj["transType"].toString();
     switch (stringMap.value(type)){
     case 1 : RegRequest(obj);break;
     case 3 : EnterRequest(obj);break;
     case 5 : AccountInfoRequest(obj);break;
     case 7 : FriendListRequest(obj);break;
-//    case 9 : GroupListRequest(obj);break;
-//    case 11 : UserInfoRequest(obj);break;
-//    case 13 : GroupInfoRequest(obj);break;
+    case 9 : GroupListRequest(obj);break;
+    case 11 : UserInfoRequest(obj);break;
+    case 13 : GroupInfoRequest(obj);break;
     case 15 : SendTxtMessageRequest(obj);break;
 //    case 17 : TargetMessageRequest(obj);break;
 //    case 19 : MessageReadedRequest(obj);break;
 //    case 21 : FileListRequest(obj);break;
 //    case 23 : FileRequest(obj);break;
     case 25 : SendFriendRequestToServer(obj);break;
+    case 27 : SendResultFromReceiverClientToServer(obj);break;
+
     }
 }
 
 void servercore::returnSendTextMessageResult(bool Status, int MID, int SenderOID, int TargetOID, QString Type, QString Value)
 {
     // 还没实现文件消息的传输
-    QHostAddress targetip = ipmap.value(TargetOID);
+    QHostAddress targetip = socketmap.value(TargetOID)->peerAddress();
+    quint16 targetport = socketmap.value(TargetOID)->peerPort();
     QJsonObject returnJsonObject;
     returnJsonObject["Statues"]=Status;
     returnJsonObject["MID"]=MID;
@@ -96,7 +100,7 @@ void servercore::returnSendTextMessageResult(bool Status, int MID, int SenderOID
         QJsonDocument returnJsonDocument(returnJsonObject);
         QByteArray returnJsonData = returnJsonDocument.toJson();
         qDebug()<<returnJsonData;
-        tp->send(targetip, defalutport, returnJsonData);
+        tp->send(targetip, targetport, returnJsonData);
     }
     else
     {
@@ -117,7 +121,7 @@ void servercore::SendTxtMessageRequest(QJsonObject &jsonObj)
 
     QSqlQuery query(db);
     int MID = 0;
-    if (!query.exec(QString("SELECT MAX(%1) FROM my_table").arg(MID)))
+    if (!query.exec(QString("SELECT MAX(%1) FROM message").arg(MID)))
     {
         qDebug() << "Query failed:" << query.lastError().text();
     }
@@ -128,7 +132,7 @@ void servercore::SendTxtMessageRequest(QJsonObject &jsonObj)
     //判断消息类型是文本（Txt）还是文件（Doc），文本的Value为消息内容
     if (Type == "Txt")
     {
-        if (ipmap.contains(TargetOID))
+        if (socketmap.contains(TargetOID))
         {
             returnSendTextMessageResult(1, MID, SenderOID, TargetOID, Type, Value);
         } else
@@ -153,7 +157,7 @@ void servercore::SendTxtMessageRequest(QJsonObject &jsonObj)
     }
     else
     {
-        if (ipmap.contains(TargetOID))
+        if (socketmap.contains(TargetOID))
         {
             returnSendTextMessageResult(1, MID, SenderOID, TargetOID, Type, Value);
         }
@@ -180,9 +184,11 @@ void servercore::returnEnterResult(int OID, QHostAddress ip, bool status, QStrin
 
 void servercore::EnterRequest(QJsonObject &jsonObj)
 {
+
+    // 第一步 登录
     int OID = jsonObj["OID"].toInt();
     QString Password = jsonObj["Password"].toString();
-    ipmap.insert(OID, sp->peerAddress());
+    socketmap.insert(OID, sp);
     QSqlQuery query(db);
     query.prepare("SELECT * FROM account WHERE OID = :OID");
     query.bindValue(":OID", OID);
@@ -206,6 +212,8 @@ void servercore::EnterRequest(QJsonObject &jsonObj)
             returnEnterResult(OID, sp->peerAddress(), 0, "EnterFailed!");
         }
     }
+
+
     return;
 }
 
@@ -343,7 +351,8 @@ void servercore::SendFriendRequestToServer(QJsonObject &jsonObj)
 void servercore::SendRequestToReceiverClient(int SenderOID,int TargetOID,QString RequestMessage)
 {
     //读取目标ip
-    QHostAddress targetip = ipmap.value(TargetOID);
+    QHostAddress targetip = socketmap.value(TargetOID)->peerAddress();
+    quint16 targetport = socketmap.value(TargetOID)->peerPort();
     QJsonObject returnJsonObject;
     returnJsonObject["OID1"]=SenderOID;
     returnJsonObject["OID2"]=TargetOID;
@@ -352,7 +361,8 @@ void servercore::SendRequestToReceiverClient(int SenderOID,int TargetOID,QString
     QJsonDocument returnJsonDocument(returnJsonObject);
     QByteArray returnJsonData = returnJsonDocument.toJson();
     qDebug()<<returnJsonData;
-    tp->send(targetip, defalutport, returnJsonData);
+    qDebug()<<targetip<<" "<<defalutport;
+    tp->send(targetip, targetport, returnJsonData);
 }
 void servercore::SendResultFromReceiverClientToServer(QJsonObject &jsonObj)
 {
@@ -396,7 +406,8 @@ void servercore::SendResultFromReceiverClientToServer(QJsonObject &jsonObj)
 void servercore::SendResultToApplicant(int SenderOID,int TargetOID,bool Status,QString ReplyMessage)
 {
     //读取目标ip
-    QHostAddress targetip = ipmap.value(TargetOID);
+    QHostAddress targetip = socketmap.value(TargetOID)->peerAddress();
+    quint16 targetport = socketmap.value(TargetOID)->peerPort();
     QJsonObject returnJsonObject;
     returnJsonObject["OID1"]=SenderOID;
     returnJsonObject["OID2"]=TargetOID;
@@ -407,7 +418,7 @@ void servercore::SendResultToApplicant(int SenderOID,int TargetOID,bool Status,Q
     QJsonDocument returnJsonDocument(returnJsonObject);
     QByteArray returnJsonData = returnJsonDocument.toJson();
     qDebug()<<returnJsonData;
-    tp->send(targetip, defalutport, returnJsonData);
+    tp->send(targetip, targetport, returnJsonData);
 }
 
 void servercore::returnUserInfoResult(bool Status, int OID, QString Name, QString Instruction, QString Emai, QDate Birth)
@@ -496,19 +507,16 @@ void servercore::FriendListRequest(QJsonObject &jsonObj)
 {
     int OID1 = jsonObj["OID"].toInt();
     QSqlQuery query(db);
-    if (!query.exec(QString("SELECT * FROM account WHERE OID1 = %1").arg(OID1)))
+    if (!query.exec(QString("SELECT * FROM oplinkbase.friend join oplinkbase.account ON friend.OID1 =account.OID  WHERE OID1 = %1 ;").arg(OID1)))
     {
         qDebug() << "Query failed:" << query.lastError().text();
     }
     QJsonArray jsonArray;
-    QJsonObject jsonObject;
-
-    jsonArray.append(jsonObject);
     while (query.next()) {
         QJsonObject jsonObject;
         jsonObject["FriendOID"] = query.value("OID2").toInt();
         jsonObject["Devide"] = query.value("Devide").toString();
-
+        jsonObject["FriendName"] = query.value("Name").toString();
         jsonArray.append(jsonObject);
     }
     QJsonObject jsonObject2;
@@ -517,6 +525,41 @@ void servercore::FriendListRequest(QJsonObject &jsonObj)
     QJsonDocument jsonDocument(jsonObject2);
     QByteArray jsonData = jsonDocument.toJson(QJsonDocument::Indented);
     tp->send(sp->peerAddress(), sp->peerPort(), jsonData);
+    SynchronizeServerMessages(OID1);
+
+}
+void servercore::SynchronizeServerMessages(int OID)
+{
+    // 第二步 同步消息
+    QSqlQuery query(db);
+        query.prepare("SELECT * FROM message WHERE TargetOID = :OID");
+        query.bindValue(":OID", OID);
+        if(!query.exec())
+        {
+            qDebug()<<"Query ERROR: "<<query.lastError().text();
+            returnEnterResult(OID,sp->peerAddress(),0,"Query ERROR: "+query.lastError().text());
+            return ;
+        }
+        while(query.next())
+        {
+            QJsonObject returnJsonObject;
+            returnJsonObject["SenderOID"]=query.value("SenderOID").toInt();
+            returnJsonObject["TargetOID"]=query.value("TargetOID").toInt();
+            returnJsonObject["transType"]="SendMessageResult";
+            returnJsonObject["Type"]="Txt";
+            returnJsonObject["Value"]=query.value("Value").toString();
+            QJsonDocument returnJsonDocument(returnJsonObject);
+            QByteArray returnJsonData = returnJsonDocument.toJson();
+            qDebug()<<returnJsonData;
+            tp->send(sp->peerAddress(), sp->peerPort(), returnJsonData);
+        }
+        query.prepare("DELETE FROM message WHERE TargetOID = :OID");
+        query.bindValue(":OID", OID);
+        if (query.exec()) {
+            qDebug() << "Deletion successful";
+        } else {
+            qDebug() << "Deletion failed:" << query.lastError().text();
+        }
 }
 
 void servercore::GroupListRequest(QJsonObject &jsonObj)
