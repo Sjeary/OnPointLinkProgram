@@ -12,8 +12,10 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include <QDebug>
 #include <QTextFrame>
 #include <QTextDocument>
+#include <QMessageBox>
 
 MainWindow::MainWindow(QWidget *parent) :
     QWidget(parent),
@@ -22,6 +24,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     connect(ui->listWidget_message, &QListWidget::currentItemChanged, this, &MainWindow::changeMessageItem);
 
+    ui->radioButton_message->setChecked(true);
 }
 
 MainWindow::~MainWindow()
@@ -55,7 +58,7 @@ void MainWindow::getUserInfo(QString ID, QString name, QString ins, QString emai
 
 void MainWindow::getFriendRequest()
 {
-
+    QMessageBox::information(this, "friend request", "you have received a friend request");
 }
 
 void MainWindow::addMessageItem(QString ID, QString name)
@@ -76,6 +79,15 @@ void MainWindow::addFriendItem(QString ID, QString name)
     newItem->setData(0,name + "ID: " + ID);
     newItem->setData(3,ID);
     ui->listWidget_friend->addItem(newItem);
+}
+
+void MainWindow::clearMessageItem()
+{
+    ui->listWidget_message->clear();
+}
+void MainWindow::clearFriendItem()
+{
+    ui->listWidget_friend->clear();
 }
 
 void MainWindow::on_pushButton_input_clicked()

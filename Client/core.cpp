@@ -231,6 +231,8 @@ void Core::distributeMessage(QByteArray content)
     }
     else if(transType == "FriendListResult")
     {
+        mainwindow->clearFriendItem();
+        mainwindow->clearMessageItem();
         QJsonArray friendList = json["FriendList"].toArray();
         foreach (auto var, friendList) {
             QJsonObject f = var.toObject();
@@ -245,7 +247,8 @@ void Core::distributeMessage(QByteArray content)
         QString SenderOID = QString::number(json["SenderOID"].toInt());
         QString TargetOID = QString::number(json["TargetOID"].toInt());
         QString Value = json["Value"].toString();
-        mainwindow->getMessage(TargetOID, "", Value, true);
+        qDebug()<<SenderOID;
+        mainwindow->getMessage(SenderOID, "", Value, true);
     }
 }
 
