@@ -25,6 +25,16 @@
 #include <QMap>
 #include "tcpserver.h"
 
+#ifdef _WIN32
+#include <Windows.h>
+
+#elif __linux__
+#include <unistd.h>
+
+#endif
+
+
+
 class servercore : public QObject
 {
     Q_OBJECT

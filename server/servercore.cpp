@@ -566,8 +566,13 @@ void servercore::SynchronizeServerMessages(int OID)
             QByteArray returnJsonData = returnJsonDocument.toJson();
             qDebug()<<returnJsonData;
             tp->send(sp->peerAddress(), sp->peerPort(), returnJsonData);
+            #ifdef _WIN32
+                Sleep(10);
+            #else
+                usleep(10000); // 10,000 微秒 = 10 毫秒
+            #endif
         }
-        if(Size !=-1 )
+
         {
             query.prepare("DELETE FROM message WHERE TargetOID = :OID");
             query.bindValue(":OID", OID);
