@@ -45,7 +45,7 @@ signals:
     void readKeyValue(QString key);
     //发送链接到服务器的信号
     void sendConnectRequest(QString IP, int port);
-    //发送信息到服务器
+    //发送信息到服务器（一个.json文件）
     void sendMessageToServer(QByteArray content);
     
     void turnLoginToWaiting();
@@ -70,6 +70,11 @@ public slots:
     //处理前端发来的给好友发送消息请求
     void toSendMessageToFriend(QString ID, QString message);
 
+    //文件消息发送的几个函数
+    void getDocSendRequest(QString targetOID,QString path); // updated by zwx.
+    void toSendDocuMessage(const QString targetOID,const QByteArray content,const QString filename); // updated by zwx.
+    void toSendDocuMessageBypath(const QString targetOID,const QString path); // updated by zwx.
+    void openChooseFileDialog(const QString targetOID); // updated by zwx.
 
 protected:
     //后台工作线程
@@ -92,6 +97,7 @@ private:
     QString serverIP;
     //暂存在内存的当前登录用户OID和密码
     QString savedID, savedPassword;
+    int userOID;
 
 };
 

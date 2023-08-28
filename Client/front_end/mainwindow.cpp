@@ -16,6 +16,7 @@
 #include <QTextFrame>
 #include <QTextDocument>
 #include <QMessageBox>
+#include "choosedocdialog.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QWidget(parent),
@@ -99,6 +100,19 @@ void MainWindow::on_pushButton_input_clicked()
     insertRightFrame(ui->textEdit_show->document(),"me", text);
 
     emit sendMessage(QString::number(documentToOID[ui->textEdit_show->document()]), text);
+}
+
+void MainWindow::on_pushButton_choDoc_clicked()
+{
+    ChooseDocDialog dialog;
+    connect(&dialog,&ChooseDocDialog::signal_getFilePath,this,&MainWindow::getSendFilePath);
+    dialog.exec();
+}
+
+void MainWindow::getSendFilePath(const QString path)
+{
+    QString targetOID = QString::number(documentToOID[ui->textEdit_show->document()]);
+    emit signal_getDocSendRequest(targetOID,path);
 }
 
 void MainWindow::changeMessageItem(QListWidgetItem *current)

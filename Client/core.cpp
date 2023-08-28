@@ -17,6 +17,8 @@
 #include <QJsonArray>
 #include <QDebug>
 #include <QMessageBox>
+#include <QFile>
+#include <QByteArray>
 #include "front_end/login.h"
 #include "front_end/sign_up.h"
 #include "front_end/switchserverip.h"
@@ -93,10 +95,11 @@ Core::Core(QObject *parent)
     connect(mainwindow, &MainWindow::gotoAddFriend, addFriend, &QWidget::show);
     connect(mainwindow, &MainWindow::gotoDealFriendRequest, dealFriendRequest, &DealFriendRequest::show);
     connect(mainwindow, &MainWindow::sendMessage, this, &Core::toSendMessageToFriend);
+    connect(mainwindow, &MainWindow::signal_getDocSendRequest,this,&Core::getDocSendRequest);
     connect(mainwindow, &MainWindow::sendRefreshFriendList, this, [this](){
         QJsonObject subjson;
         subjson["transType"] = "FriendListRequest";
-        subjson["OID"] = savedID.toInt();
+        subjson["OID"] = this->userOID;
         QJsonDocument subdoc(subjson);
         emit this->sendMessageToServer(subdoc.toJson());
     });
@@ -168,12 +171,13 @@ void Core::distributeMessage(QByteArray content)
         bool success = json["Status"].toBool();
         if(success)
         {
+            this->userOID = json["OID"].toInt();
             login->loginSuccess();
             mainwindow->show();
 
             QJsonObject subjson;
             subjson["transType"] = "FriendListRequest";
-            subjson["OID"] = savedID.toInt();
+            subjson["OID"] = this->userOID; // updated by zwx: 这里不用this->savedOID，那个在没有勾选“保存密码”时为空。
             QJsonDocument subdoc(subjson);
             emit this->sendMessageToServer(subdoc.toJson());
         }
@@ -334,10 +338,47 @@ void Core::toSendMessageToFriend(QString ID, QString message)
 {
     QJsonObject json;
     json["transType"] = "SendTxtMessageRequest";
-    json["SenderOID"] = savedID.toInt();
+    json["SenderOID"] = userOID; // updated by zwx: 别用savedID，这玩意儿是用来存下次登录的账号的，易篡改
     json["TargetOID"] = ID.toInt();
     json["Type"] = "Txt";
     json["Value"] = message;
     QJsonDocument doc(json);
     emit this->sendMessageToServer(doc.toJson());
+}
+
+QString getName(const QString &path)
+{
+    QString str1 = path.section('/',-1);
+    return str1;
+}
+
+void Core::getDocSendRequest(QString targetOID,QString path)
+/*
+ * getDocSendRequest
+ * 从mainwindow收到文件消息的信息，将其发送
+ * updated by zwx.
+*/
+{
+    QFile file = QFile(path);
+    if (! file.open(QIODevice::ReadOnly)) {
+        QMessageBox msgbox;
+        msgbox.setParent(mainwindow);
+        msgbox.setText(QString("无法读取该文件：\n%1").arg(path));
+        msgbox.exec();
+        return;
+    }
+    QByteArray content = file.readAll();
+    this->toSendDocuMessage(targetOID,content,getName(path));
+}
+
+void Core::toSendDocuMessage(const QString targetOID,const QByteArray content,const QString filename)
+{
+    QJsonObject job;
+    job["transType"] = "SendMessageRequest";
+    job["Type"] = "Document";
+    job["TargetOID"] = targetOID.toInt();
+    job["Value"] = filename;
+    job["Content"] = QString(content.toBase64());
+    QJsonDocument jdoc(job);
+    tcp->toSendMessage(jdoc.toJson());
 }

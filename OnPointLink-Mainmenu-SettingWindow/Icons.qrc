@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/MainMenu">
-        <file alias="settingIcon.png">setttingIcon.png</file>
-    </qresource>
-</RCC>

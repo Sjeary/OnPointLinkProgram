@@ -42,6 +42,9 @@ signals:
     void gotoAddFriend();
     void gotoDealFriendRequest();
 
+    //给core的文件传输信号，将targetOID、path传出去
+    void signal_getDocSendRequest(QString targetOID,QString path); // updated by zwx.
+
 public slots:
     //获得好友发来的消息
     void getMessage(QString ID, QString name, QString content, bool isReceive);
@@ -59,6 +62,8 @@ public slots:
     void clearMessageItem();
     //清除好友窗口所有项目
     void clearFriendItem();
+    //从ChoooseDocDialog获得文件发送信息
+    void getSendFilePath(const QString path);
 
 private slots:
     void on_pushButton_input_clicked();
@@ -76,6 +81,8 @@ private slots:
     void on_pushButton_addThisUser_clicked();
 
     void on_pushButton_refresh_clicked();
+
+    void on_pushButton_choDoc_clicked();
 
 private:
     Ui::MainWindow *ui;
