@@ -424,7 +424,8 @@ void Core::toSendDocuMessage(const QString targetOID,const QByteArray content,co
     QJsonObject job;
     job["transType"] = "SendMessageRequest";
     job["Type"] = "Document";
-    job["TargetOID"] = targetOID.toInt();
+    job["SenderOID"] = QString::number(this->userOID);
+    job["TargetOID"] = targetOID;
     job["Value"] = filename;
     job["Content"] = QString(content.toBase64());
     QJsonDocument jdoc(job);
