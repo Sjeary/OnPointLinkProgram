@@ -430,3 +430,17 @@ void Core::toSendDocuMessage(const QString targetOID,const QByteArray content,co
     QJsonDocument jdoc(job);
     tcp->toSendMessage(jdoc.toJson());
 }
+
+void Core::toSendDocuMessageBypath(const QString targetOID,const QString path)
+{
+    QFile file(path);
+    if (! file.open(QIODevice::ReadOnly)) {
+        QMessageBox msgbox;
+        msgbox.setParent(mainwindow);
+        msgbox.setText(QString("无法读取该文件：\n%1").arg(path));
+        msgbox.exec();
+        return;
+    }
+    QByteArray content = file.readAll();
+    this->toSendDocuMessage(targetOID,content,getName(path));
+}

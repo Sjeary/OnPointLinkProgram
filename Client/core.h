@@ -78,7 +78,6 @@ public slots:
     void getDocSendRequest(QString targetOID,QString path); // updated by zwx.
     void toSendDocuMessage(const QString targetOID,const QByteArray content,const QString filename); // updated by zwx.
     void toSendDocuMessageBypath(const QString targetOID,const QString path); // updated by zwx.
-    void openChooseFileDialog(const QString targetOID); // updated by zwx.
 
 protected:
     //后台工作线程

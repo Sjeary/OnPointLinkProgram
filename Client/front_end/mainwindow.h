@@ -47,9 +47,6 @@ signals:
     //给core的文件传输信号，将targetOID、path传出去
     void signal_getDocSendRequest(QString targetOID,QString path); // updated by zwx.
 
-    //给core的文件传输信号，将targetOID、path传出去
-    void signal_getDocSendRequest(QString targetOID,QString path); // updated by zwx.
-
 public slots:
     //获得好友发来的消息
     void getMessage(QString ID, QString name, QString content, bool isReceive);
