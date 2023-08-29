@@ -69,6 +69,10 @@ public:
     //同步服务器离线消息到客户端
     void SynchronizeServerMessages(int OID1);
 
+    void SendDeleteFriendRequest(QJsonObject &jsonObj);
+    void returnSendDeleteFriendRequest(int OID1,int OID2,bool Status,QString log,QString Devide,QString transType);
+    void ChangeFriendDevide(QJsonObject &jsonObj);
+    void returnChangeFriendDevide(int OID1,int OID2,bool Status,QString log,QString transType);
     ~servercore();
 
 private slots:

@@ -39,6 +39,7 @@ private:
     QTcpServer * m_s;
     QList<QTcpSocket *> connections;
     QTime time;
+    QByteArray buffer;
 };
 
 #endif // TCPSERVER_H
