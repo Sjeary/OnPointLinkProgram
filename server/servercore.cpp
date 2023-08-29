@@ -629,7 +629,7 @@ void servercore::SynchronizeServerMessages(int OID)
 {
     // 第二步 同步消息
     QSqlQuery query(db);
-    query.prepare("SELECT * FROM message INNER JOIN account ON message.SenderOID=OID WHERE SenderOID = :OID;");
+    query.prepare("SELECT * FROM message INNER JOIN account ON message.SenderOID= account.OID WHERE TargetOID = :OID;");
     query.bindValue(":OID", OID);
     if(!query.exec())
     {
@@ -653,9 +653,9 @@ void servercore::SynchronizeServerMessages(int OID)
         qDebug()<<returnJsonData;
         tp->send(sp->peerAddress(), sp->peerPort(), returnJsonData);
         #ifdef _WIN32
-            Sleep(10);
+            Sleep(200);
         #else
-            usleep(10000); // 10,000 微秒 = 10 毫秒
+            usleep(200000); // 10,000 微秒 = 10 毫秒
         #endif
     }
 
@@ -696,7 +696,7 @@ void servercore::SynchronizeServerMessages(int OID)
     }
 
     {
-        query.prepare("DELETE  FROM friendrequest WHERE Accepted = 1 AND Accepted = 0 AND TargetOID = :OID");
+        query.prepare("DELETE  FROM friendrequest WHERE (Accepted IN(0,1)) AND TargetOID = :OID");
         query.bindValue(":OID", OID);
         if (query.exec()) {
             qDebug() << "Deletion friendrequest successful";
