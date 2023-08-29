@@ -44,6 +44,7 @@ void servercore::offline(QTcpSocket *psocket)
 void servercore::switchFunction(QTcpSocket *psocket)
 {
     //swichFunction(jsonObject["transType"])
+    qDebug() << "switchFunction:" << endl;
     sp = psocket;
     QByteArray data = psocket->readAll();
     QJsonDocument doc = QJsonDocument::fromJson(data);
@@ -66,7 +67,8 @@ void servercore::switchFunction(QTcpSocket *psocket)
     stringMap.insert("SendResultFromReceiverClientToServer", 27) ;
     stringMap.insert("SendDeleteFriendRequest", 29) ;
     stringMap.insert("ChangeFriendDevide", 31) ;
-
+    stringMap.insert("SendCreateGroupRequest", 33) ;
+    stringMap.insert("SendGroupMessage", 33) ;
     QString type = obj["transType"].toString();
     switch (stringMap.value(type)){
     case 1 : RegRequest(obj);break;
@@ -85,7 +87,127 @@ void servercore::switchFunction(QTcpSocket *psocket)
     case 27 : SendResultFromReceiverClientToServer(obj);break;
     case 29 : SendDeleteFriendRequest(obj);break;
     case 31 : ChangeFriendDevide(obj);break;
+    case 33 : SendCreateGroupRequest(obj);break;
+    case 35 : SendGroupMessage(obj);break;
+    }
+}
+void servercore::SendGroupMessage(QJsonObject &jsonObj)
+{
+    int GroupOID = jsonObj["GroupOID"].toInt();
+    int SenderMemberOID = jsonObj["SenderMemberOID"].toInt();
+    QString Content = jsonObj["Content"].toString();
+    QString Type = jsonObj["Type"].toString();
 
+
+    QSqlQuery query(db);
+    //查询发送者的姓名
+    query.prepare(QString("SELECT * FROM account WHERE OID = :SenderMemberOID"));
+    query.bindValue(":SenderMemberOID",SenderMemberOID);
+    query.exec();
+    query.next();
+    QString SenderName = query.value("Name").toString();
+
+    if(!query.exec(QString("SELECT * FROM ga WHERE GroupOID = %1").arg(GroupOID)))
+    {
+        qDebug()<<"Query ERROR: "<<query.lastError().text();
+        return ;
+    }
+    int cnt = 0;
+    while(query.next())
+    {
+
+        int mOID = query.value("MemberOID").toInt();
+        // 发送给在线用户
+        QJsonObject returnJsonObject;
+        QDateTime SendTime = QDateTime::currentDateTime();
+        returnJsonObject["SenderName"]=SenderName;
+        returnJsonObject["SenderMemberOID"]=SenderMemberOID;
+        returnJsonObject["GroupOID"]=GroupOID;
+        returnJsonObject["transType"]="SendGroupMessage";
+        returnJsonObject["Type"]=Type;
+        returnJsonObject["Content"]=Content;
+        returnJsonObject["SendTime"] = SendTime.toString();
+        if(socketmap.contains(mOID))
+        {
+            cnt++;
+            QHostAddress targetip = socketmap.value(mOID)->peerAddress();
+            quint16 targetport = socketmap.value(mOID)->peerPort();
+            QJsonDocument returnJsonDocument(returnJsonObject);
+            QByteArray returnJsonData = returnJsonDocument.toJson();
+            qDebug()<<returnJsonData;
+            tp->send(targetip, targetport, returnJsonData);
+        }
+    }
+    QJsonObject returnJsonObject;
+    QDateTime SendTime = QDateTime::currentDateTime();
+    returnJsonObject["SenderName"]=SenderName;
+    returnJsonObject["SenderMemberOID"]=SenderMemberOID;
+    returnJsonObject["GroupOID"]=GroupOID;
+    returnJsonObject["transType"]="SendGroupMessage";
+    returnJsonObject["Type"]=Type;
+    returnJsonObject["Content"]=Content;
+    returnJsonObject["SendTime"] = SendTime.toString();
+    returnJsonObject["CountOfReviver"] = cnt;
+}
+void servercore::SendCreateGroupRequest(QJsonObject &jsonObj)
+{
+    QString Name = jsonObj["Name"].toString();
+    QJsonArray memberlist = jsonObj["menmberOID"].toArray();
+    // 将本机OID也加入
+    {
+        int OID = jsonObj["HostOID"].toInt();
+        QJsonObject obj;
+        obj["OID"] = OID;
+        memberlist.append(obj);
+    }
+    // 在group表建立一个群
+    QSqlQuery query(db);
+    query.prepare("SELECT COUNT(*) FROM `group`");
+    if(!query.exec())
+    {
+        qDebug()<<"Query ERROR: "<<query.lastError().text();
+        return ;
+    }
+    int OID = 0;
+    if(query.next())
+    {
+        int rowCount = query.value(0).toInt();
+        qDebug()<<"Number of the row is "<<rowCount;
+        OID = rowCount+100001;
+        if(OID>999999||OID<100000)
+        {
+            qDebug()<<"OID wrong"<<endl;
+        }
+        query.prepare("INSERT INTO `group` (OID,Name) VALUES(:OID,:Name)");
+        query.bindValue(":OID",OID);
+        query.bindValue(":Name",Name);
+        if (!query.exec()) {
+                qDebug() << "Database insertion error:" << query.lastError().text();
+                return ;
+            }
+    }
+    // 更新ga表
+    foreach (auto var, memberlist) {
+        QJsonObject m = var.toObject();
+        int mOID = m["OID"].toInt();
+        query.prepare("INSERT INTO ga(GroupOID, MemberOID) VALUES(:GroupOID, :MemberOID)");
+        query.bindValue(":GroupOID",OID);
+        query.bindValue(":MemberOID",mOID);
+        if(!query.exec())
+        {
+            qDebug()<<"Query ERROR: "<<query.lastError().text();
+            return ;
+        }
+    }
+    // 最后返回一个群的OID
+    {
+        QJsonObject returnJsonObject;
+        returnJsonObject["GroupOID"]=OID;
+        returnJsonObject["transType"]="CreateGroupResult";//文件类型
+        QJsonDocument returnJsonDocument(returnJsonObject);
+        QByteArray returnJsonData = returnJsonDocument.toJson();
+        qDebug()<<returnJsonData;
+        tp->send(sp->peerAddress(), sp->peerPort(), returnJsonData);
     }
 }
 
@@ -214,7 +336,7 @@ void servercore::SendTxtMessageRequest(QJsonObject &jsonObj)
     QSqlQuery query(db);
     //查询发送者的姓名
     query.prepare(QString("SELECT * FROM account WHERE OID = :SenderOID"));
-    query.bindValue(":OID",SenderOID);
+    query.bindValue(":SenderOID",SenderOID);
     query.exec();
     query.next();
     QString SenderName = query.value("Name").toString();
@@ -315,6 +437,7 @@ void servercore::EnterRequest(QJsonObject &jsonObj)
 {
 
     // 第一步 登录
+    qDebug() << "EnterRequest:" << jsonObj["OID"].toString()<< endl;
     int OID = jsonObj["OID"].toInt();
     QString Password = jsonObj["Password"].toString();
     socketmap.insert(OID, sp);
@@ -587,14 +710,16 @@ void servercore::SendResultFromReceiverClientToServer(QJsonObject &jsonObj)
     {
         QSqlQuery query(db);
         //这里不加分组，实现默认分组，之后有需求再改
-        query.prepare("INSERT INTO friend (OID1,OID2) VALUES (:SenderOID,:TargetOID);");
+        query.prepare("INSERT INTO friend (OID1,OID2,Devide) VALUES (:SenderOID,:TargetOID,:Devide);");
         query.bindValue(":SenderOID",SenderOID);
         query.bindValue(":TargetOID",TargetOID);
+        query.bindValue(":Devide","我的好友");
         query.exec();
         //双向好友
-        query.prepare("INSERT INTO friend (OID1,OID2) VALUES (:SenderOID,:TargetOID);");
+        query.prepare("INSERT INTO friend (OID1,OID2,Devide) VALUES (:SenderOID,:TargetOID,:Devide);");
         query.bindValue(":SenderOID",TargetOID);
         query.bindValue(":TargetOID",SenderOID);
+        query.bindValue(":Devide","我的好友");
         query.exec();
         //更新好友申请数据库
         query.prepare("UPDATE friendrequest SET Accepted = :Accepted , ReplyMessage = :ReplyMessage WHERE SenderOID = :SenderOID AND TargetOID = :TargetOID;");
@@ -829,7 +954,7 @@ void servercore::GroupListRequest(QJsonObject &jsonObj)
 {
     int OID = jsonObj["OID"].toInt();
     QSqlQuery query(db);
-    if (!query.exec(QString("SELECT * FROM group, ga WHERE MemberOID = %1").arg(OID)))
+    if (!query.exec(QString("SELECT * FROM `group`, ga WHERE MemberOID = %1").arg(OID)))
     {
         qDebug() << "Query failed:" << query.lastError().text();
     }
@@ -858,7 +983,7 @@ void servercore::GroupInfoRequest(QJsonObject &jsonObj)
     QSqlQuery query(db);
     QJsonArray jsonArray;
     // 查询群信息
-    if (!query.exec(QString("SELECT * FROM group WHERE OID = %1").arg(GroupOID)))
+    if (!query.exec(QString("SELECT * FROM `group` WHERE OID = %1").arg(GroupOID)))
     {
         qDebug() << "Query failed:" << query.lastError().text();
     }
@@ -873,7 +998,7 @@ void servercore::GroupInfoRequest(QJsonObject &jsonObj)
         jsonArray.append(jsonObject);
     }
     // 查询群友信息
-    if (!query.exec(QString("SELECT * FROM group, ga WHERE OID = %1 AND GroupOID = OID").arg(GroupOID)))
+    if (!query.exec(QString("SELECT * FROM `group`, ga WHERE OID = %1 AND GroupOID = OID").arg(GroupOID)))
     {
         qDebug() << "Query failed:" << query.lastError().text();
     }

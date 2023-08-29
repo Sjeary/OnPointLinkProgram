@@ -40,18 +40,18 @@ void TcpServer::initServer()
             qDebug() << "New client connected.";
 
             connect(clientSocket, &QTcpSocket::readyRead, [=]() {
-//                emit received(clientSocket);
-//                QByteArray data = clientSocket->readAll();
-//                qDebug() << "Received data from client:" << data;
+                emit received(clientSocket);
+                QByteArray data = clientSocket->readAll();
+                qDebug() << "Received data from client:" << data;
 
-                buffer.append(clientSocket->readAll());
-                QJsonDocument doc = QJsonDocument::fromJson(buffer);
-                if(doc.isObject())
-                {
-                    qDebug() << "Received data from client:" << buffer;
-                    emit received(clientSocket);
-                    buffer.clear();
-                }
+//                buffer.append(clientSocket->readAll());
+//                QJsonDocument doc = QJsonDocument::fromJson(buffer);
+//                if(doc.isObject())
+//                {
+//                    qDebug() << "Received data from client:" << buffer;
+//                    emit received(clientSocket);
+//                    buffer.clear();
+//                }
 
 
 //                QHostAddress targetIP = clientSocket->peerAddress();

@@ -68,11 +68,16 @@ public:
 
     //同步服务器离线消息到客户端
     void SynchronizeServerMessages(int OID1);
-
+    //删好友，改分组
+    void SendCreateGroupRequest(QJsonObject &);
     void SendDeleteFriendRequest(QJsonObject &jsonObj);
     void returnSendDeleteFriendRequest(int OID1,int OID2,bool Status,QString log,QString Devide,QString transType);
     void ChangeFriendDevide(QJsonObject &jsonObj);
     void returnChangeFriendDevide(int OID1,int OID2,bool Status,QString log,QString transType);
+    //群聊消息
+    void SendGroupMessage(QJsonObject &jsonObj);
+    void returnSendGroupMessage(bool Status,QString log,int GroupOID,int SenderMemberOID,QString Content,QString Type,QString transType);
+
     ~servercore();
 
 private slots:
