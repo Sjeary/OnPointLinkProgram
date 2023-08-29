@@ -128,7 +128,7 @@
       <enum>QFrame::StyledPanel</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="page_mid_0">
       <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -186,6 +186,13 @@
         </widget>
        </item>
        <item>
+        <widget class="QPushButton" name="pushButton_createGroup">
+         <property name="text">
+          <string>Create group</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QListWidget" name="listWidget_friend"/>
        </item>
       </layout>
@@ -236,7 +243,7 @@
       <enum>QFrame::StyledPanel</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="page_main_0">
       <layout class="QVBoxLayout" name="verticalLayout_3">

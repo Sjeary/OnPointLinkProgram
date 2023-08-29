@@ -340,19 +340,66 @@ void servercore::SendFriendRequestToServer(QJsonObject &jsonObj)
     }
     if(query.size())
     {
-        query.prepare("INSERT INTO friendrequest (SenderOID,TargetOID,ApplicationMessage) VALUES (:SenderOID,:TargetOID,:RequestMessage);");
-        query.bindValue(":SenderOID",SenderOID);
-        query.bindValue(":TargetOID",TargetOID);
-        query.bindValue(":RequestMessage",RequestMessage);
-
-        if(!query.exec())
+        // 情况1：考虑到已经是好友的情况
+        qDebug()<<1123;
+        QSqlQuery query2(db);
+        query2.prepare("SELECT * FROM friend WHERE OID1 = :OID1 AND OID2 = :OID2");
+        query2.bindValue(":OID1", SenderOID);
+        query2.bindValue(":OID2", TargetOID);
+        if(!query2.exec())
         {
-            qDebug()<<"Query exec() ERROR: "<<query.lastError().text();
-            ProcessFriendRequestResult(SenderOID,TargetOID,0,"Query exec() ERROR: "+query.lastError().text());
+            qDebug()<<"Query exec() ERROR: "<<query2.lastError().text();
+            ProcessFriendRequestResult(SenderOID,TargetOID,0,"Query exec() ERROR: "+query2.lastError().text());
             return ;
         }
-        ProcessFriendRequestResult(SenderOID,TargetOID,1,"请求成功发送给服务器");
-        SendRequestToReceiverClient(SenderOID,TargetOID,RequestMessage);//发给目标客户端
+        qDebug()<<14354123;
+        if(query2.size()!=-1)
+        {
+            qDebug()<<"Friend Already! 已经是您的好友！";
+            ProcessFriendRequestResult(SenderOID,TargetOID,0,"Friend Already! 已经是您的好友！");
+            return ;
+        }
+        else if(socketmap.contains(TargetOID))
+        {
+            QSqlQuery query2(db);
+            int FRID = 0;
+            qDebug()<<123123;
+            if (!query2.exec(QString("SELECT MAX(FRID) AS MaxFRID FROM friendrequest")))
+            {
+                qDebug()<<5467;
+                qDebug() << "Query failed:" << query2.lastError().text();
+            }
+            if (query2.next()) {
+                qDebug()<<7583;
+                FRID = query2.value("MaxFRID").toInt();
+                qDebug()<<query2.value("MaxFRID");
+                qDebug() << "Maximum value of" << "FRID" << "is:" << FRID++;
+            }
+
+            query.prepare("INSERT INTO friendrequest (FRID, SenderOID,TargetOID,ApplicationMessage) VALUES (:FRID,:SenderOID,:TargetOID,:RequestMessage);");
+            query.bindValue(":FRID",FRID);
+            query.bindValue(":SenderOID",SenderOID);
+            query.bindValue(":TargetOID",TargetOID);
+            query.bindValue(":RequestMessage",RequestMessage);
+            qDebug()<<187;
+            if(!query.exec())
+            {
+                qDebug()<<"Query exec() ERROR: "<<query.lastError().text();
+                ProcessFriendRequestResult(SenderOID,TargetOID,0,"Query exec() ERROR: "+query.lastError().text());
+                return ;
+            }
+
+            qDebug()<<109876543;
+            ProcessFriendRequestResult(SenderOID,TargetOID,1,"请求成功发送给服务器");
+            qDebug()<<749796;
+            SendRequestToReceiverClient(SenderOID,TargetOID,RequestMessage);//发给目标客户端
+            qDebug()<<27856793;
+        }
+        else // 情况2：对方不在线需要存起来
+        {
+            qDebug()<<76597;
+            StoreOfflineFriendRequest(SenderOID, TargetOID, RequestMessage);
+        }
     }
     else
     {
@@ -361,6 +408,43 @@ void servercore::SendFriendRequestToServer(QJsonObject &jsonObj)
         return ;
     }
 }
+
+void servercore::StoreOfflineFriendRequest(int SenderOID, int TargetOID, QString ApplicationMessage)
+{
+    QSqlQuery query(db);
+    qDebug()<<"offlinesdfdasdf";
+//    query.prepare(QString("SELECT * FROM friendrequest WHERE SenderOID = %1 AND TargetOID = %2").arg(SenderOID).arg(TargetOID));
+//    if(!query.exec())
+//    {
+//        qDebug()<<"Query exec() ERROR: "<<query.lastError().text();
+//        return ;
+//    }
+    // 如果没有存储过这条信息才行
+    //if(query.size() == -1)
+    {
+        int FRID = 0;
+        if (!query.exec(QString("SELECT MAX(FRID) AS MaxFRID FROM friendrequest")))
+        {
+            qDebug() << "Query failed:" << query.lastError().text();
+        }
+        if (query.next()) {
+            FRID = query.value("MaxFRID").toInt();
+            qDebug()<<query.value("MaxFRID");
+            qDebug() << "Maximum value of" << "FRID" << "is:" << FRID++;
+        }
+        query.prepare("INSERT INTO friendrequest (FRID, SenderOID, TargetOID, ApplicationMessage) VALUES (:FRID,:SenderOID,:TargetOID,:ApplicationMessage);");
+        query.bindValue(":FRID", FRID);
+        query.bindValue(":SenderOID", SenderOID);
+        query.bindValue(":TargetOID", TargetOID);
+        query.bindValue(":ApplicationMessage", ApplicationMessage);
+        if(!query.exec())
+        {
+            qDebug()<<"Query exec() ERROR: "<<query.lastError().text();
+            return ;
+        }
+    }
+}
+
 void servercore::SendRequestToReceiverClient(int SenderOID,int TargetOID,QString RequestMessage)
 {
     //读取目标ip
@@ -545,45 +629,81 @@ void servercore::SynchronizeServerMessages(int OID)
 {
     // 第二步 同步消息
     QSqlQuery query(db);
-        query.prepare("SELECT * FROM message INNER JOIN account ON message.SenderOID=OID WHERE SenderOID = :OID;");
-        query.bindValue(":OID", OID);
-        if(!query.exec())
-        {
-            qDebug()<<"Query ERROR: "<<query.lastError().text();
-            returnEnterResult(OID,sp->peerAddress(),0,"Query ERROR: "+query.lastError().text());
-            return ;
-        }
-        int Size = query.size();
-        qDebug()<<"Size : "<<Size;
-        while(query.next())
-        {
-            QJsonObject returnJsonObject;
-            returnJsonObject["SenderOID"]=query.value("SenderOID").toInt();
-            returnJsonObject["TargetOID"]=query.value("TargetOID").toInt();
-            returnJsonObject["SenderName"]=query.value("Name").toString();
-            returnJsonObject["transType"]="SendMessageResult";
-            returnJsonObject["Type"]="Txt";
-            returnJsonObject["Value"]=query.value("Value").toString();
-            QJsonDocument returnJsonDocument(returnJsonObject);
-            QByteArray returnJsonData = returnJsonDocument.toJson();
-            qDebug()<<returnJsonData;
-            tp->send(sp->peerAddress(), sp->peerPort(), returnJsonData);
-            #ifdef _WIN32
-                Sleep(10);
-            #else
-                usleep(10000); // 10,000 微秒 = 10 毫秒
-            #endif
-        }
+    query.prepare("SELECT * FROM message INNER JOIN account ON message.SenderOID=OID WHERE SenderOID = :OID;");
+    query.bindValue(":OID", OID);
+    if(!query.exec())
+    {
+        qDebug()<<"Query ERROR: "<<query.lastError().text();
+        returnEnterResult(OID,sp->peerAddress(),0,"Query ERROR: "+query.lastError().text());
+        return ;
+    }
+    int Size = query.size();
+    qDebug()<<"Size : "<<Size;
+    while(query.next())
+    {
+        QJsonObject returnJsonObject;
+        returnJsonObject["SenderOID"]=query.value("SenderOID").toInt();
+        returnJsonObject["TargetOID"]=query.value("TargetOID").toInt();
+        returnJsonObject["SenderName"]=query.value("Name").toString();
+        returnJsonObject["transType"]="SendMessageResult";
+        returnJsonObject["Type"]="Txt";
+        returnJsonObject["Value"]=query.value("Value").toString();
+        QJsonDocument returnJsonDocument(returnJsonObject);
+        QByteArray returnJsonData = returnJsonDocument.toJson();
+        qDebug()<<returnJsonData;
+        tp->send(sp->peerAddress(), sp->peerPort(), returnJsonData);
+        #ifdef _WIN32
+            Sleep(10);
+        #else
+            usleep(10000); // 10,000 微秒 = 10 毫秒
+        #endif
+    }
 
-        {
-            query.prepare("DELETE FROM message WHERE TargetOID = :OID");
-            query.bindValue(":OID", OID);
-            if (query.exec()) {
-                qDebug() << "Deletion successful";
-            } else {
-                qDebug() << "Deletion failed:" << query.lastError().text();
-            }
+    {
+        query.prepare("DELETE FROM message WHERE TargetOID = :OID");
+        query.bindValue(":OID", OID);
+        if (query.exec()) {
+            qDebug() << "Deletion message successful";
+        } else {
+            qDebug() << "Deletion message failed:" << query.lastError().text();
         }
+    }
+    // 第三步 同步好友申请
+    query.prepare("SELECT * FROM friendrequest JOIN account ON friendrequest.SenderOID =account.OID WHERE TargetOID = :OID");
+    query.bindValue(":OID", OID);
+    if(!query.exec())
+    {
+        qDebug()<<"Query ERROR: "<<query.lastError().text();
+        return ;
+    }
+    while(query.next())
+    {
+        QJsonObject returnJsonObject;
+        returnJsonObject["OID1"]=query.value("SenderOID").toInt();
+        returnJsonObject["OID2"]=query.value("TargetOID").toInt();
+        returnJsonObject["SenderName"]=query.value("Name").toString();
+        returnJsonObject["ApplicationMessage"]=query.value("ApplicationMessage").toString();
+        returnJsonObject["transType"]="SendRequestToReceiverClient";
+        QJsonDocument returnJsonDocument(returnJsonObject);
+        QByteArray returnJsonData = returnJsonDocument.toJson();
+        qDebug()<<returnJsonData;
+        tp->send(sp->peerAddress(), sp->peerPort(), returnJsonData);
+        #ifdef _WIN32
+            Sleep(10);
+        #else
+            usleep(10000); // 10,000 微秒 = 10 毫秒
+        #endif
+    }
+
+    {
+        query.prepare("DELETE  FROM friendrequest WHERE Accepted = 1 AND Accepted = 0 AND TargetOID = :OID");
+        query.bindValue(":OID", OID);
+        if (query.exec()) {
+            qDebug() << "Deletion friendrequest successful";
+        } else {
+            qDebug() << "Deletion friendrequest failed:" << query.lastError().text();
+        }
+    }
 
 }
 

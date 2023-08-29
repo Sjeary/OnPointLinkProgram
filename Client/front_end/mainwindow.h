@@ -2,7 +2,7 @@
  * ============================
  * mainwindow.h
  * 开发者：王钟骐、祝文轩、王启贤
- * Update time: 2023-8-27
+ * Update time: 2023-8-28
  *
  * 定义 MainWindow 类
  * 声明 MainWindow 类的成员函数
@@ -41,6 +41,11 @@ signals:
 
     void gotoAddFriend();
     void gotoDealFriendRequest();
+    //新增
+    void gotoCreateGroup();
+
+    //给core的文件传输信号，将targetOID、path传出去
+    void signal_getDocSendRequest(QString targetOID,QString path); // updated by zwx.
 
     //给core的文件传输信号，将targetOID、path传出去
     void signal_getDocSendRequest(QString targetOID,QString path); // updated by zwx.
@@ -62,6 +67,8 @@ public slots:
     void clearMessageItem();
     //清除好友窗口所有项目
     void clearFriendItem();
+    //新增
+    //void getGroupInfo(QString ID, QString name, QString ins, QString memberIDs);
     //从ChoooseDocDialog获得文件发送信息
     void getSendFilePath(const QString path);
 
@@ -81,6 +88,8 @@ private slots:
     void on_pushButton_addThisUser_clicked();
 
     void on_pushButton_refresh_clicked();
+
+    void on_pushButton_createGroup_clicked();
 
     void on_pushButton_choDoc_clicked();
 

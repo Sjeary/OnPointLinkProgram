@@ -30,6 +30,8 @@ class AddFriend;
 class FileSystem;
 class DealFriendRequest;
 class ClientTcp;
+//新增
+class creategroup;
 
 class Core : public QObject
 {
@@ -69,6 +71,8 @@ public slots:
     void toSendFriendResult(QString ID, bool accept);
     //处理前端发来的给好友发送消息请求
     void toSendMessageToFriend(QString ID, QString message);
+    //新增
+    void toSendCreateRequest(QStringList memberIDList);
 
     //文件消息发送的几个函数
     void getDocSendRequest(QString targetOID,QString path); // updated by zwx.
@@ -92,6 +96,8 @@ private:
     MainWindow *mainwindow;
     AddFriend *addFriend;
     DealFriendRequest *dealFriendRequest;
+    //新增
+    creategroup *createGroup;
 
     //暂存在内存的服务器IP地址
     QString serverIP;
