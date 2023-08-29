@@ -68,7 +68,7 @@ void servercore::switchFunction(QTcpSocket *psocket)
     stringMap.insert("SendDeleteFriendRequest", 29) ;
     stringMap.insert("ChangeFriendDevide", 31) ;
     stringMap.insert("SendCreateGroupRequest", 33) ;
-    stringMap.insert("SendGroupMessage", 33) ;
+    stringMap.insert("SendGroupMessage", 35) ;
     QString type = obj["transType"].toString();
     switch (stringMap.value(type)){
     case 1 : RegRequest(obj);break;
