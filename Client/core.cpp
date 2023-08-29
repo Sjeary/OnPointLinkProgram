@@ -248,6 +248,21 @@ void Core::distributeMessage(QByteArray content)
         mainwindow->getFriendRequest();
         dealFriendRequest->addRequestItem(senderOID,"");
     }
+    else if(transType == "SendMessageRequest")
+    {
+
+        // p2p消息（文本、文件）
+        if(json["targetOID"] == this->userOID) {
+            QString senderOID = json["senderOID"].toString();
+            QString name = mainwindow->getNameByOID(senderOID);
+            if(json["Type"] == "Document")mainwindow->addDocMessage(senderOID,name,json["Value"].toString(),true);
+            else if(json["Type"] == "Txt")mainwindow->addMessage(senderOID,name,json["Value"].toString(),true);
+        }
+        else // 群发文件
+        {
+            return;
+        }
+    }
     else if(transType == "FriendListResult")
     {
         mainwindow->clearFriendItem();
@@ -270,8 +285,9 @@ void Core::distributeMessage(QByteArray content)
         QString SenderOID = QString::number(json["SenderOID"].toInt());
         QString TargetOID = QString::number(json["TargetOID"].toInt());
         QString Value = json["Value"].toString();
-        qDebug()<<SenderOID;
-        mainwindow->getMessage(SenderOID, "", Value, true);
+        qDebug() << "SendMessageResult: " << json << endl;
+        if(json["transType"] == "Txt")mainwindow->addMessage(SenderOID, "", Value, true);
+//        else if(json["transType"] == "Document") mainwindow -> addDocMessage(SenderOID, "", TargetOID, Value);
     }
     //新增
     else if (transType == "CreateGroupResult")

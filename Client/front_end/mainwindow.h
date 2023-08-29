@@ -32,8 +32,6 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-
-
 signals:
     void sendMessage(QString ID, QString content);
     void sendAddFriendRequest(QString ID);
@@ -48,8 +46,10 @@ signals:
     void signal_getDocSendRequest(QString targetOID,QString path); // updated by zwx.
 
 public slots:
-    //获得好友发来的消息
-    void getMessage(QString ID, QString name, QString content, bool isReceive);
+    //添加文本消息，支持添加好友消息、群聊消息
+    void addMessage(QString ID, QString name, QString content, bool isReceive);
+    //添加文件消息，支持添加好友消息、群聊消息
+    void addDocMessage(QString ID, QString name,QString value,bool isReceive);
     //获得查询到的用户信息
     void getUserInfo(QString ID, QString name, QString ins, QString email, QString birth);
     //接受到好友申请
@@ -68,6 +68,7 @@ public slots:
     //void getGroupInfo(QString ID, QString name, QString ins, QString memberIDs);
     //从ChoooseDocDialog获得文件发送信息
     void getSendFilePath(const QString path);
+    QString getNameByOID(const QString OID);
 
 private slots:
     void on_pushButton_input_clicked();
@@ -99,9 +100,9 @@ private:
 
     void setRootFrameFormat(QTextDocument *doc);
 
-    void insertLeftFrame(QTextDocument *doc, const QString &title, const QString &text);
+    void insertLeftFrame(QTextDocument *doc, const QString &title, const QString &text,QString type = "Txt");
 
-    void insertRightFrame(QTextDocument *doc, const QString &title,const QString &text);
+    void insertRightFrame(QTextDocument *doc, const QString &title,const QString &text,QString type = "Txt");
 };
 
 #endif // MAINWINDOW_H

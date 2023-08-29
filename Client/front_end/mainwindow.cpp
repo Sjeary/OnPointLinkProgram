@@ -34,7 +34,16 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::getMessage(QString ID, QString name, QString content, bool isReceive)
+void MainWindow::addMessage(QString ID, QString name, QString content, bool isReceive)
+/*
+ * addMessage
+ * 往mainwindow对应ID的对话框中添加一条消息。
+ * 参数：
+ * ID，对话框对应的OID（可为好友，可为群聊），用于找到对应的对话框。
+ * name，发送者name，添加在消息的标题
+ * content，消息内容
+ * isReceive，判断是自己发的还是对面发过来的。
+*/
 {
     foreach (QTextDocument * const var, documentToOID.keys()) {
         if (documentToOID.value(var) == ID.toInt())
@@ -47,6 +56,23 @@ void MainWindow::getMessage(QString ID, QString name, QString content, bool isRe
             {
                 insertRightFrame(var, name, content);
             }
+        }
+    }
+}
+
+QString getName(const QString value)
+{
+    return value.section("/",-1);
+}
+
+void MainWindow::addDocMessage(QString ID,QString name,QString value,bool isReceive)
+{
+    foreach (QTextDocument * const var, documentToOID.keys()) {
+        if(isReceive) {
+            insertLeftFrame(var, name, getName(value), "Document");
+        }
+        else {
+            insertRightFrame(var, name, getName(value), "Document");
         }
     }
 }
@@ -188,7 +214,7 @@ void MainWindow::setRootFrameFormat(QTextDocument *doc)
     root_frame->setFrameFormat(root_frame_format); //给框架使用格式
 }
 
-void MainWindow::insertLeftFrame(QTextDocument *doc, const QString &title, const QString &text)
+void MainWindow::insertLeftFrame(QTextDocument *doc, const QString &title, const QString &text,QString type)
 {
     QTextFrameFormat formatTitle;
     formatTitle.setWidth(QTextLength(QTextLength::PercentageLength, 65));//宽度设置
@@ -202,15 +228,18 @@ void MainWindow::insertLeftFrame(QTextDocument *doc, const QString &title, const
     formatContent.setBorder(2);
 
 
-
     QTextCursor cursor = doc->rootFrame()->lastCursorPosition();
     cursor.insertFrame(formatTitle);
     cursor.insertText(title);
     cursor.insertFrame(formatContent);
     cursor.insertText(text);
+
+    if(type == "Document") {
+
+    }
 }
 
-void MainWindow::insertRightFrame(QTextDocument *doc, const QString &title, const QString &text)
+void MainWindow::insertRightFrame(QTextDocument *doc, const QString &title, const QString &text,QString type)
 {
     QTextFrameFormat formatTitle;
     formatTitle.setWidth(QTextLength(QTextLength::PercentageLength, 65));//宽度设置
@@ -243,4 +272,17 @@ void MainWindow::on_pushButton_refresh_clicked()
 void MainWindow::on_pushButton_createGroup_clicked()
 {
     emit gotoCreateGroup();
+}
+
+QString MainWindow::getNameByOID(const QString OID)
+{
+    int count = ui->listWidget_message->count();
+    for (int i=0; i<count; ++i) {
+        QListWidgetItem* var = ui->listWidget_message->item(i);
+        if(var->data(3) == OID) {
+            QString str = var -> data(0).toString();
+            int pos = str.indexOf('\n');
+            return str.left(pos);
+        }
+    }
 }
