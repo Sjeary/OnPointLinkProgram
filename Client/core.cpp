@@ -249,17 +249,27 @@ void Core::distributeMessage(QByteArray content)
         dealFriendRequest->addRequestItem(senderOID,"");
     }
     else if(transType == "SendMessageRequest")
+    /*
+     * 收到一条消息
+    */
     {
-
         // p2p消息（文本、文件）
-        if(json["targetOID"] == this->userOID) {
-            QString senderOID = json["senderOID"].toString();
+        QString senderOID = json["senderOID"].toString();
+        QString targetOID = json["targetOID"].toString();
+        if(targetOID.toInt() == this->userOID) {
             QString name = mainwindow->getNameByOID(senderOID);
-            if(json["Type"] == "Document")mainwindow->addDocMessage(senderOID,name,json["Value"].toString(),true);
+            if(json["Type"].toString() == "Document") {
+                QString filename = json["Value"].toString();
+                mainwindow->addDocMessage(senderOID,name,filename,true);
+                QString savePath("./Files/");
+                savePath += senderOID + QString("/") + targetOID + QString("/");
+                this->writeDocFromByteArray(savePath,filename,json["Content"].toString());
+            }
             else if(json["Type"] == "Txt")mainwindow->addMessage(senderOID,name,json["Value"].toString(),true);
         }
         else // 群发文件
         {
+            qDebug() << "群文件发送功能还未完成" << endl;
             return;
         }
     }
@@ -460,4 +470,16 @@ void Core::toSendDocuMessageBypath(const QString targetOID,const QString path)
     }
     QByteArray content = file.readAll();
     this->toSendDocuMessage(targetOID,content,getName(path));
+}
+
+void Core::writeDocFromByteArray(QString path,QString filename,QString content_base53String)
+{
+    QFile file(path+filename);
+    if(! file.open(QIODevice::WriteOnly)) {
+        qDebug() << "Core.writeDocFromByteArray Error！" << filename << endl;
+        return;
+    }
+    QByteArray array = QByteArray::fromBase64(content_base53String.toUtf8());
+    file.write(array);
+    file.close();
 }

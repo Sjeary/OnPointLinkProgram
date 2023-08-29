@@ -68,11 +68,13 @@ QString getName(const QString value)
 void MainWindow::addDocMessage(QString ID,QString name,QString value,bool isReceive)
 {
     foreach (QTextDocument * const var, documentToOID.keys()) {
-        if(isReceive) {
-            insertLeftFrame(var, name, getName(value), "Document");
-        }
-        else {
-            insertRightFrame(var, name, getName(value), "Document");
+        if(documentToOID.value(var) == ID) {
+            if(isReceive) {
+                insertLeftFrame(var, name, getName(value), "Document");
+            }
+            else {
+                insertRightFrame(var, name, getName(value), "Document");
+            }
         }
     }
 }
@@ -235,7 +237,9 @@ void MainWindow::insertLeftFrame(QTextDocument *doc, const QString &title, const
     cursor.insertText(text);
 
     if(type == "Document") {
-
+        QTextFrameFormat download = formatTitle;
+        cursor.insertFrame(download);
+        cursor.insertText("下载完成，详见安装目录/Files文件夹");
     }
 }
 
@@ -252,8 +256,6 @@ void MainWindow::insertRightFrame(QTextDocument *doc, const QString &title, cons
     formatContent.setBackground(Qt::green);
     formatContent.setBorder(2);
 
-
-
     QTextCursor cursor = doc->rootFrame()->lastCursorPosition();
     cursor.insertFrame(formatTitle);
     ui->textEdit_show->setTextCursor(cursor);
@@ -261,6 +263,11 @@ void MainWindow::insertRightFrame(QTextDocument *doc, const QString &title, cons
     cursor.insertText(title);
     cursor.insertFrame(formatContent);
     cursor.insertText(text);
+    if(type == "Document") {
+        QTextFrameFormat download = formatTitle;
+        cursor.insertFrame(download);
+        cursor.insertText("已发送给服务器");
+    }
 }
 
 void MainWindow::on_pushButton_refresh_clicked()
@@ -285,4 +292,6 @@ QString MainWindow::getNameByOID(const QString OID)
             return str.left(pos);
         }
     }
+    qDebug() << "getNameByOID: Fail to get name by OID" << OID << endl;
+    return "";
 }

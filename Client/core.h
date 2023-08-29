@@ -78,6 +78,8 @@ public slots:
     void getDocSendRequest(QString targetOID,QString path); // updated by zwx.
     void toSendDocuMessage(const QString targetOID,const QByteArray content,const QString filename); // updated by zwx.
     void toSendDocuMessageBypath(const QString targetOID,const QString path); // updated by zwx.
+    //文件接收的几个函数
+    void writeDocFromByteArray(QString path,QString filename,QString content_base64String);
 
 protected:
     //后台工作线程
