@@ -39,20 +39,20 @@ void TcpServer::initServer()
 
             qDebug() << "New client connected.";
 
-
             connect(clientSocket, &QTcpSocket::readyRead, [=]() {
-                emit received(clientSocket);
-
+//                emit received(clientSocket);
 //                QByteArray data = clientSocket->readAll();
 //                qDebug() << "Received data from client:" << data;
 
-                const qint64 blockSize = 1024; // 假设每个数据包的大小是1024字节
-                QByteArray buffer;
-
-                while (clientSocket->bytesAvailable() > 0) {
-                    buffer.append(clientSocket->read(qMin(clientSocket->bytesAvailable(), blockSize)));
+                buffer.append(clientSocket->readAll());
+                QJsonDocument doc = QJsonDocument::fromJson(buffer);
+                if(doc.isObject())
+                {
+                    qDebug() << "Received data from client:" << buffer;
+                    emit received(clientSocket);
+                    buffer.clear();
                 }
-                qDebug() << "Received data from client:" << buffer;
+
 
 //                QHostAddress targetIP = clientSocket->peerAddress();
 //                quint16 targetPort = clientSocket->peerPort();

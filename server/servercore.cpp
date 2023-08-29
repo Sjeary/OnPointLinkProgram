@@ -23,9 +23,9 @@ servercore::servercore(TcpServer *ptcpserver, QObject *parent) : QObject(parent)
     connect(tp, &TcpServer::disconnected, this, &servercore::offline);
     db = QSqlDatabase::addDatabase("QODBC");
     db.setPort(3306);
-    db.setDatabaseName("oplinkbase");//不同电脑连接不同的数据库的时候记得改
+    db.setDatabaseName("mysql");//不同电脑连接不同的数据库的时候记得改
     db.setUserName("root");
-    db.setPassword("root");
+    db.setPassword("7979");
     db.open();
     if(!db.isOpen())qDebug()<<"Dont Connected"<<endl<<db.lastError().text()<<endl;
 }
@@ -64,6 +64,9 @@ void servercore::switchFunction(QTcpSocket *psocket)
     stringMap.insert("FileRequest", 23);
     stringMap.insert("SendFriendRequestToServer", 25) ;
     stringMap.insert("SendResultFromReceiverClientToServer", 27) ;
+    stringMap.insert("SendDeleteFriendRequest", 29) ;
+    stringMap.insert("ChangeFriendDevide", 31) ;
+
     QString type = obj["transType"].toString();
     switch (stringMap.value(type)){
     case 1 : RegRequest(obj);break;
@@ -80,8 +83,91 @@ void servercore::switchFunction(QTcpSocket *psocket)
 //    case 23 : FileRequest(obj);break;
     case 25 : SendFriendRequestToServer(obj);break;
     case 27 : SendResultFromReceiverClientToServer(obj);break;
+    case 29 : SendDeleteFriendRequest(obj);break;
+    case 31 : ChangeFriendDevide(obj);break;
 
     }
+}
+
+void servercore::returnChangeFriendDevide(int OID1, int OID2, bool Status, QString log, QString transType)
+{
+    QJsonObject returnJsonObject;
+    returnJsonObject["OID1"]=OID1;
+    returnJsonObject["OID2"]=OID2;
+    returnJsonObject["transType"]=transType;
+    returnJsonObject["Status"]=Status;
+    returnJsonObject["log"]=log;
+    QJsonDocument returnJsonDocument(returnJsonObject);
+    QByteArray returnJsonData = returnJsonDocument.toJson();
+    qDebug()<<returnJsonData;
+    tp->send(sp->peerAddress(), sp->peerPort(), returnJsonData);
+}
+void servercore::ChangeFriendDevide(QJsonObject &jsonObj)
+{
+    int OID1 = jsonObj["OID1"].toInt();
+    int OID2 = jsonObj["OID2"].toInt();
+    QString Devide = jsonObj["Devide"].toString();
+
+    QSqlQuery query(db);
+    query.prepare("UPDATE friend SET Devide = :Devide WHERE OID1 = :OID1 AND OID2=:OID2");
+    query.bindValue(":OID1",OID1);
+    query.bindValue(":OID2",OID2);
+    query.bindValue(":Devide",Devide);
+
+    if (!query.exec())
+    {
+        qDebug() << "Database UPDATE Friend Devide error:" << query.lastError().text();
+        returnChangeFriendDevide(OID1,OID2,0,"Database UPDATE Friend Devide error:"+query.lastError().text(),"returnChangeFriendDevide");
+        return;
+    }
+    returnChangeFriendDevide(OID1,OID2,1,"UPDATE Friend Devide Succeed!","returnChangeFriendDevide");
+}
+void servercore::returnSendDeleteFriendRequest(int OID1,int OID2,bool Status,QString log,QString Devide,QString transType)
+{
+    QJsonObject returnJsonObject;
+    returnJsonObject["OID1"]=OID1;
+    returnJsonObject["OID2"]=OID2;
+    returnJsonObject["transType"]=transType;
+    returnJsonObject["Status"]=Status;
+    returnJsonObject["log"]=log;
+    returnJsonObject["Devide"]=Devide;
+    QJsonDocument returnJsonDocument(returnJsonObject);
+    QByteArray returnJsonData = returnJsonDocument.toJson();
+    qDebug()<<returnJsonData;
+    tp->send(sp->peerAddress(), sp->peerPort(), returnJsonData);
+
+}
+void servercore::SendDeleteFriendRequest(QJsonObject &jsonObj)
+{
+    int OID1 = jsonObj["OID1"].toInt();
+    int OID2 = jsonObj["OID2"].toInt();
+
+    QSqlQuery query(db);
+    query.prepare("SELECT * FROM friend WHERE OID1 = :OID1 AND OID2 = :OID2 ;");
+    query.bindValue(":OID1",OID1);
+    query.bindValue(":OID2",OID2);
+    QString Devide = query.value("Devide").toString();
+
+
+    query.prepare("DELETE FROM friend WHERE OID1 = :OID1 AND OID2 = :OID2;");
+    query.bindValue(":OID1",OID1);
+    query.bindValue(":OID2",OID2);
+    if (!query.exec())
+    {
+        qDebug() << "Database DELETE friend error:" << query.lastError().text();
+        returnSendDeleteFriendRequest(OID1,OID2,0,"Database DELETE friend error:"+query.lastError().text(),Devide,"returnSendDeleteFriendRequest");
+        return;
+    }
+    query.prepare("DELETE FROM friend WHERE OID1 = :OID1 AND OID2 = :OID2;");
+    query.bindValue(":OID1",OID2);
+    query.bindValue(":OID2",OID1);
+    if (!query.exec())
+    {
+        qDebug() << "Database DELETE friend error:" << query.lastError().text();
+        returnSendDeleteFriendRequest(OID1,OID2,0,"Database DELETE friend error:"+query.lastError().text(),Devide,"returnSendDeleteFriendRequest");
+        return;
+    }
+    returnSendDeleteFriendRequest(OID1,OID2,1,"Delete Friend Succeed!",Devide,"returnSendDeleteFriendRequest");
 }
 
 void servercore::returnSendTextMessageResult(bool Status, int MID, int SenderOID, int TargetOID, QString Type, QString Value, QString SenderName, QString Content)
