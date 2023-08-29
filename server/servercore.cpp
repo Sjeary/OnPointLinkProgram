@@ -57,6 +57,7 @@ void servercore::switchFunction(QTcpSocket *psocket)
     stringMap.insert("UserInfoRequest", 11);
     stringMap.insert("GroupInfoRequest", 13);
     stringMap.insert("SendTxtMessageRequest", 15);
+    stringMap.insert("SendMessageRequest",15);
     stringMap.insert("TargetMessageRequest", 17);
     stringMap.insert("MessageReadedRequest", 19);
     stringMap.insert("FileListRequest", 21);
