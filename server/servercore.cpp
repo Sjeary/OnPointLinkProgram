@@ -14,6 +14,7 @@
 #include <QString>
 #include <QMap>
 #include <QDateTime>
+#include <QMessageBox>
 
 servercore::servercore(TcpServer *ptcpserver, QObject *parent) : QObject(parent)
 {
@@ -82,7 +83,7 @@ void servercore::switchFunction(QTcpSocket *psocket)
     }
 }
 
-void servercore::returnSendTextMessageResult(bool Status, int MID, int SenderOID, int TargetOID, QString Type, QString Value,QString SenderName)
+void servercore::returnSendTextMessageResult(bool Status, int MID, int SenderOID, int TargetOID, QString Type, QString Value, QString SenderName, QString Content)
 {
     // 还没实现文件消息的传输
 
@@ -95,6 +96,7 @@ void servercore::returnSendTextMessageResult(bool Status, int MID, int SenderOID
     returnJsonObject["transType"]="SendMessageResult";
     returnJsonObject["Type"]=Type;
     returnJsonObject["Value"]=Value;
+    returnJsonObject["Content"]=Content;
     if (Status)
     {
         QHostAddress targetip = socketmap.value(TargetOID)->peerAddress();
@@ -120,6 +122,7 @@ void servercore::SendTxtMessageRequest(QJsonObject &jsonObj)
     int TargetOID = jsonObj["TargetOID"].toInt();
     QString Type = jsonObj["Type"].toString();
     QString Value = jsonObj["Value"].toString();
+    QString Content = jsonObj["Content"].toString();
 
     QSqlQuery query(db);
     //查询发送者的姓名
@@ -139,7 +142,7 @@ void servercore::SendTxtMessageRequest(QJsonObject &jsonObj)
         qDebug()<<query.value("MaxMID");
         qDebug() << "Maximum value of" << "MID" << "is:" << MID++;
     }
-    //判断消息类型是文本（Txt）还是文件（Doc），文本的Value为消息内容
+    //判断消息类型是文本（Txt）还是文件（Document），文本的Value为消息内容，文件的Value是文件名，Content是内容进行编码后的二进制流
 
     QTcpSocket* flag = socketmap.value(TargetOID, nullptr);
 
@@ -147,7 +150,7 @@ void servercore::SendTxtMessageRequest(QJsonObject &jsonObj)
     {
         if (flag)
         {
-            returnSendTextMessageResult(1, MID, SenderOID, TargetOID, Type, Value,SenderName);
+            returnSendTextMessageResult(1, MID, SenderOID, TargetOID, Type, Value,SenderName,Content);
         } else
         {
             QDateTime SendTime = QDateTime::currentDateTime();
@@ -162,21 +165,47 @@ void servercore::SendTxtMessageRequest(QJsonObject &jsonObj)
             if (!query.exec())
             {
                 qDebug() << "Database insertion error:" << query.lastError().text();
-                returnSendTextMessageResult(0, MID, SenderOID, TargetOID, Type, Value,SenderName);
+                returnSendTextMessageResult(0, MID, SenderOID, TargetOID, Type, Value,SenderName,Content);
                 return;
             }
-            returnSendTextMessageResult(0, MID, SenderOID, TargetOID, Type, Value,SenderName);
+            returnSendTextMessageResult(0, MID, SenderOID, TargetOID, Type, Value,SenderName,Content);
         }
     }
     else
     {
+        QString saveFilePath = filepath + Value;
+        if (!saveFilePath.isEmpty()) {
+            QFile saveFile(saveFilePath);
+            if (saveFile.open(QIODevice::ReadWrite)) {
+                saveFile.write(QByteArray::fromBase64(Content.toUtf8()));
+                saveFile.close();
+                qDebug() << "File saved successfully.";
+            } else {
+                QMessageBox::critical(nullptr, "Error", "Could not save file.");
+            }
+        }
         if (flag)
         {
-            returnSendTextMessageResult(1, MID, SenderOID, TargetOID, Type, Value,SenderName);
+            returnSendTextMessageResult(1, MID, SenderOID, TargetOID, Type, Value,SenderName,Content);
         }
         else
         {
-            returnSendTextMessageResult(0, MID, SenderOID, TargetOID, Type, Value,SenderName);
+            QDateTime SendTime = QDateTime::currentDateTime();
+            query.prepare("INSERT INTO message (MID,Type,SenderOID,TargetOID,SendTime,Readed,Value) VALUES(:MID,:Type,:SenderOID,:TargetOID,:SendTime,:Readed,:Value)");
+            query.bindValue(":MID", MID);
+            query.bindValue(":Type", Type);
+            query.bindValue(":SenderOID", SenderOID);
+            query.bindValue(":TargetOID", TargetOID);
+            query.bindValue(":SendTime", SendTime);
+            query.bindValue(":Readed", 0);
+            query.bindValue(":Value", saveFilePath);
+            if (!query.exec())
+            {
+                qDebug() << "Database insertion error:" << query.lastError().text();
+                returnSendTextMessageResult(0, MID, SenderOID, TargetOID, Type, Value,SenderName,Content);
+                return;
+            }
+            returnSendTextMessageResult(0, MID, SenderOID, TargetOID, Type, Value,SenderName,Content);
         }
     }
 }
@@ -629,7 +658,7 @@ void servercore::SynchronizeServerMessages(int OID)
 {
     // 第二步 同步消息
     QSqlQuery query(db);
-    query.prepare("SELECT * FROM message INNER JOIN account ON message.SenderOID=OID WHERE SenderOID = :OID;");
+    query.prepare("SELECT * FROM message INNER JOIN account ON message.SenderOID=account.OID WHERE TargetOID = :OID;");
     query.bindValue(":OID", OID);
     if(!query.exec())
     {
@@ -653,9 +682,9 @@ void servercore::SynchronizeServerMessages(int OID)
         qDebug()<<returnJsonData;
         tp->send(sp->peerAddress(), sp->peerPort(), returnJsonData);
         #ifdef _WIN32
-            Sleep(10);
+            Sleep(200); // 经过精准的测试
         #else
-            usleep(10000); // 10,000 微秒 = 10 毫秒
+            usleep(200000); // 10,000 微秒 = 10 毫秒
         #endif
     }
 
@@ -668,7 +697,9 @@ void servercore::SynchronizeServerMessages(int OID)
             qDebug() << "Deletion message failed:" << query.lastError().text();
         }
     }
-    // 第三步 同步好友申请
+    // 第三步 同步文件
+
+    // 第四步 同步好友申请
     query.prepare("SELECT * FROM friendrequest JOIN account ON friendrequest.SenderOID =account.OID WHERE TargetOID = :OID");
     query.bindValue(":OID", OID);
     if(!query.exec())
@@ -689,14 +720,14 @@ void servercore::SynchronizeServerMessages(int OID)
         qDebug()<<returnJsonData;
         tp->send(sp->peerAddress(), sp->peerPort(), returnJsonData);
         #ifdef _WIN32
-            Sleep(10);
+            Sleep(200);
         #else
-            usleep(10000); // 10,000 微秒 = 10 毫秒
+            usleep(200000); // 10,000 微秒 = 10 毫秒
         #endif
     }
 
     {
-        query.prepare("DELETE  FROM friendrequest WHERE Accepted = 1 AND Accepted = 0 AND TargetOID = :OID");
+        query.prepare("DELETE  FROM friendrequest WHERE (Accepted IN(0, 1)) AND TargetOID = :OID");
         query.bindValue(":OID", OID);
         if (query.exec()) {
             qDebug() << "Deletion friendrequest successful";
