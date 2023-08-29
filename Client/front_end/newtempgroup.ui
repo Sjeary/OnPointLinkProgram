@@ -1,33 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>creategroup</class>
- <widget class="QWidget" name="creategroup">
+ <class>newtempgroup</class>
+ <widget class="QWidget" name="newtempgroup">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>579</height>
+    <height>300</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QTableWidget" name="createGroupList">
+  <widget class="QTextEdit" name="textEdit_newgroup">
    <property name="geometry">
     <rect>
-     <x>0</x>
+     <x>30</x>
      <y>60</y>
-     <width>281</width>
-     <height>451</height>
+     <width>331</width>
+     <height>85</height>
     </rect>
    </property>
   </widget>
   <widget class="QPushButton" name="pushButton_confirm">
    <property name="geometry">
     <rect>
-     <x>290</x>
-     <y>280</y>
+     <x>140</x>
+     <y>220</y>
      <width>106</width>
      <height>30</height>
     </rect>

@@ -32,6 +32,8 @@ class DealFriendRequest;
 class ClientTcp;
 //新增
 class creategroup;
+class changegroup;
+class newtempgroup;
 
 class Core : public QObject
 {
@@ -47,7 +49,7 @@ signals:
     void readKeyValue(QString key);
     //发送链接到服务器的信号
     void sendConnectRequest(QString IP, int port);
-    //发送信息到服务器（一个.json文件）
+    //发送信息到服务器
     void sendMessageToServer(QByteArray content);
     
     void turnLoginToWaiting();
@@ -73,13 +75,9 @@ public slots:
     void toSendMessageToFriend(QString ID, QString message);
     //新增
     void toSendCreateRequest(QStringList memberIDList);
+    void toSendDeleteFriendRequest(QString ID);
+    void toSendChangeGroupRequest(QString ID, QString groupname);
 
-    //文件消息发送的几个函数
-    void getDocSendRequest(QString targetOID,QString path); // updated by zwx.
-    void toSendDocuMessage(const QString targetOID,const QByteArray content,const QString filename); // updated by zwx.
-    void toSendDocuMessageBypath(const QString targetOID,const QString path); // updated by zwx.
-    //文件接收的几个函数
-    void writeDocFromByteArray(QString path,QString filename,QString content_base64String);
 
 protected:
     //后台工作线程
@@ -99,12 +97,13 @@ private:
     DealFriendRequest *dealFriendRequest;
     //新增
     creategroup *createGroup;
+    changegroup *changeGroup;
+    newtempgroup *newTempGroup;
 
     //暂存在内存的服务器IP地址
     QString serverIP;
     //暂存在内存的当前登录用户OID和密码
     QString savedID, savedPassword;
-    int userOID;
 
 };
 
