@@ -216,6 +216,12 @@ void Core::distributeMessage(QByteArray content)
             subjson["OID"] = this->userOID; // updated by zwx: 这里不用this->savedOID，那个在没有勾选“保存密码”时为空。
             QJsonDocument subdoc(subjson);
             emit this->sendMessageToServer(subdoc.toJson());
+            usleep(200000);
+            QJsonObject subjson1;
+            subjson1["transType"] = "GetGroupChatList";
+            subjson1["OID"] = this->userOID;
+            QJsonDocument subdoc1(subjson1);
+            emit this->sendMessageToServer(subdoc1.toJson());
         }
         else
         {
