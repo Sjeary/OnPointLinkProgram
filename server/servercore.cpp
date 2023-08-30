@@ -70,6 +70,8 @@ void servercore::switchFunction(QTcpSocket *psocket)
     stringMap.insert("SendCreateGroupRequest", 33) ;
     stringMap.insert("SendGroupMessage", 35) ;
     stringMap.insert("ModifyPersonalInformation",37);
+    stringMap.insert("GetGroupChatList",39);
+
 
     QString type = obj["transType"].toString();
     switch (stringMap.value(type)){
@@ -92,7 +94,34 @@ void servercore::switchFunction(QTcpSocket *psocket)
     case 33 : SendCreateGroupRequest(obj);break;
     case 35 : SendGroupMessage(obj);break;
     case 37 : ModifyPersonalInformation(obj);break;
+    case 39 : GetGroupChatList(obj);break;
     }
+}
+void servercore::GetGroupChatList(QJsonObject &jsonObj)
+{
+    qDebug()<<"GetGroupChatList";
+    int OID = jsonObj["OID"].toInt();
+    QSqlQuery query(db);
+    query.prepare("SELECT * FROM ga WHERE MemberOID = :OID");
+    query.bindValue(":OID",OID);
+    query.exec();
+    QJsonArray jsonArray;
+    qDebug()<<"GetGroupChatList123";
+    while (query.next()) {
+        QJsonObject jsonObject;
+        jsonObject["GroupOID"] = query.value("GroupOID").toInt();
+        jsonArray.append(jsonObject);
+    }
+    qDebug()<<"GetGroupChatList456";
+    QJsonObject returnJsonObject;
+    returnJsonObject["transType"]="returnGetGroupChatList";
+    returnJsonObject["Group"]= jsonArray;
+    qDebug()<<"GetGroupChatList789";
+    QJsonDocument returnJsonDocument(returnJsonObject);
+    QByteArray returnJsonData = returnJsonDocument.toJson();
+    qDebug()<<returnJsonData;
+    tp->send(sp->peerAddress(), sp->peerPort(), returnJsonData);
+
 }
 void servercore::returnModifyPersonalInformation(int OID, QString Name, QString Instruction, QString Email, QString BirthDay, QString Area, QString Sex, QString Password, bool Status, QString log)
 {
@@ -107,7 +136,7 @@ void servercore::returnModifyPersonalInformation(int OID, QString Name, QString 
     returnJsonObject["Password"] = Password;
     returnJsonObject["Status"]= Status;
     returnJsonObject["log"]=log;
-
+    returnJsonObject["transType"]="returnModifyPersonalInformation";
     QJsonDocument returnJsonDocument(returnJsonObject);
     QByteArray returnJsonData = returnJsonDocument.toJson();
     qDebug()<<returnJsonData;
@@ -244,7 +273,7 @@ void servercore::SendGroupMessage(QJsonObject &jsonObj)
 void servercore::SendCreateGroupRequest(QJsonObject &jsonObj)
 {
     QString Name = jsonObj["Name"].toString();
-    QJsonArray memberlist = jsonObj["menmberOID"].toArray();
+    QJsonArray memberlist = jsonObj["memberOID"].toArray();
     // 将本机OID也加入
     {
         int OID = jsonObj["HostOID"].toInt();
@@ -254,7 +283,7 @@ void servercore::SendCreateGroupRequest(QJsonObject &jsonObj)
     }
     // 在group表建立一个群
     QSqlQuery query(db);
-    query.prepare("SELECT COUNT(*) FROM `group`");
+    query.prepare("SELECT MAX(OID) AS MAXGOID FROM `group`");
     if(!query.exec())
     {
         qDebug()<<"Query ERROR: "<<query.lastError().text();
@@ -263,9 +292,10 @@ void servercore::SendCreateGroupRequest(QJsonObject &jsonObj)
     int OID = 0;
     if(query.next())
     {
-        int rowCount = query.value(0).toInt();
+        int rowCount = query.value("MAXGOID").toInt();
         qDebug()<<"Number of the row is "<<rowCount;
-        OID = rowCount+100001;
+        OID = rowCount+1;
+        if(OID<=100001) OID = 100001;
         if(OID>999999||OID<100000)
         {
             qDebug()<<"OID wrong"<<endl;
