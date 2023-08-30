@@ -1,5 +1,5 @@
 
-#login
+#login, #MainWindow
 {
     /*背景色，蓝到淡黄渐变*/
     /*渐变色:rgba中最后一值为透明度,0_255<->完全透明_不透明*/
@@ -173,7 +173,7 @@ QLabel
 }
 
 
-QLineEdit,QTableWidget
+QTableWidget
 {
     /*背景，淡黄*/
     background: rgb(255,245,220);
@@ -190,4 +190,29 @@ QLineEdit,QTableWidget
     font-size: 24px;
     /*宽高*/
     height: 30px;
+}
+
+QPlainTextEdit, QListWidget, QLineEdit,
+QTreeWidget, QStackedWidget, QFrame
+{
+    /*背景，淡黄*/
+    background: rgb(255,245,220);
+    /*选中背景，蓝色*/
+    selection-background-color: rgb(10, 140, 220);
+    selection-color: white;
+    /*无边框*/
+
+    /*前景/字体*/
+    color: black;
+    font-family: consolas;
+    font-size: 16px;
+}
+
+QPlainTextEdit, QLineEdit, QTreeWidget
+{
+    /*窄边框，灰色*/
+    border-color: rgb(160, 160, 160);
+    border-style: solid;
+    border-radius: 2px;
+    border-width: 1px;
 }

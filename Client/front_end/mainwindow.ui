@@ -13,6 +13,242 @@
   <property name="windowTitle">
    <string>OnPointLink </string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">
+#login, #MainWindow
+{
+    /*背景色，蓝到淡黄渐变*/
+    /*渐变色:rgba中最后一值为透明度,0_255&lt;-&gt;完全透明_不透明*/
+    background-color: qradialgradient(cx:0.25, cy:0.25, radius:0.75, fx:0.618 fy:0.618,
+                                        stop:0 rgba(20,150,220,240),
+                                        stop:1 rgba(255,245,220,240));
+}
+
+#login
+{
+    /*宽高*/
+    width: 800px;
+    height: 500px;
+}
+
+#label_picture
+{
+    /*背景图片，注意格式*/
+    border-image:url(:/res/background-images/login1.jpg) 4 4 4 4 strech strech;
+    /*为logo采用特殊字体*/
+    font-family: Chiller;
+    font-size: 80px;
+    font-weight:bold;
+}
+
+
+#pushButton_Login
+{
+    font-family:STXinwei;
+    font-size: 24px;
+    font-weight:bold;
+}
+
+
+QComboBox
+{
+    /*背景，淡黄*/
+    background: rgb(255,245,220);
+    /*边框，蓝绿*/
+    border-color: rgb(0,140,180);
+    border-style: groove;
+    border-radius: 3px;
+    border-width: 2px;
+    /*前景/字体*/
+    color: black;
+    font-family: consolas;
+    font-size: 24px;
+    /*内边距*/
+    padding-top: 2px;
+    padding-left: 2px;
+    /*宽高*/
+    height: 30px;
+}
+/*下拉框格式*/
+QComboBox QAbstractItemView
+{
+    /*背景，淡黄*/
+    background: rgb(255,245,220);
+    /*前景/字体*/
+    color: black;
+    font-family: consolas;
+    font-size: 24px;
+    /*内边距*/
+    padding-top: 2px;
+    padding-left: 2px;
+    /*宽高*/
+    height: 30px;
+}
+/*选中效果*/
+QComboBox:on
+{
+    padding-top: 3px;
+    padding-left: 4px;
+}
+/*下拉箭头容器*/
+QComboBox::drop-down
+{
+    width: 32px;
+    height: 32px;
+}
+
+/*下拉箭头*/
+QComboBox::down-arrow
+{
+    image: url(:/res/icons/xia_la.png);
+}
+/*下拉箭头选中效果*/
+QComboBox::down-arrow:on
+{
+    image: url(:/res/icons/shang_la.png);
+}
+
+/*确认框*/
+QCheckBox
+{
+    /*前景/字体*/
+    color: black;
+    font-family: consolas;
+    font-size: 24px;
+    /*内边距*/
+    padding-left:5px;
+}
+
+QCheckBox::indicator{/*选择框尺寸*/
+    background-color: rgba(255, 255, 255, 0);
+    border: 0px solid #b1b1b1;
+        width: 30px;
+        height: 30px;
+}
+
+QCheckBox::indicator:unchecked
+{
+    image: url(:/res/icons/kaiguan_guan.png);
+}
+
+QCheckBox::indicator:checked
+{
+    image: url(:/res/icons/kaiguan_kai.png);
+}
+
+
+/*按钮*/
+QPushButton,QRadioButton
+{
+    /*背景，偏深蓝*/
+    background-color: rgb(0,180,240);
+    /*边框,淡黄*/
+    border-color: rgba(240,230,210,220);
+    border-radius: 5px;
+    border-style: groove;
+    border-width: 2px;
+    /*前景/字体，淡蓝*/
+    color: rgb(240,255,255);
+    font-family: consolas;
+    font-size: 20px;
+    font-weight:bold;
+    /*内边距*/
+    /*宽高*/
+    height:30px;
+}
+
+/*悬停时，背景变为淡蓝色，字体变为白色*/
+QRadioButton:hover,QPushButton:hover
+{
+    background-color: rgb(100,180,250);
+    color: white;
+}
+
+/*按下时，背景变为蓝绿色，显示边框效果*/
+QPushButton:pressed,QRadioButton:pressed
+{
+    /*背景*/
+    background-color: rgb(0,140,180);
+    /*边框*/
+    border-style: inset;
+    /*前景/字体*/
+    color: white;
+    /*内边距*/
+    padding-left:2px;
+    padding-top:2px;
+}
+
+
+QLabel
+{
+    font-family: consolas;
+    font-size: 24px;
+    font-weight:bold;
+    /*设置QLabel字体为居中*/
+    qproperty-alignment:AlignCenter;
+}
+
+
+QTableWidget
+{
+    /*背景，淡黄*/
+    background: rgb(255,245,220);
+    /*选中背景，蓝色*/
+    selection-background-color: rgb(10, 140, 220);
+    /*边框，蓝绿*/
+    border-color: rgb(0,140,180);
+    border-style: groove;
+    border-radius: 3px;
+    border-width: 2px;
+    /*前景/字体*/
+    color: black;
+    font-family: consolas;
+    font-size: 24px;
+    /*宽高*/
+    height: 30px;
+}
+
+/* 以下加入 */
+
+QPlainTextEdit, QListWidget, QLineEdit, QTreeWidget
+{
+    /*背景，淡黄*/
+    background: rgb(255,245,220);
+    /*选中背景，蓝色*/
+    selection-background-color: rgb(10, 140, 220);
+    selection-color: white;
+    /*无边框*/
+
+    /*前景/字体*/
+    color: black;
+    font-family: consolas;
+    font-size: 16px;        
+}
+
+QTreeWidget::item
+{
+    /*背景，淡黄*/
+    background: rgb(255,245,220);
+    /*选中背景，蓝色*/
+    selection-background-color: rgb(10, 140, 220);
+    selection-color: white;
+    /*无边框*/
+
+    /*前景/字体*/
+    color: black;
+    font-family: consolas;
+    font-size: 16px;        
+}
+
+QPlainTextEdit, QLineEdit, QTreeWidget 
+{
+    /*窄边框，灰色*/
+    border-color: rgb(160, 160, 160);
+    border-style: solid;
+    border-radius: 2px;
+    border-width: 1px;
+}</string>
+  </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
    <item>
     <widget class="QFrame" name="sideFrame">
@@ -39,7 +275,10 @@
        <widget class="QLabel" name="label_3">
         <property name="font">
          <font>
-          <pointsize>20</pointsize>
+          <family>consolas</family>
+          <pointsize>-1</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
          </font>
         </property>
         <property name="text">
@@ -136,7 +375,8 @@
         <widget class="QListWidget" name="listWidget_message">
          <property name="font">
           <font>
-           <pointsize>20</pointsize>
+           <family>consolas</family>
+           <pointsize>-1</pointsize>
           </font>
          </property>
         </widget>
@@ -252,7 +492,7 @@
       <enum>QFrame::StyledPanel</enum>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="page_main_0">
       <layout class="QVBoxLayout" name="verticalLayout_3">
