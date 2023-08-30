@@ -28,6 +28,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->radioButton_message->setChecked(true);
 
+
+
     connect(ui->treeWidget_friend, &QTreeWidget::itemClicked, this, &MainWindow::treeItemClicked);
 }
 
@@ -59,6 +61,8 @@ void MainWindow::addMessage(QString ID, QString name, QString content, bool isRe
             else
             {
                 insertRightFrame(var, name, content);
+
+
             }
         }
     }
@@ -91,6 +95,17 @@ void MainWindow::getUserInfo(QString ID, QString name, QString ins, QString emai
     qDebug()<<ID;
     ui->textEdit_userInfo->insertPlainText("name:"+name+"\ninstruction:"+ins+"\nemail:"+email+"\nbirth"+birth);
 }
+
+//新增
+void MainWindow::getGroupInfo(QString GroupID, QString HostOID, QString memberIDs)
+{
+    ui->label_userInfo_OID->clear();
+    ui->textEdit_userInfo->clear();
+    ui->label_userInfo_OID->setText(GroupID);
+    qDebug()<<GroupID;
+    ui->textEdit_userInfo->insertPlainText("HostOID:"+HostOID+"\nmemberIDs:"+memberIDs);
+}
+//
 
 void MainWindow::getFriendRequest()
 {
@@ -151,6 +166,12 @@ void MainWindow::clearFriendItem()
 {
     ui->listWidget_friend->clear();
     ui->treeWidget_friend->clear();
+    QTreeWidgetItem *group1 = new QTreeWidgetItem(ui->treeWidget_friend);
+    group1->setText(0, "我的好友");
+    QTreeWidgetItem *group2 = new QTreeWidgetItem(ui->treeWidget_friend);
+    group2->setText(0, "黑名单");
+    QTreeWidgetItem *group3 = new QTreeWidgetItem(ui->treeWidget_friend);
+    group3->setText(0, "群聊");
 }
 
 void MainWindow::on_pushButton_input_clicked()

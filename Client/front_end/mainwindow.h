@@ -71,7 +71,8 @@ public slots:
     //清除好友窗口所有项目
     void clearFriendItem();
     //新增
-    //void getGroupInfo(QString ID, QString name, QString ins, QString memberIDs);
+    void getGroupInfo(QString GroupID, QString HostOID, QString memberIDs);
+
     //从ChoooseDocDialog获得文件发送信息
     void getSendFilePath(const QString path);
     QString getNameByOID(const QString OID);
