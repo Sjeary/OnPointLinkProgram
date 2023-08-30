@@ -367,7 +367,7 @@ QPlainTextEdit, QLineEdit, QTreeWidget
       <enum>QFrame::StyledPanel</enum>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="page_mid_0">
       <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -436,13 +436,10 @@ QPlainTextEdit, QLineEdit, QTreeWidget
         <widget class="QTreeWidget" name="treeWidget_friend">
          <column>
           <property name="text">
-           <string notr="true">1</string>
+           <string notr="true">分组</string>
           </property>
          </column>
         </widget>
-       </item>
-       <item>
-        <widget class="QListWidget" name="listWidget_friend"/>
        </item>
       </layout>
      </widget>

@@ -134,10 +134,7 @@ void MainWindow::addMessageItem(QString ID, QString name)
 
 void MainWindow::addFriendItem(QString ID, QString name, QString groupname)
 {
-    QListWidgetItem *newItem = new QListWidgetItem();
-    newItem->setData(0,name + "\nID: " + ID);
-    newItem->setData(3,ID);
-    ui->listWidget_friend->addItem(newItem);
+
     int flag = 0;
     for (int i = 0; i < ui->treeWidget_friend->topLevelItemCount(); ++i)
     {
@@ -164,7 +161,7 @@ void MainWindow::clearMessageItem()
 }
 void MainWindow::clearFriendItem()
 {
-    ui->listWidget_friend->clear();
+
     ui->treeWidget_friend->clear();
     QTreeWidgetItem *group1 = new QTreeWidgetItem(ui->treeWidget_friend);
     group1->setText(0, "我的好友");
@@ -280,7 +277,7 @@ void MainWindow::insertLeftFrame(QTextDocument *doc, const QString &title, const
     formatTitle.setPadding(5);//设置填充
     formatTitle.setBorder(0);//设置边界宽度
     QTextFrameFormat formatContent = formatTitle;
-    formatContent.setBackground(Qt::yellow);
+    formatContent.setBackground(QColor(255, 245, 220));
     formatContent.setBorder(2);
 
 
@@ -307,7 +304,7 @@ void MainWindow::insertRightFrame(QTextDocument *doc, const QString &title, cons
     formatTitle.setPadding(5);//设置填充
     formatTitle.setBorder(0);//设置边界宽度
     QTextFrameFormat formatContent = formatTitle;
-    formatContent.setBackground(Qt::green);
+    formatContent.setBackground(QColor(190,230,255));
     formatContent.setBorder(2);
 
     QTextCursor cursor = doc->rootFrame()->lastCursorPosition();
