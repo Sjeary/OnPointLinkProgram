@@ -16,6 +16,7 @@
 #include <QTextFrame>
 #include <QTextDocument>
 #include <QMessageBox>
+#include "choosedocdialog.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QWidget(parent),
@@ -28,7 +29,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->radioButton_message->setChecked(true);
 
     connect(ui->treeWidget_friend, &QTreeWidget::itemClicked, this, &MainWindow::treeItemClicked);
-
 }
 
 MainWindow::~MainWindow()
@@ -36,7 +36,16 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::getMessage(QString ID, QString name, QString content, bool isReceive)
+void MainWindow::addMessage(QString ID, QString name, QString content, bool isReceive)
+/*
+ * addMessage
+ * 往mainwindow对应ID的对话框中添加一条消息。
+ * 参数：
+ * ID，对话框对应的OID（可为好友，可为群聊），用于找到对应的对话框。
+ * name，发送者name，添加在消息的标题
+ * content，消息内容
+ * isReceive，判断是自己发的还是对面发过来的。
+*/
 {
     foreach (QTextDocument * const var, documentToOID.keys()) {
         if (documentToOID.value(var) == ID.toInt())
@@ -53,11 +62,29 @@ void MainWindow::getMessage(QString ID, QString name, QString content, bool isRe
     }
 }
 
+QString getName(const QString value)
+{
+    return value.section("/",-1);
+}
+
+void MainWindow::addDocMessage(QString ID,QString name,QString value,bool isReceive)
+{
+    foreach (QTextDocument * const var, documentToOID.keys()) {
+        if(documentToOID.value(var) == ID) {
+            if(isReceive) {
+                insertLeftFrame(var, name, getName(value), "Document");
+            }
+            else {
+                insertRightFrame(var, name, getName(value), "Document");
+            }
+        }
+    }
+}
+
 void MainWindow::getUserInfo(QString ID, QString name, QString ins, QString email, QString birth)
 {
     ui->label_userInfo_OID->setText(ID);
     qDebug()<<ID;
-    ui->textEdit_userInfo->clear();
     ui->textEdit_userInfo->insertPlainText("name:"+name+"\ninstruction:"+ins+"\nemail:"+email+"\nbirth"+birth);
 }
 
@@ -84,8 +111,6 @@ void MainWindow::addFriendItem(QString ID, QString name, QString groupname)
     newItem->setData(0,name + "\nID: " + ID);
     newItem->setData(3,ID);
     ui->listWidget_friend->addItem(newItem);
-    //
-    //if(groupname == "我的好友"){}
     int flag = 0;
     for (int i = 0; i < ui->treeWidget_friend->topLevelItemCount(); ++i)
     {
@@ -124,6 +149,19 @@ void MainWindow::on_pushButton_input_clicked()
     insertRightFrame(ui->textEdit_show->document(),"me", text);
 
     emit sendMessage(QString::number(documentToOID[ui->textEdit_show->document()]), text);
+}
+
+void MainWindow::on_pushButton_choDoc_clicked()
+{
+    ChooseDocDialog dialog;
+    connect(&dialog,&ChooseDocDialog::signal_getFilePath,this,&MainWindow::getSendFilePath);
+    dialog.exec();
+}
+
+void MainWindow::getSendFilePath(const QString path)
+{
+    QString targetOID = QString::number(documentToOID[ui->textEdit_show->document()]);
+    emit signal_getDocSendRequest(targetOID,path);
 }
 
 void MainWindow::changeMessageItem(QListWidgetItem *current)
@@ -199,7 +237,7 @@ void MainWindow::setRootFrameFormat(QTextDocument *doc)
     root_frame->setFrameFormat(root_frame_format); //给框架使用格式
 }
 
-void MainWindow::insertLeftFrame(QTextDocument *doc, const QString &title, const QString &text)
+void MainWindow::insertLeftFrame(QTextDocument *doc, const QString &title, const QString &text,QString type)
 {
     QTextFrameFormat formatTitle;
     formatTitle.setWidth(QTextLength(QTextLength::PercentageLength, 65));//宽度设置
@@ -213,15 +251,20 @@ void MainWindow::insertLeftFrame(QTextDocument *doc, const QString &title, const
     formatContent.setBorder(2);
 
 
-
     QTextCursor cursor = doc->rootFrame()->lastCursorPosition();
     cursor.insertFrame(formatTitle);
     cursor.insertText(title);
     cursor.insertFrame(formatContent);
     cursor.insertText(text);
+
+    if(type == "Document") {
+        QTextFrameFormat download = formatTitle;
+        cursor.insertFrame(download);
+        cursor.insertText("下载完成，详见安装目录/Files文件夹");
+    }
 }
 
-void MainWindow::insertRightFrame(QTextDocument *doc, const QString &title, const QString &text)
+void MainWindow::insertRightFrame(QTextDocument *doc, const QString &title, const QString &text,QString type)
 {
     QTextFrameFormat formatTitle;
     formatTitle.setWidth(QTextLength(QTextLength::PercentageLength, 65));//宽度设置
@@ -234,8 +277,6 @@ void MainWindow::insertRightFrame(QTextDocument *doc, const QString &title, cons
     formatContent.setBackground(Qt::green);
     formatContent.setBorder(2);
 
-
-
     QTextCursor cursor = doc->rootFrame()->lastCursorPosition();
     cursor.insertFrame(formatTitle);
     ui->textEdit_show->setTextCursor(cursor);
@@ -243,6 +284,11 @@ void MainWindow::insertRightFrame(QTextDocument *doc, const QString &title, cons
     cursor.insertText(title);
     cursor.insertFrame(formatContent);
     cursor.insertText(text);
+    if(type == "Document") {
+        QTextFrameFormat download = formatTitle;
+        cursor.insertFrame(download);
+        cursor.insertText("已发送给服务器");
+    }
 }
 
 void MainWindow::on_pushButton_refresh_clicked()
@@ -254,6 +300,21 @@ void MainWindow::on_pushButton_refresh_clicked()
 void MainWindow::on_pushButton_createGroup_clicked()
 {
     emit gotoCreateGroup();
+}
+
+QString MainWindow::getNameByOID(const QString OID)
+{
+    int count = ui->listWidget_message->count();
+    for (int i=0; i<count; ++i) {
+        QListWidgetItem* var = ui->listWidget_message->item(i);
+        if(var->data(3) == OID) {
+            QString str = var -> data(0).toString();
+            int pos = str.indexOf('\n');
+            return str.left(pos);
+        }
+    }
+    qDebug() << "getNameByOID: Fail to get name by OID" << OID << endl;
+    return "";
 }
 
 void MainWindow::treeItemClicked(QTreeWidgetItem *item, int column)
@@ -272,27 +333,6 @@ void MainWindow::on_pushButton_blockfriend_clicked()
 {
     emit gotoBlockFriend(ui->label_userInfo_OID->text(), "黑名单");
 }
-
-//void MainWindow::deleteFriend(QString ID)
-//{
-//    ui->label_userInfo_OID->clear();
-//    ui->textEdit_userInfo->clear();
-//    for (int i = 0; i < ui->treeWidget_friend->topLevelItemCount(); ++i)
-//    {
-//        QTreeWidgetItem *group = ui->treeWidget_friend->topLevelItem(i);
-//        if(group->text(0) == "我的好友")
-//        {
-//            for (int j = 0; j < group->childCount(); ++j) {
-//                QTreeWidgetItem *friend2 = group->child(i);
-//                if(friend2->text(0) == ID)
-//                {
-//                    delete friend2;
-//                    break;
-//                }
-//            }
-//        }
-//    }
-//}
 
 void MainWindow::on_pushButton_changegroup_clicked()
 {

@@ -273,9 +273,9 @@
         <widget class="QWidget" name="widget" native="true">
          <layout class="QHBoxLayout" name="horizontalLayout_2">
           <item>
-           <widget class="QPushButton" name="pushButton_2">
+           <widget class="QPushButton" name="pushButton_choDoc">
             <property name="text">
-             <string/>
+             <string>选择文件</string>
             </property>
            </widget>
           </item>

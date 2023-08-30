@@ -13,6 +13,7 @@ SOURCES += \
     front_end/accountsettings.cpp \
     front_end/addfriend.cpp \
     front_end/changegroup.cpp \
+    front_end/choosedocdialog.cpp \
     front_end/creategroup.cpp \
     front_end/dealfriendrequest.cpp \
     front_end/login.cpp \
@@ -29,6 +30,7 @@ HEADERS += \
     front_end/accountsettings.h \
     front_end/addfriend.h \
     front_end/changegroup.h \
+    front_end/choosedocdialog.h \
     front_end/creategroup.h \
     front_end/dealfriendrequest.h \
     front_end/login.h \
@@ -43,6 +45,7 @@ FORMS += \
     front_end/accountsettings.ui \
     front_end/addfriend.ui \
     front_end/changegroup.ui \
+    front_end/choosedocdialog.ui \
     front_end/creategroup.ui \
     front_end/dealfriendrequest.ui \
     front_end/login.ui \

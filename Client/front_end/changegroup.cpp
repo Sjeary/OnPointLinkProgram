@@ -10,9 +10,9 @@
 #include <QDebug>
 #include <QFile>
 
-changegroup::changegroup(QWidget *parent) :
+ChangeGroup::ChangeGroup(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::changegroup)
+    ui(new Ui::ChangeGroup)
 {
     ui->setupUi(this);
     ui->tableWidget_changegroup->setColumnCount(2);
@@ -68,12 +68,12 @@ changegroup::changegroup(QWidget *parent) :
     });
 }
 
-changegroup::~changegroup()
+ChangeGroup::~ChangeGroup()
 {
     delete ui;
 }
 
-void changegroup::addGroupItem(QString groupname, QString nowStatus)
+void ChangeGroup::addGroupItem(QString groupname, QString nowStatus)
 {
     // Check if the groupname already exists in the table
     for (int row = 0; row < ui->tableWidget_changegroup->rowCount(); ++row) {
@@ -97,7 +97,7 @@ void changegroup::addGroupItem(QString groupname, QString nowStatus)
     ui->tableWidget_changegroup->setItem(curRow, 1, status);
 }
 
-void changegroup::on_pushButton_confirm_clicked()
+void ChangeGroup::on_pushButton_confirm_clicked()
 {
 
     if(groupList.size() == 1)
@@ -111,7 +111,7 @@ void changegroup::on_pushButton_confirm_clicked()
     this->close();
 }
 
-void changegroup::clearChangeGroupItem()
+void ChangeGroup::clearChangeGroupItem()
 {
     for (int i = 0; i < ui->tableWidget_changegroup->rowCount(); i++) {
         QTableWidgetItem* item1 = ui->tableWidget_changegroup->item(i, 0);
@@ -127,17 +127,17 @@ void changegroup::clearChangeGroupItem()
     }
 }
 
-void changegroup::receiveID(QString ID)
+void ChangeGroup::receiveID(QString ID)
 {
     changeID = ID;
 }
 
-void changegroup::on_pushButton_new_clicked()
+void ChangeGroup::on_pushButton_new_clicked()
 {
     emit gotoNewGroup();
 }
 
-void changegroup::newGroupName(QString groupname)
+void ChangeGroup::newGroupName(QString groupname)
 {
     int curRow = ui->tableWidget_changegroup->rowCount();
     ui->tableWidget_changegroup->insertRow(curRow);

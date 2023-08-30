@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>changegroup</class>
- <widget class="QWidget" name="changegroup">
+ <class>ChangeGroup</class>
+ <widget class="QWidget" name="ChangeGroup">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>493</height>
+    <height>516</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,37 +16,37 @@
   <widget class="QTableWidget" name="tableWidget_changegroup">
    <property name="geometry">
     <rect>
-     <x>10</x>
-     <y>30</y>
-     <width>256</width>
-     <height>431</height>
+     <x>20</x>
+     <y>50</y>
+     <width>221</width>
+     <height>401</height>
     </rect>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="pushButton_confirm">
-   <property name="geometry">
-    <rect>
-     <x>290</x>
-     <y>310</y>
-     <width>106</width>
-     <height>30</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>confirm</string>
    </property>
   </widget>
   <widget class="QPushButton" name="pushButton_new">
    <property name="geometry">
     <rect>
-     <x>290</x>
-     <y>180</y>
+     <x>270</x>
+     <y>170</y>
      <width>106</width>
      <height>30</height>
     </rect>
    </property>
    <property name="text">
     <string>new</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_confirm">
+   <property name="geometry">
+    <rect>
+     <x>270</x>
+     <y>290</y>
+     <width>106</width>
+     <height>30</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>confirm</string>
    </property>
   </widget>
  </widget>
