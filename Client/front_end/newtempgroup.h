@@ -4,16 +4,16 @@
 #include <QWidget>
 
 namespace Ui {
-class newtempgroup;
+class NewTempGroup;
 }
 
-class newtempgroup : public QWidget
+class NewTempGroup : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit newtempgroup(QWidget *parent = nullptr);
-    ~newtempgroup();
+    explicit NewTempGroup(QWidget *parent = nullptr);
+    ~NewTempGroup();
 
 private slots:
     void on_pushButton_confirm_clicked();
@@ -22,7 +22,7 @@ signals:
     void giveNewGroupName(QString groupname);
 
 private:
-    Ui::newtempgroup *ui;
+    Ui::NewTempGroup *ui;
 };
 
 #endif // NEWTEMPGROUP_H

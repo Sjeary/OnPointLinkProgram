@@ -16,9 +16,9 @@
   <widget class="QTableWidget" name="createGroupList">
    <property name="geometry">
     <rect>
-     <x>0</x>
+     <x>10</x>
      <y>60</y>
-     <width>281</width>
+     <width>256</width>
      <height>451</height>
     </rect>
    </property>

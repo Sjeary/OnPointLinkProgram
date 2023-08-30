@@ -1,19 +1,19 @@
 #include "newtempgroup.h"
 #include "ui_newtempgroup.h"
 
-newtempgroup::newtempgroup(QWidget *parent) :
+NewTempGroup::NewTempGroup(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::newtempgroup)
+    ui(new Ui::NewTempGroup)
 {
     ui->setupUi(this);
 }
 
-newtempgroup::~newtempgroup()
+NewTempGroup::~NewTempGroup()
 {
     delete ui;
 }
 
-void newtempgroup::on_pushButton_confirm_clicked()
+void NewTempGroup::on_pushButton_confirm_clicked()
 {
     QString groupname = ui->textEdit_newgroup->toPlainText();
     emit giveNewGroupName(groupname);

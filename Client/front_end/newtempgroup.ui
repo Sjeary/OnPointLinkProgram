@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>newtempgroup</class>
- <widget class="QWidget" name="newtempgroup">
+ <class>NewTempGroup</class>
+ <widget class="QWidget" name="NewTempGroup">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -16,10 +16,10 @@
   <widget class="QTextEdit" name="textEdit_newgroup">
    <property name="geometry">
     <rect>
-     <x>30</x>
+     <x>40</x>
      <y>60</y>
-     <width>331</width>
-     <height>85</height>
+     <width>321</width>
+     <height>51</height>
     </rect>
    </property>
   </widget>
@@ -27,7 +27,7 @@
    <property name="geometry">
     <rect>
      <x>140</x>
-     <y>220</y>
+     <y>180</y>
      <width>106</width>
      <height>30</height>
     </rect>

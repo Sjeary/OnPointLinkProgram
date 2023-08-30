@@ -2,7 +2,7 @@
  * ============================
  * clienttcp.cpp
  * 开发者：王钟骐、祝文轩、王启贤
- * Update time: 2023-8-27
+ * Update time: 2023-8-28
  *
  * 定义 Core 类成员函数，实现核心功能
  * ============================
@@ -17,6 +17,8 @@
 #include <QJsonArray>
 #include <QDebug>
 #include <QMessageBox>
+#include <QFile>
+#include <QByteArray>
 #include "front_end/login.h"
 #include "front_end/sign_up.h"
 #include "front_end/switchserverip.h"
@@ -57,9 +59,8 @@ Core::Core(QObject *parent)
     dealFriendRequest = new DealFriendRequest();
     //新增
     createGroup = new creategroup();
-    changeGroup = new changegroup();
-    newTempGroup = new newtempgroup();
-
+    changeGroup = new ChangeGroup();
+    newTempGroup = new NewTempGroup();
 
     //显示登录窗口
     QMap<QString,QString> savedAccountInfo = fileSystem->getSavedAccount();
@@ -106,21 +107,22 @@ Core::Core(QObject *parent)
     connect(mainwindow, &MainWindow::getInfo, this, &Core::toSendGetInfoRequest);
     connect(mainwindow, &MainWindow::gotoDeleteFriend, this, &Core::toSendDeleteFriendRequest);
     connect(mainwindow, &MainWindow::gotoBlockFriend, this, &Core::toSendChangeGroupRequest);
-    connect(mainwindow, &MainWindow::gotoChangeGroup, changeGroup, &changegroup::show);
-    connect(mainwindow, &MainWindow::giveOID, changeGroup, &changegroup::receiveID);
-    connect(changeGroup, &changegroup::sendChangeGroup, this, &Core::toSendChangeGroupRequest);
-    connect(changeGroup, &changegroup::gotoNewGroup, newTempGroup, &newtempgroup::show);
-    connect(newTempGroup, &newtempgroup::giveNewGroupName, changeGroup, &changegroup::newGroupName);
+    connect(mainwindow, &MainWindow::gotoChangeGroup, changeGroup, &ChangeGroup::show);
+    connect(mainwindow, &MainWindow::giveOID, changeGroup, &ChangeGroup::receiveID);
+    connect(changeGroup, &ChangeGroup::sendChangeGroup, this, &Core::toSendChangeGroupRequest);
+    connect(changeGroup, &ChangeGroup::gotoNewGroup, newTempGroup, &NewTempGroup::show);
+    connect(newTempGroup, &NewTempGroup::giveNewGroupName, changeGroup, &ChangeGroup::newGroupName);
 
 
     connect(mainwindow, &MainWindow::sendAddFriendRequest, this, &Core::toSendAddFriendRequest);
     connect(mainwindow, &MainWindow::gotoAddFriend, addFriend, &QWidget::show);
     connect(mainwindow, &MainWindow::gotoDealFriendRequest, dealFriendRequest, &DealFriendRequest::show);
     connect(mainwindow, &MainWindow::sendMessage, this, &Core::toSendMessageToFriend);
+    connect(mainwindow, &MainWindow::signal_getDocSendRequest,this,&Core::getDocSendRequest);
     connect(mainwindow, &MainWindow::sendRefreshFriendList, this, [this](){
         QJsonObject subjson;
         subjson["transType"] = "FriendListRequest";
-        subjson["OID"] = savedID.toInt();
+        subjson["OID"] = this->userOID;
         QJsonDocument subdoc(subjson);
         emit this->sendMessageToServer(subdoc.toJson());
     });
@@ -196,12 +198,13 @@ void Core::distributeMessage(QByteArray content)
         bool success = json["Status"].toBool();
         if(success)
         {
+            this->userOID = json["OID"].toInt();
             login->loginSuccess();
             mainwindow->show();
 
             QJsonObject subjson;
             subjson["transType"] = "FriendListRequest";
-            subjson["OID"] = savedID.toInt();
+            subjson["OID"] = this->userOID; // updated by zwx: 这里不用this->savedOID，那个在没有勾选“保存密码”时为空。
             QJsonDocument subdoc(subjson);
             emit this->sendMessageToServer(subdoc.toJson());
         }
@@ -259,6 +262,31 @@ void Core::distributeMessage(QByteArray content)
         mainwindow->getFriendRequest();
         dealFriendRequest->addRequestItem(senderOID,"");
     }
+    else if(transType == "SendMessageRequest")
+    /*
+     * 收到一条消息
+    */
+    {
+        // p2p消息（文本、文件）
+        QString senderOID = json["senderOID"].toString();
+        QString targetOID = json["targetOID"].toString();
+        if(targetOID.toInt() == this->userOID) {
+            QString name = mainwindow->getNameByOID(senderOID);
+            if(json["Type"].toString() == "Document") {
+                QString filename = json["Value"].toString();
+                mainwindow->addDocMessage(senderOID,name,filename,true);
+                QString savePath("./Files/");
+                savePath += senderOID + QString("/") + targetOID + QString("/");
+                this->writeDocFromByteArray(savePath,filename,json["Content"].toString());
+            }
+            else if(json["Type"] == "Txt")mainwindow->addMessage(senderOID,name,json["Value"].toString(),true);
+        }
+        else // 群发文件
+        {
+            qDebug() << "群文件发送功能还未完成" << endl;
+            return;
+        }
+    }
     else if(transType == "FriendListResult")
     {
         mainwindow->clearFriendItem();
@@ -286,8 +314,9 @@ void Core::distributeMessage(QByteArray content)
         QString SenderOID = QString::number(json["SenderOID"].toInt());
         QString TargetOID = QString::number(json["TargetOID"].toInt());
         QString Value = json["Value"].toString();
-        qDebug()<<SenderOID;
-        mainwindow->getMessage(SenderOID, "", Value, true);
+        qDebug() << "SendMessageResult: " << json << endl;
+        if(json["transType"] == "Txt")mainwindow->addMessage(SenderOID, "", Value, true);
+//        else if(json["transType"] == "Document") mainwindow -> addDocMessage(SenderOID, "", TargetOID, Value);
     }
     //新增
     else if (transType == "CreateGroupResult")
@@ -311,7 +340,7 @@ void Core::distributeMessage(QByteArray content)
         QString ID = QString::number(json["ID"].toInt());
         if (success)
         {
-            QMessageBox::information(mainwindow, "success", "删除成功" );
+            QMessageBox::information(mainwindow, "success", "鍒犻櫎鎴愬姛" );
         }
         else
         {
@@ -399,7 +428,7 @@ void Core::toSendMessageToFriend(QString ID, QString message)
 {
     QJsonObject json;
     json["transType"] = "SendTxtMessageRequest";
-    json["SenderOID"] = savedID.toInt();
+    json["SenderOID"] = userOID; // updated by zwx: 别用savedID，这玩意儿是用来存下次登录的账号的，易篡改
     json["TargetOID"] = ID.toInt();
     json["Type"] = "Txt";
     json["Value"] = message;
@@ -414,15 +443,77 @@ void Core::toSendCreateRequest(QStringList memberIDList)
     QJsonArray jsonArray;
     foreach (const QString &memberID, memberIDList)
     {
-        QJsonObject obj;
-        obj["OID"] = memberID;
-        jsonArray.append(obj);
+        jsonArray.append(memberID);
     }
     json["transType"] = "SendCreateGroupRequest";
     json["HostOID"] = savedID.toInt();
     json["memberOIDs"] = jsonArray;
     QJsonDocument doc(json);
     emit this->sendMessageToServer(doc.toJson());
+}
+
+QString getName(const QString &path)
+{
+    QString str1 = path.section('/',-1);
+    return str1;
+}
+
+void Core::getDocSendRequest(QString targetOID,QString path)
+/*
+ * getDocSendRequest
+ * 从mainwindow收到文件消息的信息，将其发送
+ * updated by zwx.
+*/
+{
+    QFile file = QFile(path);
+    if (! file.open(QIODevice::ReadOnly)) {
+        QMessageBox msgbox;
+        msgbox.setParent(mainwindow);
+        msgbox.setText(QString("无法读取该文件：\n%1").arg(path));
+        msgbox.exec();
+        return;
+    }
+    QByteArray content = file.readAll();
+    this->toSendDocuMessage(targetOID,content,getName(path));
+}
+
+void Core::toSendDocuMessage(const QString targetOID,const QByteArray content,const QString filename)
+{
+    QJsonObject job;
+    job["transType"] = "SendMessageRequest";
+    job["Type"] = "Document";
+    job["SenderOID"] = QString::number(this->userOID);
+    job["TargetOID"] = targetOID;
+    job["Value"] = filename;
+    job["Content"] = QString(content.toBase64());
+    QJsonDocument jdoc(job);
+    tcp->toSendMessage(jdoc.toJson());
+}
+
+void Core::toSendDocuMessageBypath(const QString targetOID,const QString path)
+{
+    QFile file(path);
+    if (! file.open(QIODevice::ReadOnly)) {
+        QMessageBox msgbox;
+        msgbox.setParent(mainwindow);
+        msgbox.setText(QString("无法读取该文件：\n%1").arg(path));
+        msgbox.exec();
+        return;
+    }
+    QByteArray content = file.readAll();
+    this->toSendDocuMessage(targetOID,content,getName(path));
+}
+
+void Core::writeDocFromByteArray(QString path,QString filename,QString content_base53String)
+{
+    QFile file(path+filename);
+    if(! file.open(QIODevice::WriteOnly)) {
+        qDebug() << "Core.writeDocFromByteArray Error！" << filename << endl;
+        return;
+    }
+    QByteArray array = QByteArray::fromBase64(content_base53String.toUtf8());
+    file.write(array);
+    file.close();
 }
 
 void Core::toSendDeleteFriendRequest(QString ID)

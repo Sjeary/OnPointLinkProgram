@@ -2,7 +2,7 @@
  * ============================
  * mainwindow.h
  * 开发者：王钟骐、祝文轩、王启贤
- * Update time: 2023-8-27
+ * Update time: 2023-8-28
  *
  * 定义 MainWindow 类
  * 声明 MainWindow 类的成员函数
@@ -33,8 +33,6 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-
-
 signals:
     void sendMessage(QString ID, QString content);
     void sendAddFriendRequest(QString ID);
@@ -50,9 +48,14 @@ signals:
     void gotoChangeGroup();//
     void giveOID(QString ID);
 
+    //给core的文件传输信号，将targetOID、path传出去
+    void signal_getDocSendRequest(QString targetOID,QString path); // updated by zwx.
+
 public slots:
-    //获得好友发来的消息
-    void getMessage(QString ID, QString name, QString content, bool isReceive);
+    //添加文本消息，支持添加好友消息、群聊消息
+    void addMessage(QString ID, QString name, QString content, bool isReceive);
+    //添加文件消息，支持添加好友消息、群聊消息
+    void addDocMessage(QString ID, QString name,QString value,bool isReceive);
     //获得查询到的用户信息
     void getUserInfo(QString ID, QString name, QString ins, QString email, QString birth);
     //接受到好友申请
@@ -68,7 +71,10 @@ public slots:
     //清除好友窗口所有项目
     void clearFriendItem();
     //新增
-
+    //void getGroupInfo(QString ID, QString name, QString ins, QString memberIDs);
+    //从ChoooseDocDialog获得文件发送信息
+    void getSendFilePath(const QString path);
+    QString getNameByOID(const QString OID);
 
 private slots:
     void on_pushButton_input_clicked();
@@ -89,6 +95,8 @@ private slots:
 
     void on_pushButton_createGroup_clicked();
 
+    void on_pushButton_choDoc_clicked();
+
     void treeItemClicked(QTreeWidgetItem *item, int column);
 
     void on_pushButton_deletefriend_clicked();
@@ -104,15 +112,16 @@ private:
     QMap<QTextDocument*, int> documentToOID;
     AccountSettings *acSetting; // 设置界面的Widget
 
+    //可能没用
     QTreeWidget treeWidget;
     QTreeWidgetItem *myFriendsGroup;
     QTreeWidgetItem *blacklistGroup;
 
     void setRootFrameFormat(QTextDocument *doc);
 
-    void insertLeftFrame(QTextDocument *doc, const QString &title, const QString &text);
+    void insertLeftFrame(QTextDocument *doc, const QString &title, const QString &text,QString type = "Txt");
 
-    void insertRightFrame(QTextDocument *doc, const QString &title,const QString &text);
+    void insertRightFrame(QTextDocument *doc, const QString &title,const QString &text,QString type = "Txt");
 };
 
 #endif // MAINWINDOW_H

@@ -4,19 +4,19 @@
 #include <QWidget>
 
 namespace Ui {
-class changegroup;
+class ChangeGroup;
 }
 
-class changegroup : public QWidget
+class ChangeGroup : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit changegroup(QWidget *parent = nullptr);
-    ~changegroup();
+    explicit ChangeGroup(QWidget *parent = nullptr);
+    ~ChangeGroup();
 
 private:
-    Ui::changegroup *ui;
+    Ui::ChangeGroup *ui;
     QStringList groupList;
     QString changeID;
 
