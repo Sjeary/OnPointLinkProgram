@@ -30,6 +30,7 @@
 #include "front_end/changegroup.h"
 #include "front_end/newtempgroup.h"
 #include "front_end/choosedocdialog.h"
+#include <unistd.h>
 
 #include "rear_end/filesystem.h"
 #include "rear_end/clienttcp.h"
@@ -126,6 +127,13 @@ Core::Core(QObject *parent)
         subjson["OID"] = this->userOID;
         QJsonDocument subdoc(subjson);
         emit this->sendMessageToServer(subdoc.toJson());
+        usleep(200000);
+
+        QJsonObject subjson1;
+        subjson1["transType"] = "GetGroupChatList";
+        subjson1["OID"] = this->userOID;
+        QJsonDocument subdoc1(subjson1);
+        emit this->sendMessageToServer(subdoc1.toJson());
     });
 
     emit readKeyValue("serverIP");
@@ -244,6 +252,23 @@ void Core::distributeMessage(QByteArray content)
             addFriend->getInfoFailed();
         }
     }
+    //新增
+    else if(transType == "GroupInfoResult")
+    {
+        bool success = json["Status"].toBool();
+        if(success)
+        {
+            QString GroupID = QString::number(json["OID"].toInt());
+            QString HostOID = json["Name"].toString();
+            QString memberIDs = json["MembersOIDs"].toString();
+            mainwindow->getGroupInfo(GroupID, HostOID, memberIDs);
+        }
+        else
+        {
+            QMessageBox::information(mainwindow, "search failed", "Failed!" );
+        }
+    }
+    //
     else if(transType == "ProcessFriendRequestResult")
     {
         bool success = json["Status"].toBool();
@@ -310,6 +335,24 @@ void Core::distributeMessage(QByteArray content)
             qDebug()<<ID;
         }
     }
+    //新增
+    else if(transType == "returnGetGroupChatList")
+    {
+
+        QJsonArray groupList = json["Group"].toArray();
+        foreach (auto var, groupList) {
+            QJsonObject f = var.toObject();
+            QString ID = QString::number(f["GroupOID"].toInt());
+            //QString name = f["FriendName"].toString();
+            QString groupname = "群聊";
+            mainwindow->addFriendItem(ID, "", groupname);
+            mainwindow->addMessageItem(ID, "群聊");
+            //新增
+
+            qDebug()<<ID;
+        }
+    }
+    //
     else if (transType == "SendMessageResult")
     {
         QString SenderOID = QString::number(json["SenderOID"].toInt());
@@ -319,15 +362,26 @@ void Core::distributeMessage(QByteArray content)
         if(json["Type"] == "Txt")mainwindow->addMessage(SenderOID, "", Value, true);
 //        else if(json["transType"] == "Document") mainwindow -> addDocMessage(SenderOID, "", TargetOID, Value);
     }
+    else if (transType == "returnSendGroupMessage")
+    {
+        QString SenderMemberOID = QString::number(json["SenderMemberOID"].toInt());
+        QString GroupOID = QString::number(json["GroupOID"].toInt());
+        QString Content = json["Content"].toString();
+        qDebug() << "SendMessageResult: " << json << endl;
+        if(json["Type"] == "Txt")mainwindow->addMessage(GroupOID, SenderMemberOID, Content, true);
+//        else if(json["transType"] == "Document") mainwindow -> addDocMessage(SenderOID, "", TargetOID, Value);
+    }
     //新增
     else if (transType == "CreateGroupResult")
     {
-        bool success = json["Status"].toBool();
-        QString GroupID = QString::number(json["GroupID"].toInt());
-        QString HostOID = QString::number(json["HostOID"].toInt());
-        QString memberOIDs = json["memberOIDs"].toString();
+        int success = json["Status"].toInt();
+        QString GroupID = QString::number(json["GroupOID"].toInt());
+        //QString HostOID = QString::number(json["HostOID"].toInt());
+        //QString memberOIDs = json["memberOIDs"].toString();
         if (success)
         {
+            mainwindow->addFriendItem(GroupID, "", "群聊");
+            mainwindow->addMessageItem(GroupID, "群聊");
             QMessageBox::information(mainwindow, "group created", "Your created group's OID is " + GroupID );
         }
         else
@@ -341,7 +395,7 @@ void Core::distributeMessage(QByteArray content)
         QString ID = QString::number(json["ID"].toInt());
         if (success)
         {
-            QMessageBox::information(mainwindow, "success", "鍒犻櫎鎴愬姛" );
+            QMessageBox::information(mainwindow, "success", "删除成功" );
         }
         else
         {
@@ -395,11 +449,22 @@ void Core::toSendSignUpRequest(QString nickname, QString password)
 }
 void Core::toSendGetInfoRequest(QString ID)
 {
-    QJsonObject json;
-    json["transType"] = "AccountInfoRequest";
-    json["OID"] = ID.toInt();
-    QJsonDocument doc(json);
-    emit this->sendMessageToServer(doc.toJson());
+    if(ID.length() == 5)
+    {
+        QJsonObject json;
+        json["transType"] = "AccountInfoRequest";
+        json["OID"] = ID.toInt();
+        QJsonDocument doc(json);
+        emit this->sendMessageToServer(doc.toJson());
+    }
+    else if(ID.length() == 6)
+    {
+        QJsonObject json;
+        json["transType"] = "GroupInfoRequest";
+        json["OID"] = ID.toInt();
+        QJsonDocument doc(json);
+        emit this->sendMessageToServer(doc.toJson());
+    }
 }
 
 void Core::toSendAddFriendRequest(QString ID)
@@ -427,14 +492,28 @@ void Core::toSendFriendResult(QString ID, bool accept)
 
 void Core::toSendMessageToFriend(QString ID, QString message)
 {
-    QJsonObject json;
-    json["transType"] = "SendTxtMessageRequest";
-    json["SenderOID"] = userOID; // updated by zwx: 别用savedID，这玩意儿是用来存下次登录的账号的，易篡改
-    json["TargetOID"] = ID.toInt();
-    json["Type"] = "Txt";
-    json["Value"] = message;
-    QJsonDocument doc(json);
-    emit this->sendMessageToServer(doc.toJson());
+    if(ID.length() == 5)
+    {
+        QJsonObject json;
+        json["transType"] = "SendTxtMessageRequest";
+        json["SenderOID"] = userOID; // updated by zwx: 别用savedID，这玩意儿是用来存下次登录的账号的，易篡改
+        json["TargetOID"] = ID.toInt();
+        json["Type"] = "Txt";
+        json["Value"] = message;
+        QJsonDocument doc(json);
+        emit this->sendMessageToServer(doc.toJson());
+    }
+    else if(ID.length() == 6)
+    {
+        QJsonObject json;
+        json["transType"] = "SendGroupMessage";
+        json["SenderMemberOID"] = userOID; // updated by zwx: 别用savedID，这玩意儿是用来存下次登录的账号的，易篡改
+        json["GroupOID"] = ID.toInt();
+        json["Type"] = "Txt";
+        json["Content"] = message;
+        QJsonDocument doc(json);
+        emit this->sendMessageToServer(doc.toJson());
+    }
 }
 
 //新增
@@ -444,11 +523,13 @@ void Core::toSendCreateRequest(QStringList memberIDList)
     QJsonArray jsonArray;
     foreach (const QString &memberID, memberIDList)
     {
-        jsonArray.append(memberID);
+        QJsonObject obj;
+        obj["OID"] = memberID.toInt();
+        jsonArray.append(obj);
     }
     json["transType"] = "SendCreateGroupRequest";
     json["HostOID"] = savedID.toInt();
-    json["memberOIDs"] = jsonArray;
+    json["memberOID"] = jsonArray;
     QJsonDocument doc(json);
     emit this->sendMessageToServer(doc.toJson());
 }
