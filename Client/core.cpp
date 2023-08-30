@@ -66,7 +66,7 @@ Core::Core(QObject *parent)
     //显示登录窗口
     QMap<QString,QString> savedAccountInfo = fileSystem->getSavedAccount();
     if (savedAccountInfo["savedOID"] != "") { // 载入记住的账号密码
-        qDebug() << "load saved account" << endl;
+        qDebug() << "load saved account" << Qt::endl;
         login->writeSavedAccountInfo(savedAccountInfo["savedOID"],savedAccountInfo["savedPassword"]);
     }
     login->show();
@@ -284,7 +284,7 @@ void Core::distributeMessage(QByteArray content)
         }
         else // 群发文件
         {
-            qDebug() << "群文件发送功能还未完成" << endl;
+            qDebug() << "群文件发送功能还未完成" << Qt::endl;
             return;
         }
     }
@@ -315,7 +315,7 @@ void Core::distributeMessage(QByteArray content)
         QString SenderOID = QString::number(json["SenderOID"].toInt());
         QString TargetOID = QString::number(json["TargetOID"].toInt());
         QString Value = json["Value"].toString();
-        qDebug() << "SendMessageResult: " << json << endl;
+        qDebug() << "SendMessageResult: " << json << Qt::endl;
         if(json["Type"] == "Txt")mainwindow->addMessage(SenderOID, "", Value, true);
 //        else if(json["transType"] == "Document") mainwindow -> addDocMessage(SenderOID, "", TargetOID, Value);
     }
@@ -509,7 +509,7 @@ void Core::writeDocFromByteArray(QString path,QString filename,QString content_b
 {
     QFile file(path+filename);
     if(! file.open(QIODevice::WriteOnly)) {
-        qDebug() << "Core.writeDocFromByteArray Error！" << filename << endl;
+        qDebug() << "Core.writeDocFromByteArray Error！" << filename << Qt::endl;
         return;
     }
     QByteArray array = QByteArray::fromBase64(content_base53String.toUtf8());

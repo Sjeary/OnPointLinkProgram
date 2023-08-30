@@ -72,7 +72,7 @@ QString getName(const QString value)
 void MainWindow::addDocMessage(QString ID,QString name,QString value,bool isReceive)
 {
     foreach (QTextDocument * const var, documentToOID.keys()) {
-        if(documentToOID.value(var) == ID) {
+        if(documentToOID.value(var) == ID.toInt()) {
             if(isReceive) {
                 insertLeftFrame(var, name, getName(value), "Document");
             }
@@ -325,14 +325,14 @@ QString MainWindow::getNameByOID(const QString OID)
             return str.left(pos);
         }
     }
-    qDebug() << "getNameByOID: Fail to get name by OID" << OID << endl;
+    qDebug() << "getNameByOID: Fail to get name by OID" << OID << Qt::endl;
     return "";
 }
 
 void MainWindow::treeItemClicked(QTreeWidgetItem *item, int column)
 {
 
-    qDebug()<<"clicked"<<endl<<item->text(column);
+    qDebug()<<"clicked"<<Qt::endl<<item->text(column);
     emit getInfo(item->text(column));
 }
 
