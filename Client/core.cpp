@@ -67,7 +67,7 @@ Core::Core(QObject *parent)
     //显示登录窗口
     QMap<QString,QString> savedAccountInfo = fileSystem->getSavedAccount();
     if (savedAccountInfo["savedOID"] != "") { // 载入记住的账号密码
-        qDebug() << "load saved account" << endl;
+        qDebug() << "load saved account" ;
         login->writeSavedAccountInfo(savedAccountInfo["savedOID"],savedAccountInfo["savedPassword"]);
     }
     login->show();
@@ -309,7 +309,7 @@ void Core::distributeMessage(QByteArray content)
         }
         else // 群发文件
         {
-            qDebug() << "群文件发送功能还未完成" << endl;
+            qDebug() << "群文件发送功能还未完成" ;
             return;
         }
     }
@@ -358,15 +358,17 @@ void Core::distributeMessage(QByteArray content)
         QString SenderOID = QString::number(json["SenderOID"].toInt());
         QString TargetOID = QString::number(json["TargetOID"].toInt());
         QString Value = json["Value"].toString();
-        qDebug() << "SendMessageResult: " << json << endl;
+        qDebug() << "SendMessageResult: " << json ;
+        if(SenderOID == savedID)return;
         if(json["Type"] == "Txt")mainwindow->addMessage(SenderOID, "", Value, true);
 //        else if(json["transType"] == "Document") mainwindow -> addDocMessage(SenderOID, "", TargetOID, Value);
     }
-    else if (transType == "returnSendGroupMessage")
+    else if (transType == "SendGroupMessage")
     {
         QString SenderMemberOID = QString::number(json["SenderMemberOID"].toInt());
         QString GroupOID = QString::number(json["GroupOID"].toInt());
         QString Content = json["Content"].toString();
+        if(SenderMemberOID == savedID)return;
         qDebug() << "SendMessageResult: " << json << endl;
         if(json["Type"] == "Txt")mainwindow->addMessage(GroupOID, SenderMemberOID, Content, true);
 //        else if(json["transType"] == "Document") mainwindow -> addDocMessage(SenderOID, "", TargetOID, Value);
@@ -590,7 +592,7 @@ void Core::writeDocFromByteArray(QString path,QString filename,QString content_b
 {
     QFile file(path+filename);
     if(! file.open(QIODevice::WriteOnly)) {
-        qDebug() << "Core.writeDocFromByteArray Error！" << filename << endl;
+        qDebug() << "Core.writeDocFromByteArray Error！" << filename ;
         return;
     }
     QByteArray array = QByteArray::fromBase64(content_base53String.toUtf8());
