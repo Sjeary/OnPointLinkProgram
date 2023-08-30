@@ -92,7 +92,7 @@ private:
     QTcpSocket *sp; // 套接字的指针
     QSqlDatabase db; // 数据库对象
     quint16 defalutport = 6666; // 默认端口
-    QString filepath = "C:/Users/sjr12/Desktop/OnPointLink/"; // 文件存放位置
+    QString filepath = "./Files/"; // 文件存放位置
     QMap<int, QTcpSocket *> socketmap; // 上线OID到ip的map
 };
 

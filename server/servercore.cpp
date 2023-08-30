@@ -23,9 +23,9 @@ servercore::servercore(TcpServer *ptcpserver, QObject *parent) : QObject(parent)
     connect(tp, &TcpServer::disconnected, this, &servercore::offline);
     db = QSqlDatabase::addDatabase("QODBC");
     db.setPort(3306);
-    db.setDatabaseName("mysql");//不同电脑连接不同的数据库的时候记得改
+    db.setDatabaseName("oplinkbase");//不同电脑连接不同的数据库的时候记得改
     db.setUserName("root");
-    db.setPassword("7979");
+    db.setPassword("root");
     db.open();
     if(!db.isOpen())qDebug()<<"Dont Connected"<<endl<<db.lastError().text()<<endl;
 }
@@ -49,6 +49,7 @@ void servercore::switchFunction(QTcpSocket *psocket)
     QByteArray data = psocket->readAll();
     QJsonDocument doc = QJsonDocument::fromJson(data);
     QJsonObject obj = doc.object();
+    qDebug() << "obj:" << obj << endl;
     QMap <QString, int> stringMap;
     stringMap.insert("RegRequest", 1);
     stringMap.insert("EnterRequest", 3);
@@ -417,7 +418,7 @@ void servercore::returnSendTextMessageResult(bool Status, int MID, int SenderOID
     // 还没实现文件消息的传输
 
     QJsonObject returnJsonObject;
-    returnJsonObject["Statues"]=Status;
+    returnJsonObject["Status"]=Status;
     returnJsonObject["MID"]=MID;
     returnJsonObject["SenderName"]=SenderName;
     returnJsonObject["SenderOID"]=SenderOID;
@@ -502,10 +503,12 @@ void servercore::SendTxtMessageRequest(QJsonObject &jsonObj)
     }
     else
     {
-        QString saveFilePath = filepath + Value;
+        qDebug() << "receive a document." << endl;
+        QString saveFilePath = filepath + QString::number(SenderOID) + "/" + QString::number(TargetOID) + "/" + Value;
+        qDebug() << "saveFilePath:" << saveFilePath << endl;
         if (!saveFilePath.isEmpty()) {
             QFile saveFile(saveFilePath);
-            if (saveFile.open(QIODevice::ReadWrite)) {
+            if (saveFile.open(QIODevice::WriteOnly)) {
                 saveFile.write(QByteArray::fromBase64(Content.toUtf8()));
                 saveFile.close();
                 qDebug() << "File saved successfully.";

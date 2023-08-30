@@ -364,10 +364,16 @@ void Core::distributeMessage(QByteArray content)
         QString SenderOID = QString::number(json["SenderOID"].toInt());
         QString TargetOID = QString::number(json["TargetOID"].toInt());
         QString Value = json["Value"].toString();
+        bool status = json["Status"].toBool();
         qDebug() << "SendMessageResult: " << json ;
         if(SenderOID == savedID)return;
         if(json["Type"] == "Txt")mainwindow->addMessage(SenderOID, "", Value, true);
-//        else if(json["transType"] == "Document") mainwindow -> addDocMessage(SenderOID, "", TargetOID, Value);
+        else if(json["transType"] == "Document") {
+            if(status)
+                mainwindow -> addDocMessage(SenderOID, "", Value, true);
+            else
+                mainwindow -> addDocMessage(SenderOID, "", "（发送失败）"+Value, true);
+        }
     }
     else if (transType == "SendGroupMessage")
     {
@@ -572,12 +578,12 @@ void Core::toSendDocuMessage(const QString targetOID,const QByteArray content,co
     QJsonObject job;
     job["transType"] = "SendMessageRequest";
     job["Type"] = "Document";
-    job["SenderOID"] = QString::number(this->userOID);
-    job["TargetOID"] = targetOID;
+    job["SenderOID"] = this->userOID;
+    job["TargetOID"] = targetOID.toInt();
     job["Value"] = filename;
     job["Content"] = QString(content.toBase64());
     QJsonDocument jdoc(job);
-    tcp->toSendMessage(jdoc.toJson());
+    emit this->sendMessageToServer(jdoc.toJson());
 }
 
 void Core::toSendDocuMessageBypath(const QString targetOID,const QString path)

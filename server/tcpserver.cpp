@@ -41,8 +41,8 @@ void TcpServer::initServer()
 
             connect(clientSocket, &QTcpSocket::readyRead, [=]() {
                 emit received(clientSocket);
-                QByteArray data = clientSocket->readAll();
-                qDebug() << "Received data from client:" << data;
+//                QByteArray data = clientSocket->readAll();
+//                qDebug() << "Received data from client:" << data;
 
 //                buffer.append(clientSocket->readAll());
 //                QJsonDocument doc = QJsonDocument::fromJson(buffer);
