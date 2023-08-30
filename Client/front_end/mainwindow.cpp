@@ -75,13 +75,14 @@ QString getName(const QString value)
 
 void MainWindow::addDocMessage(QString ID,QString name,QString value,bool isReceive)
 {
+    qDebug() << "addDocMessage:" << ID << name << value << isReceive << endl;
     foreach (QTextDocument * const var, documentToOID.keys()) {
         if(documentToOID.value(var) == ID.toInt()) {
             if(isReceive) {
-                insertLeftFrame(var, name, getName(value), "Document");
+                insertRightFrame(var, name, getName(value), "Document");
             }
             else {
-                insertRightFrame(var, name, getName(value), "Document");
+                insertLeftFrame(var, name, getName(value), "Document");
             }
         }
     }
@@ -269,6 +270,7 @@ void MainWindow::setRootFrameFormat(QTextDocument *doc)
 
 void MainWindow::insertLeftFrame(QTextDocument *doc, const QString &title, const QString &text,QString type)
 {
+    qDebug() << "insertLeftFrame" << endl;
     QTextFrameFormat formatTitle;
     formatTitle.setWidth(QTextLength(QTextLength::PercentageLength, 65));//宽度设置
     formatTitle.setPosition(QTextFrameFormat::FloatLeft);
@@ -296,6 +298,7 @@ void MainWindow::insertLeftFrame(QTextDocument *doc, const QString &title, const
 
 void MainWindow::insertRightFrame(QTextDocument *doc, const QString &title, const QString &text,QString type)
 {
+    qDebug() << "insertRightFrame" << endl;
     QTextFrameFormat formatTitle;
     formatTitle.setWidth(QTextLength(QTextLength::PercentageLength, 65));//宽度设置
     formatTitle.setPosition(QTextFrameFormat::FloatRight);

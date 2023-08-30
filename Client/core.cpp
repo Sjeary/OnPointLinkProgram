@@ -18,6 +18,7 @@
 #include <QDebug>
 #include <QMessageBox>
 #include <QFile>
+#include <QDir>
 #include <QByteArray>
 #include "front_end/login.h"
 #include "front_end/sign_up.h"
@@ -307,7 +308,7 @@ void Core::distributeMessage(QByteArray content)
             if(json["Type"].toString() == "Document") {
                 QString filename = json["Value"].toString();
                 mainwindow->addDocMessage(senderOID,name,filename,true);
-                QString savePath("./Files/");
+                QString savePath("./Files");
                 savePath += senderOID + QString("/") + targetOID + QString("/");
                 this->writeDocFromByteArray(savePath,filename,json["Content"].toString());
             }
@@ -364,15 +365,14 @@ void Core::distributeMessage(QByteArray content)
         QString SenderOID = QString::number(json["SenderOID"].toInt());
         QString TargetOID = QString::number(json["TargetOID"].toInt());
         QString Value = json["Value"].toString();
+        QString type = json["Type"].toString();
         bool status = json["Status"].toBool();
         qDebug() << "SendMessageResult: " << json ;
-        if(SenderOID == savedID)return;
-        if(json["Type"] == "Txt")mainwindow->addMessage(SenderOID, "", Value, true);
-        else if(json["transType"] == "Document") {
+        if(type == "Document") {
             if(status)
-                mainwindow -> addDocMessage(SenderOID, "", Value, true);
+                mainwindow -> addDocMessage(TargetOID, "me", Value, true);
             else
-                mainwindow -> addDocMessage(SenderOID, "", "（发送失败）"+Value, true);
+                mainwindow -> addDocMessage(TargetOID, "me", "（发送失败）"+Value, true);
         }
     }
     else if (transType == "SendGroupMessage")
@@ -602,7 +602,12 @@ void Core::toSendDocuMessageBypath(const QString targetOID,const QString path)
 
 void Core::writeDocFromByteArray(QString path,QString filename,QString content_base53String)
 {
-    QFile file(path+filename);
+    QString fileAddress = path+"/"+filename;
+    QFile file(fileAddress);
+    QDir dir(path);
+    if(!dir.exists()) {
+        dir.mkdir(path);
+    }
     if(! file.open(QIODevice::WriteOnly)) {
         qDebug() << "Core.writeDocFromByteArray Error！" << filename ;
         return;

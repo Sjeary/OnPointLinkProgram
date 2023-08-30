@@ -415,7 +415,6 @@ void servercore::SendDeleteFriendRequest(QJsonObject &jsonObj)
 
 void servercore::returnSendTextMessageResult(bool Status, int MID, int SenderOID, int TargetOID, QString Type, QString Value, QString SenderName, QString Content)
 {
-    // 还没实现文件消息的传输
 
     QJsonObject returnJsonObject;
     returnJsonObject["Status"]=Status;
@@ -427,6 +426,7 @@ void servercore::returnSendTextMessageResult(bool Status, int MID, int SenderOID
     returnJsonObject["Type"]=Type;
     returnJsonObject["Value"]=Value;
     returnJsonObject["Content"]=Content;
+    qDebug() << "returnSendMessageResult:" << returnJsonObject << endl;
     if (Status)
     {
         QHostAddress targetip = socketmap.value(TargetOID)->peerAddress();
@@ -441,7 +441,7 @@ void servercore::returnSendTextMessageResult(bool Status, int MID, int SenderOID
         returnJsonObject["Value"]="对方不在线！";
         QJsonDocument returnJsonDocument(returnJsonObject);
         QByteArray returnJsonData = returnJsonDocument.toJson();
-        qDebug()<<returnJsonData;
+        qDebug()<<"return JsonData(QByteArray):"<<returnJsonData<<endl;
         tp->send(sp->peerAddress(), sp->peerPort(), returnJsonData);
     }
 }
@@ -504,10 +504,15 @@ void servercore::SendTxtMessageRequest(QJsonObject &jsonObj)
     else
     {
         qDebug() << "receive a document." << endl;
-        QString saveFilePath = filepath + QString::number(SenderOID) + "/" + QString::number(TargetOID) + "/" + Value;
+        QString saveFilePath = filepath + QString::number(SenderOID) + "/" + QString::number(TargetOID);
+        QString saveFileAddress = saveFilePath+"/"+Value;
         qDebug() << "saveFilePath:" << saveFilePath << endl;
-        if (!saveFilePath.isEmpty()) {
-            QFile saveFile(saveFilePath);
+        QDir dir(saveFilePath);
+        if(!dir.exists()) {
+            dir.mkpath(saveFilePath);
+        }
+        if (!saveFileAddress.isEmpty()) {
+            QFile saveFile(saveFileAddress);
             if (saveFile.open(QIODevice::WriteOnly)) {
                 saveFile.write(QByteArray::fromBase64(Content.toUtf8()));
                 saveFile.close();
