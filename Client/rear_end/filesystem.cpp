@@ -68,7 +68,7 @@ QMap<QString,QString> FileSystem:: getSavedAccount()
 void FileSystem::toSaveKeyValue(QString key, QVariant value)
 {
     if(not informationFile->open(QIODevice::WriteOnly)){
-        qDebug() << "Fail to open informationFile" << Qt::endl;
+        qDebug() << "Fail to open informationFile" ;
         return;
     }
     basicInfo[key] = value;

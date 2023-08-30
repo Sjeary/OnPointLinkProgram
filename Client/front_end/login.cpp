@@ -85,9 +85,9 @@ void Login::on_pushButton_Login_clicked()
     // 登录超时计时模块
     timer = new QTimer();
     connect(timer,&QTimer::timeout,this,&Login::loginPassTime);
-    qDebug() << "start login timing" << Qt::endl;
+    qDebug() << "start login timing" << endl;
     timer->start(1000);
-    qDebug() << "timing end" << Qt::endl;
+    qDebug() << "timing end" << endl;
 }
 
 void Login::loginPassTime()

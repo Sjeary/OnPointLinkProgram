@@ -346,14 +346,14 @@ QString MainWindow::getNameByOID(const QString OID)
             return str.left(pos);
         }
     }
-    qDebug() << "getNameByOID: Fail to get name by OID" << OID << Qt::endl;
+    qDebug() << "getNameByOID: Fail to get name by OID" << OID ;
     return "";
 }
 
 void MainWindow::treeItemClicked(QTreeWidgetItem *item, int column)
 {
 
-    qDebug()<<"clicked"<<Qt::endl<<item->text(column);
+    qDebug()<<"clicked"<<item->text(column);
     emit getInfo(item->text(column));
 }
 
