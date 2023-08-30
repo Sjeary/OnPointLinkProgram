@@ -193,6 +193,15 @@
         </widget>
        </item>
        <item>
+        <widget class="QTreeWidget" name="treeWidget_friend">
+         <column>
+          <property name="text">
+           <string notr="true">1</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+       <item>
         <widget class="QListWidget" name="listWidget_friend"/>
        </item>
       </layout>
@@ -264,9 +273,9 @@
         <widget class="QWidget" name="widget" native="true">
          <layout class="QHBoxLayout" name="horizontalLayout_2">
           <item>
-           <widget class="QPushButton" name="pushButton_choDoc">
+           <widget class="QPushButton" name="pushButton_2">
             <property name="text">
-             <string>选择文件</string>
+             <string/>
             </property>
            </widget>
           </item>
@@ -307,16 +316,23 @@
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_4">
          <item>
-          <widget class="QPushButton" name="pushButton">
+          <widget class="QPushButton" name="pushButton_blockfriend">
            <property name="text">
-            <string>PushButton</string>
+            <string>Block</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="pushButton_3">
+          <widget class="QPushButton" name="pushButton_deletefriend">
            <property name="text">
-            <string>PushButton</string>
+            <string>Delete</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_changegroup">
+           <property name="text">
+            <string>Change group</string>
            </property>
           </widget>
          </item>

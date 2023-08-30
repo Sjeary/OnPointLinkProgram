@@ -4,6 +4,10 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QTableWidget>
+#include <QTableWidgetItem>
+#include <QMessageBox>
+#include <QDebug>
 #include <QFile>
 
 creategroup::creategroup(QWidget *parent) :
@@ -22,10 +26,30 @@ creategroup::creategroup(QWidget *parent) :
     connect(ui->createGroupList, &QTableWidget::cellClicked, this, [this]()
     {
         QTableWidgetItem *item = ui->createGroupList->currentItem();
-        if (item) {
-            QString ID = item->text();
-            memberIDList.append(ID);
+        int nowRow = item->row();
+        int nowColumn = item->column();
+        qDebug() << nowColumn;
+        if (nowColumn > 0)
+        {
+            if (item->text() == "yes") {
+                item->setText("no");
+                QTableWidgetItem *itemID = ui->createGroupList->item(nowRow, nowColumn-1);
+                QString ID = itemID->text();
+                memberIDList.removeAll(ID);
+            }
+            else if(item->text() == "no")
+            {
+                item->setText("yes");
+                QTableWidgetItem *itemID = ui->createGroupList->item(nowRow, nowColumn-1);
+                QString ID = itemID->text();
+                memberIDList.append(ID);
+            }
         }
+        else
+        {
+            qDebug() <<"please click right one";
+        }
+
     });
 }
 
@@ -34,19 +58,34 @@ creategroup::~creategroup()
     delete ui;
 }
 
-void creategroup::addFriendItem(QString ID, QString name)
+void creategroup::addFriendItem(QString ID, QString nowStatus)
 {
     int curRow = ui->createGroupList->rowCount();
     ui->createGroupList->insertRow(curRow);
 
     QTableWidgetItem* ID1 = new QTableWidgetItem;
     ID1->setText(ID);
+    QTableWidgetItem* status = new QTableWidgetItem;
+    status->setText("no");
 
     ui->createGroupList->setItem(curRow, 0, ID1);
+    ui->createGroupList->setItem(curRow, 1, status);
 }
 
 void creategroup::on_pushButton_confirm_clicked()
 {
-    emit sendCreateRequest(memberIDList);
-    memberIDList.clear();
+    if(memberIDList.size() > 1)
+    {
+        emit sendCreateRequest(memberIDList);
+    }
+    else
+    {
+        QMessageBox::warning(this, "create failed", "A group should have there member at least.");
+    }
+}
+
+void creategroup::clearCreateGroupItem()
+{
+    ui->createGroupList->clear();
+    ui->createGroupList->setRowCount(0);
 }

@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>creategroup</class>
- <widget class="QWidget" name="creategroup">
+ <class>changegroup</class>
+ <widget class="QWidget" name="changegroup">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>579</height>
+    <height>493</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QTableWidget" name="createGroupList">
+  <widget class="QTableWidget" name="tableWidget_changegroup">
    <property name="geometry">
     <rect>
-     <x>0</x>
-     <y>60</y>
-     <width>281</width>
-     <height>451</height>
+     <x>10</x>
+     <y>30</y>
+     <width>256</width>
+     <height>431</height>
     </rect>
    </property>
   </widget>
@@ -27,13 +27,26 @@
    <property name="geometry">
     <rect>
      <x>290</x>
-     <y>280</y>
+     <y>310</y>
      <width>106</width>
      <height>30</height>
     </rect>
    </property>
    <property name="text">
     <string>confirm</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pushButton_new">
+   <property name="geometry">
+    <rect>
+     <x>290</x>
+     <y>180</y>
+     <width>106</width>
+     <height>30</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>new</string>
    </property>
   </widget>
  </widget>

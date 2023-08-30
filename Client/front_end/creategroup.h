@@ -2,6 +2,7 @@
 #define CREATEGROUP_H
 
 #include <QWidget>
+#include <QDebug>
 
 namespace Ui {
 class creategroup;
@@ -23,7 +24,9 @@ private:
     QStringList memberIDList;
 
 public slots:
-    void addFriendItem(QString ID, QString name);
+    void addFriendItem(QString ID, QString nowStatus);
+    void clearCreateGroupItem();
+
 
 private slots:
     void on_pushButton_confirm_clicked();
