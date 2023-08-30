@@ -69,6 +69,8 @@ void servercore::switchFunction(QTcpSocket *psocket)
     stringMap.insert("ChangeFriendDevide", 31) ;
     stringMap.insert("SendCreateGroupRequest", 33) ;
     stringMap.insert("SendGroupMessage", 35) ;
+    stringMap.insert("ModifyPersonalInformation",37);
+
     QString type = obj["transType"].toString();
     switch (stringMap.value(type)){
     case 1 : RegRequest(obj);break;
@@ -89,7 +91,92 @@ void servercore::switchFunction(QTcpSocket *psocket)
     case 31 : ChangeFriendDevide(obj);break;
     case 33 : SendCreateGroupRequest(obj);break;
     case 35 : SendGroupMessage(obj);break;
+    case 37 : ModifyPersonalInformation(obj);break;
     }
+}
+void servercore::returnModifyPersonalInformation(int OID, QString Name, QString Instruction, QString Email, QString BirthDay, QString Area, QString Sex, QString Password, bool Status, QString log)
+{
+    QJsonObject returnJsonObject;
+    returnJsonObject["OID"]=OID;
+    returnJsonObject["Name"]=Name;
+    returnJsonObject["Instruction"]=Instruction;
+    returnJsonObject["Email"]=Email;
+    returnJsonObject["BirthDay"]=BirthDay;
+    returnJsonObject["Area"]=Area;
+    returnJsonObject["Sex"] = Sex;
+    returnJsonObject["Password"] = Password;
+    returnJsonObject["Status"]= Status;
+    returnJsonObject["log"]=log;
+
+    QJsonDocument returnJsonDocument(returnJsonObject);
+    QByteArray returnJsonData = returnJsonDocument.toJson();
+    qDebug()<<returnJsonData;
+    tp->send(sp->peerAddress(), sp->peerPort(), returnJsonData);
+
+}
+void servercore::ModifyPersonalInformation(QJsonObject &jsonObj)
+{
+    int OID = jsonObj["OID"].toInt();
+    QString Name = jsonObj["Name"].toString();
+    QString Instruction = jsonObj["Instruction"].toString();
+    QString Email = jsonObj["Email"].toString();
+    QString BirthDay = jsonObj["BirthDay"].toString();
+    QString Area = jsonObj["Area"].toString();
+    QString Sex = jsonObj["Sex"].toString();
+    QString Password = jsonObj["Password"].toString();
+    QSqlQuery query(db);
+
+    if(Name!="")
+    {
+        query.prepare("UPDATE account SET Name = :Name WHERE OID = :OID");
+        query.bindValue(":Name",Name);
+        query.bindValue(":OID",OID);
+        query.exec();
+    }
+    if(Instruction!="")
+    {
+        query.prepare("UPDATE account SET Instruction = :Instruction WHERE OID = :OID");
+        query.bindValue(":Instruction",Instruction);
+        query.bindValue(":OID",OID);
+        query.exec();
+    }
+    if(Email!="")
+    {
+        query.prepare("UPDATE account SET Email = :Email WHERE OID = :OID");
+        query.bindValue(":Email",Email);
+        query.bindValue(":OID",OID);
+        query.exec();
+    }
+    if(BirthDay!="")
+    {
+        query.prepare("UPDATE account SET BirthDay = :BirthDay WHERE OID = :OID");
+        query.bindValue(":BirthDay",BirthDay);
+        query.bindValue(":OID",OID);
+        query.exec();
+    }
+    if(Area!="")
+    {
+        query.prepare("UPDATE account SET Area = :Area WHERE OID = :OID");
+        query.bindValue(":Area",Area);
+        query.bindValue(":OID",OID);
+        query.exec();
+    }
+    if(Sex!="")
+    {
+        query.prepare("UPDATE account SET Sex = :Sex WHERE OID = :OID");
+        query.bindValue(":Sex",Sex);
+        query.bindValue(":OID",OID);
+        query.exec();
+    }
+    if(Password!="")
+    {
+        query.prepare("UPDATE account SET Password = :Password WHERE OID = :OID");
+        query.bindValue(":Password",Password);
+        query.bindValue(":OID",OID);
+        query.exec();
+    }
+    returnModifyPersonalInformation( OID, Name, Instruction, Email, BirthDay, Area, Sex, Password, 1,"Information Modified.");
+
 }
 void servercore::SendGroupMessage(QJsonObject &jsonObj)
 {
@@ -148,6 +235,11 @@ void servercore::SendGroupMessage(QJsonObject &jsonObj)
     returnJsonObject["Content"]=Content;
     returnJsonObject["SendTime"] = SendTime.toString();
     returnJsonObject["CountOfReviver"] = cnt;
+
+    QJsonDocument returnJsonDocument(returnJsonObject);
+    QByteArray returnJsonData = returnJsonDocument.toJson();
+    qDebug()<<returnJsonData;
+    tp->send(sp->peerAddress(), sp->peerPort(), returnJsonData);
 }
 void servercore::SendCreateGroupRequest(QJsonObject &jsonObj)
 {
@@ -204,6 +296,8 @@ void servercore::SendCreateGroupRequest(QJsonObject &jsonObj)
         QJsonObject returnJsonObject;
         returnJsonObject["GroupOID"]=OID;
         returnJsonObject["transType"]="CreateGroupResult";//文件类型
+        returnJsonObject["Status"] = 1;
+        returnJsonObject["log"] ="Group created successful";
         QJsonDocument returnJsonDocument(returnJsonObject);
         QByteArray returnJsonData = returnJsonDocument.toJson();
         qDebug()<<returnJsonData;

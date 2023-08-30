@@ -77,7 +77,8 @@ public:
     //群聊消息
     void SendGroupMessage(QJsonObject &jsonObj);
     void returnSendGroupMessage(bool Status,QString log,int GroupOID,int SenderMemberOID,QString Content,QString Type,QString transType);
-
+    void ModifyPersonalInformation(QJsonObject& jsonObj);
+    void returnModifyPersonalInformation(int OID,QString Name,QString Instruction,QString Email,QString BirthDay,QString Area,QString Sex,QString Password,bool Status,QString log);
     ~servercore();
 
 private slots:
