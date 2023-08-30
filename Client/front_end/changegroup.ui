@@ -189,7 +189,7 @@ QLineEdit,QTableWidget
 }
 </string>
   </property>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>10</x>
@@ -254,12 +254,6 @@ QLineEdit,QTableWidget
       </item>
       <item>
        <widget class="QPushButton" name="pushButton_confirm">
-        <property name="minimumSize">
-         <size>
-          <width>85</width>
-          <height>30</height>
-         </size>
-        </property>
         <property name="text">
          <string>confirm</string>
         </property>
@@ -284,19 +278,6 @@ QLineEdit,QTableWidget
      </layout>
     </item>
    </layout>
-  </widget>
-  <widget class="QPushButton" name="pushButton_confirm">
-   <property name="geometry">
-    <rect>
-     <x>270</x>
-     <y>290</y>
-     <width>106</width>
-     <height>30</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>confirm</string>
-   </property>
   </widget>
  </widget>
  <resources/>

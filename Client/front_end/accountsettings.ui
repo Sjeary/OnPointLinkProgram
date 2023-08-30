@@ -19,6 +19,48 @@
   <property name="windowTitle">
    <string>用户设置</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">/*按钮*/
+QPushButton,QRadioButton
+{
+    /*背景，偏深蓝*/
+    background-color: rgb(0,180,240);
+    /*边框,淡黄*/
+    border-color: rgba(240,230,210,220);
+    border-radius: 5px;
+    border-style: groove;
+    border-width: 2px;
+    /*前景/字体，淡蓝*/
+    color: rgb(240,255,255);
+    font-family: consolas;
+    font-size: 20px;
+    font-weight:bold;
+    /*内边距*/
+    /*宽高*/
+    height:30px;
+}
+
+/*悬停时，背景变为淡蓝色，字体变为白色*/
+QRadioButton:hover,QPushButton:hover
+{
+    background-color: rgb(100,180,250);
+    color: white;
+}
+
+/*按下时，背景变为蓝绿色，显示边框效果*/
+QPushButton:pressed,QRadioButton:pressed
+{
+    /*背景*/
+    background-color: rgb(0,140,180);
+    /*边框*/
+    border-style: inset;
+    /*前景/字体*/
+    color: white;
+    /*内边距*/
+    padding-left:2px;
+    padding-top:2px;
+}</string>
+  </property>
   <widget class="QPushButton" name="tmpPushButton">
    <property name="geometry">
     <rect>
@@ -29,7 +71,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>PushButton</string>
+    <string>确认？</string>
    </property>
   </widget>
  </widget>

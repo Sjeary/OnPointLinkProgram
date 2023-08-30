@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>556</height>
+    <width>802</width>
+    <height>634</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -36,7 +36,7 @@
     /*背景图片，注意格式*/
     border-image:url(:/res/background-images/login1.jpg) 4 4 4 4 strech strech;
     /*为logo采用特殊字体*/
-    font-family: Chiller;
+    font-family: consolas;
     font-size: 80px;
     font-weight:bold;
 }

@@ -192,8 +192,7 @@ QTableWidget
     height: 30px;
 }
 
-QPlainTextEdit, QListWidget, QLineEdit,
-QTreeWidget, QStackedWidget, QFrame
+QPlainTextEdit, QListWidget, QLineEdit, QTreeWidget
 {
     /*背景，淡黄*/
     background: rgb(255,245,220);
@@ -208,7 +207,22 @@ QTreeWidget, QStackedWidget, QFrame
     font-size: 16px;
 }
 
-QPlainTextEdit, QLineEdit, QTreeWidget
+QTreeWidget::item
+{
+    /*背景，淡黄*/
+    background: rgb(255,245,220);
+    /*选中背景，蓝色*/
+    selection-background-color: rgb(10, 140, 220);
+    selection-color: rgb(10, 140, 220);
+    /*无边框*/
+
+    /*前景/字体*/
+    color: black;
+    font-family: consolas;
+    font-size: 16px;
+}
+
+QPlainTextEdit, QLineEdit
 {
     /*窄边框，灰色*/
     border-color: rgb(160, 160, 160);
