@@ -910,7 +910,7 @@ void servercore::UserInfoRequest(QJsonObject &jsonObj)
         QString Name = query.value("Name").toString();
         QString Instruction = query.value("Instruction").toString();
         QString Emai = query.value("Email").toString();
-        QDate Birth = query.value("Birth").toDate();
+        QDate Birth = query.value("BirthDay").toDate();
         returnAccountInfoResult(Status, OID, Name, Instruction, Emai, Birth);
     }
     else
@@ -950,14 +950,14 @@ void servercore::AccountInfoRequest(QJsonObject &jsonObj)
         QString Name = query.value("Name").toString();
         QString Instruction = query.value("Instruction").toString();
         QString Email = query.value("Email").toString();
-        QDate Birth = query.value("Birth").toDate();
+        QDate Birth = query.value("BirthDay").toDate();
         returnAccountInfoResult(Status, OID, Name, Instruction, Email, Birth);
     }
     else//查无此人情况
     {
         bool Status = query.size();
         returnAccountInfoResult(Status, OID, " ", " ", " ", QDate::fromString("0000-00-00", "yyyy-MM-dd"));
-        qDebug() << "AccountSearch Error!";
+        qDebug() << "AccontSearch Error!";
     }
 }
 
