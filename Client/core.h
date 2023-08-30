@@ -34,6 +34,7 @@ class ClientTcp;
 class creategroup;
 class ChangeGroup;
 class NewTempGroup;
+class ChooseDocDialog;
 
 class Core : public QObject
 {

@@ -82,6 +82,7 @@ void creategroup::on_pushButton_confirm_clicked()
     {
         QMessageBox::warning(this, "create failed", "A group should have there member at least.");
     }
+    this->close();
 }
 
 void creategroup::clearCreateGroupItem()

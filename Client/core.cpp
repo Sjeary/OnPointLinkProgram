@@ -29,6 +29,7 @@
 #include "front_end/creategroup.h"
 #include "front_end/changegroup.h"
 #include "front_end/newtempgroup.h"
+#include "front_end/choosedocdialog.h"
 
 #include "rear_end/filesystem.h"
 #include "rear_end/clienttcp.h"
@@ -315,7 +316,7 @@ void Core::distributeMessage(QByteArray content)
         QString TargetOID = QString::number(json["TargetOID"].toInt());
         QString Value = json["Value"].toString();
         qDebug() << "SendMessageResult: " << json << endl;
-        if(json["transType"] == "Txt")mainwindow->addMessage(SenderOID, "", Value, true);
+        if(json["Type"] == "Txt")mainwindow->addMessage(SenderOID, "", Value, true);
 //        else if(json["transType"] == "Document") mainwindow -> addDocMessage(SenderOID, "", TargetOID, Value);
     }
     //新增

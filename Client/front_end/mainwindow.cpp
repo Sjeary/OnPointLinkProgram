@@ -47,11 +47,13 @@ void MainWindow::addMessage(QString ID, QString name, QString content, bool isRe
  * isReceive，判断是自己发的还是对面发过来的。
 */
 {
+    qDebug()<<content;
     foreach (QTextDocument * const var, documentToOID.keys()) {
         if (documentToOID.value(var) == ID.toInt())
         {
             if(isReceive)
             {
+                qDebug()<<ui->textEdit_show->document()<<var;
                 insertLeftFrame(var, name, content);
             }
             else
@@ -83,6 +85,8 @@ void MainWindow::addDocMessage(QString ID,QString name,QString value,bool isRece
 
 void MainWindow::getUserInfo(QString ID, QString name, QString ins, QString email, QString birth)
 {
+    ui->label_userInfo_OID->clear();
+    ui->textEdit_userInfo->clear();
     ui->label_userInfo_OID->setText(ID);
     qDebug()<<ID;
     ui->textEdit_userInfo->insertPlainText("name:"+name+"\ninstruction:"+ins+"\nemail:"+email+"\nbirth"+birth);
@@ -99,6 +103,14 @@ void MainWindow::addMessageItem(QString ID, QString name)
     newItem->setData(0,name + "\nID: "+ ID);
     newItem->setData(3,ID);
     ui->listWidget_message->addItem(newItem);
+    foreach(auto var, documentToOID.keys())
+    {
+        if(documentToOID.value(var) == ID.toInt())
+        {
+            documents.insert(newItem, var);
+            return;
+        }
+    }
     QTextDocument *newDocument = new QTextDocument(this);
     documents.insert(newItem, newDocument);
     documentToOID.insert(newDocument, ID.toInt());
@@ -319,6 +331,7 @@ QString MainWindow::getNameByOID(const QString OID)
 
 void MainWindow::treeItemClicked(QTreeWidgetItem *item, int column)
 {
+
     qDebug()<<"clicked"<<endl<<item->text(column);
     emit getInfo(item->text(column));
 }
