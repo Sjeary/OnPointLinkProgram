@@ -99,24 +99,20 @@ void servercore::switchFunction(QTcpSocket *psocket)
 }
 void servercore::GetGroupChatList(QJsonObject &jsonObj)
 {
-    qDebug()<<"GetGroupChatList";
     int OID = jsonObj["OID"].toInt();
     QSqlQuery query(db);
     query.prepare("SELECT * FROM ga WHERE MemberOID = :OID");
     query.bindValue(":OID",OID);
     query.exec();
     QJsonArray jsonArray;
-    qDebug()<<"GetGroupChatList123";
     while (query.next()) {
         QJsonObject jsonObject;
         jsonObject["GroupOID"] = query.value("GroupOID").toInt();
         jsonArray.append(jsonObject);
     }
-    qDebug()<<"GetGroupChatList456";
     QJsonObject returnJsonObject;
     returnJsonObject["transType"]="returnGetGroupChatList";
     returnJsonObject["Group"]= jsonArray;
-    qDebug()<<"GetGroupChatList789";
     QJsonDocument returnJsonDocument(returnJsonObject);
     QByteArray returnJsonData = returnJsonDocument.toJson();
     qDebug()<<returnJsonData;
