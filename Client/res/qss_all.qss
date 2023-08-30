@@ -1,24 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<ui version="4.0">
- <class>creategroup</class>
- <widget class="QWidget" name="creategroup">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>400</width>
-    <height>579</height>
-   </rect>
-  </property>
-  <property name="windowTitle">
-   <string>Form</string>
-  </property>
-  <property name="styleSheet">
-   <string notr="true">
-QWidget
+
+#login
 {
     /*背景色，蓝到淡黄渐变*/
-    /*渐变色:rgba中最后一值为透明度,0_255&lt;-&gt;完全透明_不透明*/
+    /*渐变色:rgba中最后一值为透明度,0_255<->完全透明_不透明*/
     background-color: qradialgradient(cx:0.25, cy:0.25, radius:0.75, fx:0.618 fy:0.618,
                                         stop:0 rgba(20,150,220,240),
                                         stop:1 rgba(255,245,220,240));
@@ -44,7 +28,9 @@ QWidget
 
 #pushButton_Login
 {
-    font-family:LiSu;
+    font-family:STXinwei;
+    font-size: 24px;
+    font-weight:bold;
 }
 
 
@@ -98,15 +84,15 @@ QComboBox::drop-down
 /*下拉箭头*/
 QComboBox::down-arrow
 {
-    image: url(:/res/icons/xiala.png);
+    image: url(:/res/icons/xia_la.png);
 }
 /*下拉箭头选中效果*/
 QComboBox::down-arrow:on
 {
-    image: url(:/res/icons/shangla.png);
+    image: url(:/res/icons/shang_la.png);
 }
 
-
+/*确认框*/
 QCheckBox
 {
     /*前景/字体*/
@@ -117,6 +103,24 @@ QCheckBox
     padding-left:5px;
 }
 
+QCheckBox::indicator{/*选择框尺寸*/
+    background-color: rgba(255, 255, 255, 0);
+    border: 0px solid #b1b1b1;
+        width: 30px;
+        height: 30px;
+}
+
+QCheckBox::indicator:unchecked
+{
+    image: url(:/res/icons/kaiguan_guan.png);
+}
+
+QCheckBox::indicator:checked
+{
+    image: url(:/res/icons/kaiguan_kai.png);
+}
+
+
 /*按钮*/
 QPushButton,QRadioButton
 {
@@ -126,7 +130,7 @@ QPushButton,QRadioButton
     border-color: rgba(240,230,210,220);
     border-radius: 5px;
     border-style: groove;
-    border-width: 3px;
+    border-width: 2px;
     /*前景/字体，淡蓝*/
     color: rgb(240,255,255);
     font-family: consolas;
@@ -187,80 +191,3 @@ QLineEdit,QTableWidget
     /*宽高*/
     height: 30px;
 }
-</string>
-  </property>
-  <widget class="QWidget" name="verticalLayoutWidget">
-   <property name="geometry">
-    <rect>
-     <x>40</x>
-     <y>20</y>
-     <width>312</width>
-     <height>496</height>
-    </rect>
-   </property>
-   <layout class="QVBoxLayout" name="verticalLayout">
-    <item>
-     <widget class="QTableWidget" name="createGroupList">
-      <property name="minimumSize">
-       <size>
-        <width>310</width>
-        <height>450</height>
-       </size>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <layout class="QHBoxLayout" name="horizontalLayout">
-      <item>
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeType">
-         <enum>QSizePolicy::Fixed</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item>
-       <widget class="QPushButton" name="pushButton_confirm">
-        <property name="maximumSize">
-         <size>
-          <width>200</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>confirm</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer_2">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeType">
-         <enum>QSizePolicy::Fixed</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-     </layout>
-    </item>
-   </layout>
-  </widget>
- </widget>
- <resources/>
- <connections/>
-</ui>

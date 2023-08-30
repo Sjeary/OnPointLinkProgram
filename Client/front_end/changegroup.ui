@@ -13,41 +13,277 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QTableWidget" name="tableWidget_changegroup">
+  <property name="styleSheet">
+   <string notr="true">
+QWidget
+{
+    /*背景色，蓝到淡黄渐变*/
+    /*渐变色:rgba中最后一值为透明度,0_255&lt;-&gt;完全透明_不透明*/
+    background-color: qradialgradient(cx:0.25, cy:0.25, radius:0.75, fx:0.618 fy:0.618,
+                                        stop:0 rgba(20,150,220,240),
+                                        stop:1 rgba(255,245,220,240));
+}
+
+#login
+{
+    /*宽高*/
+    width: 800px;
+    height: 500px;
+}
+
+#label_picture
+{
+    /*背景图片，注意格式*/
+    border-image:url(:/res/background-images/login1.jpg) 4 4 4 4 strech strech;
+    /*为logo采用特殊字体*/
+    font-family: Chiller;
+    font-size: 80px;
+    font-weight:bold;
+}
+
+
+#pushButton_Login
+{
+    font-family:LiSu;
+}
+
+
+QComboBox
+{
+    /*背景，淡黄*/
+    background: rgb(255,245,220);
+    /*边框，蓝绿*/
+    border-color: rgb(0,140,180);
+    border-style: groove;
+    border-radius: 3px;
+    border-width: 2px;
+    /*前景/字体*/
+    color: black;
+    font-family: consolas;
+    font-size: 24px;
+    /*内边距*/
+    padding-top: 2px;
+    padding-left: 2px;
+    /*宽高*/
+    height: 30px;
+}
+/*下拉框格式*/
+QComboBox QAbstractItemView
+{
+    /*背景，淡黄*/
+    background: rgb(255,245,220);
+    /*前景/字体*/
+    color: black;
+    font-family: consolas;
+    font-size: 24px;
+    /*内边距*/
+    padding-top: 2px;
+    padding-left: 2px;
+    /*宽高*/
+    height: 30px;
+}
+/*选中效果*/
+QComboBox:on
+{
+    padding-top: 3px;
+    padding-left: 4px;
+}
+/*下拉箭头容器*/
+QComboBox::drop-down
+{
+    width: 32px;
+    height: 32px;
+}
+
+/*下拉箭头*/
+QComboBox::down-arrow
+{
+    image: url(:/res/icons/xiala.png);
+}
+/*下拉箭头选中效果*/
+QComboBox::down-arrow:on
+{
+    image: url(:/res/icons/shangla.png);
+}
+
+
+QCheckBox
+{
+    /*前景/字体*/
+    color: black;
+    font-family: consolas;
+    font-size: 24px;
+    /*内边距*/
+    padding-left:5px;
+}
+
+/*按钮*/
+QPushButton,QRadioButton
+{
+    /*背景，偏深蓝*/
+    background-color: rgb(0,180,240);
+    /*边框,淡黄*/
+    border-color: rgba(240,230,210,220);
+    border-radius: 5px;
+    border-style: groove;
+    border-width: 2px;
+    /*前景/字体，淡蓝*/
+    color: rgb(240,255,255);
+    font-family: consolas;
+    font-size: 20px;
+    font-weight:bold;
+    /*内边距*/
+    /*宽高*/
+    height:30px;
+}
+
+/*悬停时，背景变为淡蓝色，字体变为白色*/
+QRadioButton:hover,QPushButton:hover
+{
+    background-color: rgb(100,180,250);
+    color: white;
+}
+
+/*按下时，背景变为蓝绿色，显示边框效果*/
+QPushButton:pressed,QRadioButton:pressed
+{
+    /*背景*/
+    background-color: rgb(0,140,180);
+    /*边框*/
+    border-style: inset;
+    /*前景/字体*/
+    color: white;
+    /*内边距*/
+    padding-left:2px;
+    padding-top:2px;
+}
+
+
+QLabel
+{
+    font-family: consolas;
+    font-size: 24px;
+    font-weight:bold;
+    /*设置QLabel字体为居中*/
+    qproperty-alignment:AlignCenter;
+}
+
+
+QLineEdit,QTableWidget
+{
+    /*背景，淡黄*/
+    background: rgb(255,245,220);
+    /*选中背景，蓝色*/
+    selection-background-color: rgb(10, 140, 220);
+    /*边框，蓝绿*/
+    border-color: rgb(0,140,180);
+    border-style: groove;
+    border-radius: 3px;
+    border-width: 2px;
+    /*前景/字体*/
+    color: black;
+    font-family: consolas;
+    font-size: 24px;
+    /*宽高*/
+    height: 30px;
+}
+</string>
+  </property>
+  <widget class="QWidget" name="">
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>30</y>
-     <width>256</width>
-     <height>431</height>
+     <y>10</y>
+     <width>381</width>
+     <height>471</height>
     </rect>
    </property>
-  </widget>
-  <widget class="QPushButton" name="pushButton_confirm">
-   <property name="geometry">
-    <rect>
-     <x>290</x>
-     <y>310</y>
-     <width>106</width>
-     <height>30</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>confirm</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="pushButton_new">
-   <property name="geometry">
-    <rect>
-     <x>290</x>
-     <y>180</y>
-     <width>106</width>
-     <height>30</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>new</string>
-   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <item>
+     <widget class="QTableWidget" name="tableWidget_changegroup"/>
+    </item>
+    <item>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <spacer name="verticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Fixed</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton_new">
+        <property name="minimumSize">
+         <size>
+          <width>85</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>new</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="verticalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Minimum</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton_confirm">
+        <property name="minimumSize">
+         <size>
+          <width>85</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>confirm</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="verticalSpacer_3">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Fixed</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </item>
+   </layout>
   </widget>
  </widget>
  <resources/>

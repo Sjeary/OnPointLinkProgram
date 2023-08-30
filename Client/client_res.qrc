@@ -1,0 +1,19 @@
+<RCC>
+    <qresource prefix="/">
+        <file>res/background-images/login1.jpg</file>
+        <file>res/icons/bianji.png</file>
+        <file>res/icons/dengdai.png</file>
+        <file>res/icons/fanhui.png</file>
+        <file>res/icons/kaiguan_guan.png</file>
+        <file>res/icons/kaiguan_kai.png</file>
+        <file>res/icons/renwushu.png</file>
+        <file>res/icons/renyuan.png</file>
+        <file>res/icons/shang_la.png</file>
+        <file>res/icons/shangchuanwenjian.png</file>
+        <file>res/icons/shezhi.png</file>
+        <file>res/icons/tishi.png</file>
+        <file>res/icons/xia_la.png</file>
+        <file>res/icons/yonghu.png</file>
+        <file>res/qss_all.qss</file>
+    </qresource>
+</RCC>
